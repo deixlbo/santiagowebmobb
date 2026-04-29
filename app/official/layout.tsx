@@ -237,7 +237,7 @@ export default function OfficialLayout({
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-                    <AvatarFallback className="bg-primary text-primary-foreground">RB</AvatarFallback>
+                    <AvatarFallback className="bg-muted text-foreground">RB</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left md:block">
                     <p className="text-sm font-medium">Rolando C. Borja</p>
