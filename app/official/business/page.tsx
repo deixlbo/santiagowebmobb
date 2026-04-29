@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -79,28 +81,56 @@ function getStatusBadge(status: string) {
   switch (status) {
     case "approved":
       return (
-        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-          <CheckCircle2 className="mr-1 h-3 w-3" />
-          Approved
+        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-[10px] md:text-xs">
+          <CheckCircle2 className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
+          <span className="hidden sm:inline">Approved</span>
+          <span className="sm:hidden">OK</span>
         </Badge>
       )
     case "pending":
       return (
-        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
-          <Clock className="mr-1 h-3 w-3" />
-          Pending
+        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-[10px] md:text-xs">
+          <Clock className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
+          <span className="hidden sm:inline">Pending</span>
+          <span className="sm:hidden">Wait</span>
         </Badge>
       )
     case "rejected":
       return (
-        <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
-          <XCircle className="mr-1 h-3 w-3" />
-          Rejected
+        <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-[10px] md:text-xs">
+          <XCircle className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
+          <span className="hidden sm:inline">Rejected</span>
+          <span className="sm:hidden">No</span>
         </Badge>
       )
     default:
       return <Badge variant="secondary">{status}</Badge>
   }
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
+// Document Header Component with Logos
+function DocumentHeader() {
+  return (
+    <div className="flex items-center justify-between mb-4 p-4 border-b">
+      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+      <div className="text-center flex-1">
+        <p className="text-[10px] md:text-xs text-muted-foreground">Republic of the Philippines</p>
+        <p className="text-xs md:text-sm font-semibold">BARANGAY SANTIAGO</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground">City of Santiago, Isabela</p>
+      </div>
+      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+    </div>
+  )
 }
 
 export default function OfficialBusinessPage() {
@@ -110,332 +140,302 @@ export default function OfficialBusinessPage() {
   const [showPrintPreview, setShowPrintPreview] = useState(false)
 
   const pendingCount = mockBusinessApplications.filter(b => b.status === "pending").length
+  const approvedCount = mockBusinessApplications.filter(b => b.status === "approved").length
+  const rejectedCount = mockBusinessApplications.filter(b => b.status === "rejected").length
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-4 md:space-y-6"
+    >
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Business Permits</h1>
-          <p className="text-muted-foreground">Process and manage business permit applications</p>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">Business Permits</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">Process and manage business permit applications</p>
         </div>
-        <Button variant="outline">
-          <Settings className="mr-2 h-4 w-4" />
-          Manage Requirements
+        <Button variant="outline" size="sm" className="w-fit h-8 text-xs">
+          <Settings className="h-3 w-3 md:mr-2" />
+          <span className="hidden md:inline">Manage Requirements</span>
         </Button>
-      </div>
+      </motion.div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2 md:gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-amber-100 p-2">
-                <Clock className="h-5 w-5 text-amber-700" />
+          <CardContent className="p-2 md:p-4">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+              <div className="rounded-lg bg-amber-100 p-1.5 md:p-2">
+                <Clock className="h-4 w-4 md:h-5 md:w-5 text-amber-700" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{pendingCount}</p>
-                <p className="text-sm text-muted-foreground">Pending</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold">{pendingCount}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Pending</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-emerald-100 p-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+          <CardContent className="p-2 md:p-4">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+              <div className="rounded-lg bg-emerald-100 p-1.5 md:p-2">
+                <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-700" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{mockBusinessApplications.filter(b => b.status === "approved").length}</p>
-                <p className="text-sm text-muted-foreground">Approved</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-red-100 p-2">
-                <XCircle className="h-5 w-5 text-red-700" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{mockBusinessApplications.filter(b => b.status === "rejected").length}</p>
-                <p className="text-sm text-muted-foreground">Rejected</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold">{approvedCount}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Approved</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Building2 className="h-5 w-5 text-primary" />
+          <CardContent className="p-2 md:p-4">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+              <div className="rounded-lg bg-red-100 p-1.5 md:p-2">
+                <XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-700" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">{mockBusinessApplications.length}</p>
-                <p className="text-sm text-muted-foreground">Total</p>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold">{rejectedCount}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Rejected</p>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+        <Card>
+          <CardContent className="p-2 md:p-4">
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+              <div className="rounded-lg bg-primary/10 p-1.5 md:p-2">
+                <Building2 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-lg md:text-2xl font-bold">{mockBusinessApplications.length}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Total</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Search */}
-      <div className="relative max-w-md">
+      <motion.div variants={itemVariants} className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input 
           placeholder="Search businesses..." 
-          className="pl-10"
+          className="pl-10 h-9 md:h-10 text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </div>
+      </motion.div>
 
       {/* Applications Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Business Applications</CardTitle>
-          <CardDescription>Review and process business permit applications</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="pending">
-            <TabsList>
-              <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="all">All Applications</TabsTrigger>
-            </TabsList>
-            <TabsContent value="pending" className="mt-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Application ID</TableHead>
-                      <TableHead>Business Name</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Documents</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockBusinessApplications.filter(b => b.status === "pending").map((business) => (
-                      <TableRow key={business.id}>
-                        <TableCell className="font-medium">{business.id}</TableCell>
-                        <TableCell>{business.businessName}</TableCell>
-                        <TableCell>{business.owner}</TableCell>
-                        <TableCell>{business.businessType}</TableCell>
-                        <TableCell>
-                          {business.documentsComplete ? (
-                            <Badge className="bg-emerald-100 text-emerald-700">Complete</Badge>
-                          ) : (
-                            <Badge className="bg-red-100 text-red-700">Incomplete</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setSelectedBusiness(business)}
-                            >
-                              <Eye className="mr-1 h-3 w-3" />
-                              Review
-                            </Button>
-                            {business.documentsComplete && (
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
+            <CardTitle className="text-base md:text-lg">Business Applications</CardTitle>
+            <CardDescription className="text-xs md:text-sm">Review and process business permit applications</CardDescription>
+          </CardHeader>
+          <CardContent className="p-3 md:p-6 pt-0">
+            <Tabs defaultValue="pending">
+              <TabsList className="h-8 md:h-9 w-full justify-start overflow-x-auto">
+                <TabsTrigger value="pending" className="text-xs md:text-sm px-2 md:px-3">Pending ({pendingCount})</TabsTrigger>
+                <TabsTrigger value="approved" className="text-xs md:text-sm px-2 md:px-3">Approved</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">All Applications</TabsTrigger>
+              </TabsList>
+              <TabsContent value="pending" className="mt-3 md:mt-4">
+                <div className="rounded-md border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs md:text-sm">Application ID</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden sm:table-cell">Business Name</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden md:table-cell">Owner</TableHead>
+                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockBusinessApplications.filter(b => b.status === "pending").map((business) => (
+                        <TableRow key={business.id}>
+                          <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{business.id}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{business.businessName}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{business.owner}</TableCell>
+                          <TableCell className="py-2 md:py-4">
+                            <div className="flex gap-1 md:gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs"
+                                onClick={() => setSelectedBusiness(business)}
+                              >
+                                <Eye className="h-3 w-3 md:mr-1" />
+                                <span className="hidden md:inline">Review</span>
+                              </Button>
+                              {business.documentsComplete && (
+                                <Button 
+                                  size="sm"
+                                  className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700"
+                                  onClick={() => {
+                                    setSelectedBusiness(business)
+                                    setShowApproveDialog(true)
+                                  }}
+                                >
+                                  <CheckCircle2 className="h-3 w-3 md:mr-1" />
+                                  <span className="hidden md:inline">Approve</span>
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
+              <TabsContent value="approved" className="mt-3 md:mt-4">
+                <div className="rounded-md border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs md:text-sm">Application ID</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden sm:table-cell">Business Name</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden md:table-cell">Owner</TableHead>
+                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockBusinessApplications.filter(b => b.status === "approved").map((business) => (
+                        <TableRow key={business.id}>
+                          <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{business.id}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{business.businessName}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{business.owner}</TableCell>
+                          <TableCell className="py-2 md:py-4">
+                            <div className="flex gap-1 md:gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs"
+                                onClick={() => setSelectedBusiness(business)}
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
                               <Button 
                                 size="sm"
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700"
                                 onClick={() => {
                                   setSelectedBusiness(business)
-                                  setShowApproveDialog(true)
+                                  setShowPrintPreview(true)
                                 }}
                               >
-                                Approve
+                                <Printer className="h-3 w-3 md:mr-1" />
+                                <span className="hidden md:inline">Print</span>
                               </Button>
-                            )}
-                          </div>
-                        </TableCell>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
+              <TabsContent value="all" className="mt-3 md:mt-4">
+                <div className="rounded-md border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs md:text-sm">Application ID</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden sm:table-cell">Business Name</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden md:table-cell">Owner</TableHead>
+                        <TableHead className="text-xs md:text-sm">Status</TableHead>
+                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            <TabsContent value="approved" className="mt-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Application ID</TableHead>
-                      <TableHead>Business Name</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockBusinessApplications.filter(b => b.status === "approved").map((business) => (
-                      <TableRow key={business.id}>
-                        <TableCell className="font-medium">{business.id}</TableCell>
-                        <TableCell>{business.businessName}</TableCell>
-                        <TableCell>{business.owner}</TableCell>
-                        <TableCell>{business.businessType}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
+                    </TableHeader>
+                    <TableBody>
+                      {mockBusinessApplications.map((business) => (
+                        <TableRow key={business.id}>
+                          <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{business.id}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{business.businessName}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{business.owner}</TableCell>
+                          <TableCell className="py-2 md:py-4">{getStatusBadge(business.status)}</TableCell>
+                          <TableCell className="py-2 md:py-4">
                             <Button 
                               variant="outline" 
                               size="sm"
+                              className="h-7 md:h-8 px-2 md:px-3 text-xs"
                               onClick={() => setSelectedBusiness(business)}
                             >
-                              View
+                              <Eye className="h-3 w-3" />
                             </Button>
-                            <Button 
-                              size="sm"
-                              onClick={() => {
-                                setSelectedBusiness(business)
-                                setShowPrintPreview(true)
-                              }}
-                            >
-                              <Printer className="mr-1 h-3 w-3" />
-                              Print Permit
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-            <TabsContent value="all" className="mt-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Application ID</TableHead>
-                      <TableHead>Business Name</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockBusinessApplications.map((business) => (
-                      <TableRow key={business.id}>
-                        <TableCell className="font-medium">{business.id}</TableCell>
-                        <TableCell>{business.businessName}</TableCell>
-                        <TableCell>{business.owner}</TableCell>
-                        <TableCell>{business.date}</TableCell>
-                        <TableCell>{getStatusBadge(business.status)}</TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedBusiness(business)}
-                          >
-                            View
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Business Details Modal */}
       <Dialog open={!!selectedBusiness && !showApproveDialog && !showPrintPreview} onOpenChange={() => setSelectedBusiness(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg mx-4 md:mx-auto">
+          <DocumentHeader />
           <DialogHeader>
-            <DialogTitle>Business Application Details</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base md:text-lg">Business Application Details</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">
               Review business permit application
             </DialogDescription>
           </DialogHeader>
           {selectedBusiness && (
-            <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-4 pr-4">
+            <ScrollArea className="max-h-[50vh]">
+              <div className="space-y-3 md:space-y-4 pr-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{selectedBusiness.id}</span>
+                  <span className="font-medium text-sm">{selectedBusiness.id}</span>
                   {getStatusBadge(selectedBusiness.status)}
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 grid-cols-2">
                   <div>
-                    <p className="text-sm text-muted-foreground">Business Name</p>
-                    <p className="font-medium">{selectedBusiness.businessName}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Business Type</p>
-                    <p className="font-medium">{selectedBusiness.businessType}</p>
+                    <p className="text-[10px] md:text-sm text-muted-foreground">Business Name</p>
+                    <p className="font-medium text-sm">{selectedBusiness.businessName}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Owner</p>
-                    <p className="font-medium">{selectedBusiness.owner}</p>
+                    <p className="text-[10px] md:text-sm text-muted-foreground">Business Type</p>
+                    <p className="font-medium text-sm">{selectedBusiness.businessType}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Contact</p>
-                    <p className="font-medium">{selectedBusiness.contact}</p>
+                    <p className="text-[10px] md:text-sm text-muted-foreground">Owner</p>
+                    <p className="font-medium text-sm">{selectedBusiness.owner}</p>
                   </div>
-                  <div className="sm:col-span-2">
-                    <p className="text-sm text-muted-foreground">Address</p>
-                    <p className="font-medium">{selectedBusiness.address}</p>
+                  <div>
+                    <p className="text-[10px] md:text-sm text-muted-foreground">Contact</p>
+                    <p className="font-medium text-sm">{selectedBusiness.contact}</p>
                   </div>
-                  <div className="sm:col-span-2">
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{selectedBusiness.email}</p>
+                  <div className="col-span-2">
+                    <p className="text-[10px] md:text-sm text-muted-foreground">Address</p>
+                    <p className="font-medium text-sm">{selectedBusiness.address}</p>
                   </div>
-                </div>
-                <div className="rounded-lg border p-4">
-                  <p className="text-sm font-medium mb-2">Document Status</p>
-                  {selectedBusiness.documentsComplete ? (
-                    <div className="flex items-center gap-2 text-emerald-700">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>All required documents uploaded</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-red-700">
-                        <XCircle className="h-4 w-4" />
-                        <span>Missing documents</span>
-                      </div>
-                      {selectedBusiness.missingDocs && (
-                        <ul className="list-disc list-inside text-sm text-muted-foreground">
-                          {selectedBusiness.missingDocs.map((doc, i) => (
-                            <li key={i}>{doc}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
                 </div>
                 {selectedBusiness.remarks && (
-                  <div className="rounded-lg bg-red-50 p-4">
-                    <p className="text-sm font-medium text-red-800">Rejection Reason</p>
-                    <p className="text-sm text-red-700">{selectedBusiness.remarks}</p>
+                  <div className="rounded-lg bg-red-50 p-3">
+                    <p className="text-xs font-medium text-red-800">Rejection Reason</p>
+                    <p className="text-xs text-red-700">{selectedBusiness.remarks}</p>
                   </div>
                 )}
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedBusiness(null)}>Close</Button>
-            {selectedBusiness?.status === "pending" && (
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" size="sm" onClick={() => setSelectedBusiness(null)}>Close</Button>
+            {selectedBusiness?.status === "pending" && selectedBusiness.documentsComplete && (
               <>
-                {!selectedBusiness.documentsComplete && (
-                  <Button variant="outline">Notify Missing Docs</Button>
-                )}
-                <Button variant="destructive">Reject</Button>
-                {selectedBusiness.documentsComplete && (
-                  <Button onClick={() => setShowApproveDialog(true)}>Approve</Button>
-                )}
+                <Button variant="destructive" size="sm">Reject</Button>
+                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApproveDialog(true)}>Approve</Button>
               </>
             )}
             {selectedBusiness?.status === "approved" && (
-              <Button onClick={() => setShowPrintPreview(true)}>
-                <Printer className="mr-2 h-4 w-4" />
+              <Button size="sm" onClick={() => setShowPrintPreview(true)}>
+                <Printer className="mr-2 h-3 w-3" />
                 Print Permit
               </Button>
             )}
@@ -445,34 +445,35 @@ export default function OfficialBusinessPage() {
 
       {/* Approve Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-        <DialogContent>
+        <DialogContent className="mx-4 md:mx-auto">
+          <DocumentHeader />
           <DialogHeader>
-            <DialogTitle>Approve Business Permit</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base md:text-lg">Approve Business Permit</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">
               Confirm approval and set permit details
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Permit Fee</Label>
-              <Input defaultValue="200" placeholder="Enter permit fee" />
+          <div className="space-y-3 py-2">
+            <div className="space-y-1">
+              <Label className="text-xs md:text-sm">Permit Fee</Label>
+              <Input defaultValue="200" placeholder="Enter permit fee" className="h-8 md:h-10 text-sm" />
             </div>
-            <div className="space-y-2">
-              <Label>Validity Period</Label>
-              <Input type="date" />
+            <div className="space-y-1">
+              <Label className="text-xs md:text-sm">Validity Period</Label>
+              <Input type="date" className="h-8 md:h-10 text-sm" />
             </div>
-            <div className="space-y-2">
-              <Label>Notes (Optional)</Label>
-              <Textarea placeholder="Additional notes for the permit..." />
+            <div className="space-y-1">
+              <Label className="text-xs md:text-sm">Notes (Optional)</Label>
+              <Textarea placeholder="Additional notes..." className="text-sm min-h-[60px]" />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowApproveDialog(false)}>Cancel</Button>
-            <Button onClick={() => {
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" size="sm" onClick={() => setShowApproveDialog(false)}>Cancel</Button>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => {
               setShowApproveDialog(false)
               setSelectedBusiness(null)
             }}>
-              Approve & Issue Permit
+              Approve & Issue
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -480,70 +481,58 @@ export default function OfficialBusinessPage() {
 
       {/* Print Preview Dialog */}
       <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
+        <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Business Clearance Preview</DialogTitle>
+            <DialogTitle className="text-base md:text-lg">Business Clearance Preview</DialogTitle>
           </DialogHeader>
           {selectedBusiness && (
-            <ScrollArea className="max-h-[70vh]">
-              <div className="rounded-lg border bg-white p-8 text-black">
-                <div className="text-center space-y-1 mb-6">
-                  <p className="text-sm">Republic of the Philippines</p>
-                  <p className="text-sm">Province of Zambales</p>
-                  <p className="text-sm">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
+            <ScrollArea className="max-h-[60vh]">
+              <div className="rounded-lg border bg-white p-4 md:p-8 text-black">
+                <div className="flex items-center justify-between mb-4">
+                  <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+                  <div className="text-center flex-1">
+                    <p className="text-[10px] md:text-sm">Republic of the Philippines</p>
+                    <p className="text-sm md:text-lg font-bold">BARANGAY SANTIAGO</p>
+                    <p className="text-[10px] md:text-sm">City of Santiago, Isabela</p>
+                  </div>
+                  <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
                 </div>
-                <h2 className="text-center text-lg font-bold mb-6 border-t border-b py-4">BARANGAY BUSINESS CLEARANCE</h2>
-                <div className="space-y-4 text-sm">
-                  <p><strong>TO WHOM IT MAY CONCERN:</strong></p>
-                  <p className="text-justify leading-relaxed">
-                    This is to certify that the business named <strong>{selectedBusiness.businessName}</strong>, 
-                    owned by <strong>{selectedBusiness.owner}</strong>, located at <strong>{selectedBusiness.address}</strong>, 
-                    is granted clearance to operate within the jurisdiction of this barangay.
-                  </p>
-                  <p className="text-justify leading-relaxed">
-                    This clearance is issued in compliance with existing barangay rules and regulations.
-                  </p>
-                  <div className="border-t pt-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-gray-600">Business Type:</p>
-                        <p className="font-medium">{selectedBusiness.businessType}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Application No:</p>
-                        <p className="font-medium">{selectedBusiness.id}</p>
-                      </div>
+                <div className="text-center mb-6">
+                  <h2 className="text-lg md:text-xl font-bold underline">BARANGAY BUSINESS CLEARANCE</h2>
+                </div>
+                <div className="space-y-2 text-sm md:text-base">
+                  <p>This is to certify that:</p>
+                  <p className="font-bold text-center text-base md:text-lg">{selectedBusiness.businessName}</p>
+                  <p className="text-center text-sm">owned and operated by</p>
+                  <p className="font-bold text-center text-base md:text-lg">{selectedBusiness.owner}</p>
+                  <p>located at {selectedBusiness.address} has been granted clearance to operate within this barangay.</p>
+                </div>
+                <div className="mt-8 flex justify-between text-sm">
+                  <div className="text-center">
+                    <div className="w-32 md:w-40 border-t border-black pt-1">
+                      <p className="font-bold">ROBERTO BORJA</p>
+                      <p className="text-xs">Barangay Captain</p>
                     </div>
                   </div>
-                  <p className="mt-4">
-                    Issued this <strong>___</strong> day of <strong>_______</strong>, 2026 at Barangay Santiago.
-                  </p>
-                </div>
-                <div className="mt-12 grid grid-cols-2 gap-8 text-center text-sm">
-                  <div>
-                    <p className="border-t border-black pt-1 font-semibold">APRIL JOY C. CANO</p>
-                    <p>Barangay Secretary</p>
-                    <p className="text-xs text-gray-600 mt-1">Certified by</p>
-                  </div>
-                  <div>
-                    <p className="border-t border-black pt-1 font-semibold">ROLANDO C. BORJA</p>
-                    <p>Punong Barangay</p>
-                    <p className="text-xs text-gray-600 mt-1">Approved by</p>
+                  <div className="text-center">
+                    <div className="w-32 md:w-40 border-t border-black pt-1">
+                      <p className="font-bold">Date Issued</p>
+                      <p className="text-xs">{new Date().toLocaleDateString()}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPrintPreview(false)}>Close</Button>
-            <Button onClick={() => window.print()}>
-              <Printer className="mr-2 h-4 w-4" />
-              Print Permit
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" size="sm" onClick={() => setShowPrintPreview(false)}>Close</Button>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+              <Printer className="mr-2 h-3 w-3" />
+              Print
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   )
 }
