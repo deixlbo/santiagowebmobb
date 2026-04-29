@@ -225,17 +225,17 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 py-20 md:py-32">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="space-y-6">
-              <Badge variant="secondary" className="mb-4">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12 md:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid items-center gap-8 md:gap-12 lg:grid-cols-2">
+            <div className="space-y-4 md:space-y-6">
+              <Badge variant="secondary" className="mb-2 md:mb-4">
                 Digital Barangay Services
               </Badge>
-              <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
+              <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
                 Welcome to Barangay Santiago
               </h1>
-              <p className="text-pretty text-lg text-muted-foreground md:text-xl">
+              <p className="text-pretty text-base text-muted-foreground sm:text-lg md:text-xl">
                 Access barangay services online. Request documents, file reports, and stay updated with community announcements and projects.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -254,9 +254,9 @@ export default function LandingPage() {
             <div className="relative">
               <div className="aspect-video overflow-hidden rounded-xl border bg-card shadow-2xl">
                 <div className="flex h-full items-center justify-center bg-muted">
-                  <div className="text-center">
-                    <PlayCircle className="mx-auto h-16 w-16 text-muted-foreground/50" />
-                    <p className="mt-4 text-sm text-muted-foreground">Barangay Santiago Promotional Video</p>
+                  <div className="px-4 text-center">
+                    <PlayCircle className="mx-auto h-12 w-12 text-muted-foreground/50 sm:h-16 sm:w-16" />
+                    <p className="mt-3 text-xs text-muted-foreground sm:mt-4 sm:text-sm">Barangay Santiago Promotional Video</p>
                     <p className="text-xs text-muted-foreground">santiago.mp4</p>
                   </div>
                 </div>
@@ -267,11 +267,11 @@ export default function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-foreground">Our Services</h2>
-            <p className="mt-2 text-muted-foreground">Request documents and access barangay services online</p>
+      <section id="services" className="py-12 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 text-center md:mb-12">
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Our Services</h2>
+            <p className="mt-2 text-sm text-muted-foreground sm:text-base">Request documents and access barangay services online</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service, index) => (
@@ -297,15 +297,15 @@ export default function LandingPage() {
       </section>
 
       {/* Announcements Section */}
-      <section id="announcements" className="bg-muted/50 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-12 flex items-center justify-between">
+      <section id="announcements" className="bg-muted/50 py-12 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Announcements</h2>
-              <p className="mt-2 text-muted-foreground">Stay updated with the latest barangay news</p>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Announcements</h2>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base">Stay updated with the latest barangay news</p>
             </div>
             <Link href="/resident/login">
-              <Button variant="outline">View All</Button>
+              <Button variant="outline" className="w-full sm:w-auto">View All</Button>
             </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -328,15 +328,15 @@ export default function LandingPage() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-12 flex items-center justify-between">
+      <section id="projects" className="py-12 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Community Projects</h2>
-              <p className="mt-2 text-muted-foreground">Track ongoing and completed barangay projects</p>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Community Projects</h2>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base">Track ongoing and completed barangay projects</p>
             </div>
             <Link href="/resident/login">
-              <Button variant="outline">View All</Button>
+              <Button variant="outline" className="w-full sm:w-auto">View All</Button>
             </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -378,11 +378,11 @@ export default function LandingPage() {
       </section>
 
       {/* Officials Section */}
-      <section id="officials" className="bg-muted/50 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold text-foreground">Barangay Officials</h2>
-            <p className="mt-2 text-muted-foreground">Meet your elected officials serving the community</p>
+      <section id="officials" className="bg-muted/50 py-12 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 text-center md:mb-12">
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Barangay Officials</h2>
+            <p className="mt-2 text-sm text-muted-foreground sm:text-base">Meet your elected officials serving the community</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {officials.map((official) => (
@@ -500,30 +500,30 @@ export default function LandingPage() {
       </Dialog>
 
       {/* Contact Section */}
-      <section className="py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="rounded-2xl bg-primary p-8 text-primary-foreground md:p-12">
-            <div className="grid gap-8 md:grid-cols-2">
+      <section className="py-12 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8 md:p-12">
+            <div className="grid gap-6 md:gap-8 md:grid-cols-2">
               <div>
-                <h2 className="text-2xl font-bold md:text-3xl">Visit Barangay Hall</h2>
-                <p className="mt-2 opacity-90">We are here to serve you. Visit us during office hours or contact us for inquiries.</p>
+                <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Visit Barangay Hall</h2>
+                <p className="mt-2 text-sm opacity-90 sm:text-base">We are here to serve you. Visit us during office hours or contact us for inquiries.</p>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5" />
-                  <span>Barangay Santiago, San Antonio, Zambales</span>
+                  <MapPin className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+                  <span className="text-sm sm:text-base">Barangay Santiago, San Antonio, Zambales</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5" />
-                  <span>(047) 123-4567</span>
+                  <Phone className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+                  <span className="text-sm sm:text-base">(047) 123-4567</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5" />
-                  <span>info@barangaysantiago.gov.ph</span>
+                  <Mail className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+                  <span className="text-sm break-all sm:text-base">info@barangaysantiago.gov.ph</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5" />
-                  <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
+                  <Clock className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+                  <span className="text-sm sm:text-base">Monday - Friday: 8:00 AM - 5:00 PM</span>
                 </div>
               </div>
             </div>
@@ -532,14 +532,14 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-card py-8">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+      <footer className="border-t bg-card py-6 sm:py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
               <span className="font-semibold">Barangay Santiago</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground sm:text-sm">
               2026 Barangay Santiago Management System. All rights reserved.
             </p>
           </div>
