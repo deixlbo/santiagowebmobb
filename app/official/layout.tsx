@@ -19,7 +19,6 @@ import {
   User,
   LogOut,
   Menu,
-  X,
   ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -69,8 +68,8 @@ export default function OfficialLayout({
   const SidebarContent = () => (
     <>
       {/* Header with Logo */}
-      <div className="relative flex items-center gap-3 px-4 py-5">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 ring-2 ring-yellow-400/50">
+      <div className="flex items-center gap-3 px-4 py-5">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-yellow-400/50">
           <Image
             src="/santiago-logo.png"
             alt="Barangay Santiago"
@@ -79,17 +78,10 @@ export default function OfficialLayout({
             className="rounded-full"
           />
         </div>
-        <div>
-          <h1 className="font-semibold text-white">Barangay Santiago</h1>
+        <div className="min-w-0">
+          <h1 className="font-semibold text-white truncate">Barangay Santiago</h1>
           <p className="text-xs text-white/70">Admin Portal</p>
         </div>
-        <button 
-          className="absolute right-2 top-5 p-2 rounded-full hover:bg-white/20 transition-colors lg:hidden" 
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Close sidebar"
-        >
-          <X className="h-6 w-6 text-white" />
-        </button>
       </div>
 
       {/* Yellow divider line */}
@@ -126,7 +118,7 @@ export default function OfficialLayout({
                   />
                 )}
                 {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-green-700" : "text-white/80")} />}
-                {item.name}
+                <span className="truncate">{item.name}</span>
               </Link>
             </motion.div>
           )
@@ -193,7 +185,7 @@ export default function OfficialLayout({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 left-0 z-50 flex w-[50vw] max-w-72 flex-col lg:hidden"
+            className="fixed inset-y-0 left-0 z-50 flex w-[60vw] max-w-64 flex-col lg:hidden"
             style={{
               background: "linear-gradient(180deg, #166534 0%, #14532d 50%, #0f3d1f 100%)"
             }}
