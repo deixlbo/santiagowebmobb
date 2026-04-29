@@ -417,54 +417,54 @@ export default function LandingPage() {
 
       {/* Official Profile Modal */}
       <Dialog open={!!selectedOfficial} onOpenChange={() => setSelectedOfficial(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl w-[calc(100%-2rem)] sm:w-full mx-auto">
           <DialogHeader>
             <DialogTitle>Official Profile</DialogTitle>
           </DialogHeader>
           {selectedOfficial && (
             <ScrollArea className="max-h-[70vh]">
-              <div className="space-y-6 p-1">
+              <div className="space-y-4 p-1 sm:space-y-6">
                 {/* Profile Header */}
-                <div className="flex items-start gap-6">
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-muted">
+                <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-muted sm:h-24 sm:w-24">
                     <div className="flex h-full items-center justify-center">
-                      <Users className="h-12 w-12 text-muted-foreground/50" />
+                      <Users className="h-10 w-10 text-muted-foreground/50 sm:h-12 sm:w-12" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold">{selectedOfficial.name}</h3>
-                    <Badge>{selectedOfficial.position}</Badge>
+                  <div className="min-w-0 space-y-2">
+                    <h3 className="text-lg font-bold sm:text-xl">{selectedOfficial.name}</h3>
+                    <Badge className="text-xs">{selectedOfficial.position}</Badge>
                     <p className="text-sm text-muted-foreground">{selectedOfficial.bio}</p>
                   </div>
                 </div>
 
                 {/* Contact Info */}
-                <div className="rounded-lg border p-4">
-                  <h4 className="mb-3 font-semibold">Contact Information</h4>
+                <div className="rounded-lg border p-3 sm:p-4">
+                  <h4 className="mb-3 font-semibold text-sm sm:text-base">Contact Information</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <span>{selectedOfficial.contact}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{selectedOfficial.email}</span>
+                    <div className="flex items-start gap-2">
+                      <Mail className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+                      <span className="break-all">{selectedOfficial.email}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Ordinances */}
                 {selectedOfficial.ordinances.length > 0 && (
-                  <div className="rounded-lg border p-4">
-                    <h4 className="mb-3 font-semibold flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
+                  <div className="rounded-lg border p-3 sm:p-4">
+                    <h4 className="mb-3 font-semibold flex items-center gap-2 text-sm sm:text-base">
+                      <BookOpen className="h-4 w-4 shrink-0" />
                       Authored Ordinances
                     </h4>
                     <div className="space-y-2">
                       {selectedOfficial.ordinances.map((ord) => (
-                        <div key={ord.id} className="flex items-center justify-between rounded bg-muted/50 p-3">
-                          <span className="text-sm">{ord.title}</span>
-                          <Badge variant="secondary">{ord.status}</Badge>
+                        <div key={ord.id} className="flex flex-col gap-2 rounded bg-muted/50 p-2 sm:flex-row sm:items-center sm:justify-between sm:p-3">
+                          <span className="text-xs sm:text-sm">{ord.title}</span>
+                          <Badge variant="secondary" className="w-fit text-xs">{ord.status}</Badge>
                         </div>
                       ))}
                     </div>
@@ -473,17 +473,17 @@ export default function LandingPage() {
 
                 {/* Projects */}
                 {selectedOfficial.projects.length > 0 && (
-                  <div className="rounded-lg border p-4">
-                    <h4 className="mb-3 font-semibold flex items-center gap-2">
-                      <FolderOpen className="h-4 w-4" />
+                  <div className="rounded-lg border p-3 sm:p-4">
+                    <h4 className="mb-3 font-semibold flex items-center gap-2 text-sm sm:text-base">
+                      <FolderOpen className="h-4 w-4 shrink-0" />
                       Handled Projects
                     </h4>
                     <div className="space-y-3">
                       {selectedOfficial.projects.map((proj) => (
-                        <div key={proj.id} className="rounded bg-muted/50 p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">{proj.title}</span>
-                            <Badge variant={proj.status === "Completed" ? "default" : "outline"}>
+                        <div key={proj.id} className="rounded bg-muted/50 p-2 sm:p-3">
+                          <div className="flex flex-col gap-2 mb-2 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-xs font-medium sm:text-sm">{proj.title}</span>
+                            <Badge variant={proj.status === "Completed" ? "default" : "outline"} className="w-fit text-xs">
                               {proj.status}
                             </Badge>
                           </div>
@@ -525,7 +525,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-                  <span className="text-sm break-all sm:text-base">info@barangaysantiago.gov.ph</span>
+                  <span className="text-sm break-all sm:text-base">brgy.santiago.saz@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
