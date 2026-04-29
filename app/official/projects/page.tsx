@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -78,6 +79,21 @@ const mockProjects = [
 ]
 
 const projectTypes = ["Infrastructure", "Health", "Education", "Environment", "Peace and Order", "Social Welfare"]
+
+// Document Header Component with Logos
+function DocumentHeader() {
+  return (
+    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
+      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <div className="text-center flex-1 px-2">
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
+      </div>
+      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+    </div>
+  )
+}
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -407,97 +423,152 @@ export default function OfficialProjectsPage() {
 
       {/* Print Preview Modal */}
       <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+        <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Project Report Preview</DialogTitle>
           </DialogHeader>
           {selectedProject && (
             <ScrollArea className="max-h-[70vh]">
-              <div className="rounded-lg border bg-white p-8 text-black">
-                <div className="text-center space-y-1 mb-6">
-                  <p className="text-sm">Republic of the Philippines</p>
-                  <p className="text-sm">Province of Zambales</p>
-                  <p className="text-sm">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
+              <div id="print-content" className="rounded-lg border bg-white p-6 md:p-8 text-black print:p-0 print:border-0">
+                {/* Document Header with Logos */}
+                <DocumentHeader />
+                
+                {/* Document Title */}
+                <h2 className="text-center text-base md:text-lg font-bold mb-6 py-3 border-y-2 border-black print:text-black">
+                  PROJECT REPORT
+                </h2>
+                
+                {/* Project Reference */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm print:text-black"><strong>Reference No:</strong> {selectedProject.id}</p>
+                  <Badge className={`print:border print:border-black ${
+                    selectedProject.status === "Completed" ? "bg-emerald-100 text-emerald-700" :
+                    selectedProject.status === "Ongoing" ? "bg-blue-100 text-blue-700" :
+                    "bg-gray-100 text-gray-700"
+                  }`}>{selectedProject.status}</Badge>
                 </div>
-                <h2 className="text-center text-lg font-bold mb-6 border-t border-b py-4">BARANGAY PROJECT REPORT</h2>
-                <div className="space-y-4 text-sm">
+
+                {/* Main Content */}
+                <div className="space-y-5 text-sm">
+                  {/* Project Info Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg print:bg-white print:border print:border-gray-300">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide print:text-gray-600">Project Title</p>
+                      <p className="font-bold text-base print:text-black">{selectedProject.title}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide print:text-gray-600">Project Type</p>
+                      <p className="font-semibold print:text-black">{selectedProject.type}</p>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide print:text-gray-600">Location</p>
+                      <p className="font-semibold print:text-black">{selectedProject.location}</p>
+                    </div>
+                  </div>
+
+                  {/* Timeline Section */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Project Title:</p>
-                      <p className="font-bold">{selectedProject.title}</p>
+                    <div className="p-3 border rounded-lg print:border-gray-300">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide print:text-gray-600">Start Date</p>
+                      <p className="font-semibold print:text-black">{selectedProject.startDate}</p>
                     </div>
-                    <div>
-                      <p className="text-gray-600">Project Type:</p>
-                      <p className="font-medium">{selectedProject.type}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Location:</p>
-                    <p className="font-medium">{selectedProject.location}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Start Date:</p>
-                      <p className="font-medium">{selectedProject.startDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Target Completion:</p>
-                      <p className="font-medium">{selectedProject.targetCompletion}</p>
+                    <div className="p-3 border rounded-lg print:border-gray-300">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide print:text-gray-600">Target Completion</p>
+                      <p className="font-semibold print:text-black">{selectedProject.targetCompletion}</p>
                     </div>
                   </div>
+
+                  {/* Description Section */}
                   <div className="border-t pt-4">
-                    <p className="font-semibold">PROJECT DESCRIPTION</p>
-                    <p className="mt-1">{selectedProject.description}</p>
+                    <p className="font-bold text-sm uppercase tracking-wide mb-2 print:text-black">Project Description</p>
+                    <p className="leading-relaxed print:text-black">{selectedProject.description}</p>
                   </div>
+
+                  {/* Budget Section */}
                   <div className="border-t pt-4">
-                    <p className="font-semibold">BUDGET DETAILS</p>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
+                    <p className="font-bold text-sm uppercase tracking-wide mb-3 print:text-black">Budget Details</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-green-50 rounded-lg print:bg-white print:border print:border-gray-300">
+                        <p className="text-xs text-gray-500 print:text-gray-600">Total Budget</p>
+                        <p className="font-bold text-lg text-green-700 print:text-black">PHP {selectedProject.budget}</p>
+                      </div>
+                      <div className="p-3 bg-blue-50 rounded-lg print:bg-white print:border print:border-gray-300">
+                        <p className="text-xs text-gray-500 print:text-gray-600">Fund Source</p>
+                        <p className="font-semibold print:text-black">{selectedProject.source}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Section */}
+                  <div className="border-t pt-4">
+                    <p className="font-bold text-sm uppercase tracking-wide mb-3 print:text-black">Project Status</p>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p>Total Budget: <strong>PHP {selectedProject.budget}</strong></p>
+                        <p className="text-xs text-gray-500 print:text-gray-600">Current Status</p>
+                        <p className="font-semibold print:text-black">{selectedProject.status}</p>
                       </div>
                       <div>
-                        <p>Source: <strong>{selectedProject.source}</strong></p>
+                        <p className="text-xs text-gray-500 print:text-gray-600">Progress</p>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden print:border print:border-gray-400">
+                            <div className="h-full bg-green-600 print:bg-gray-600" style={{ width: `${selectedProject.progress}%` }} />
+                          </div>
+                          <span className="font-bold print:text-black">{selectedProject.progress}%</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Project Head & Beneficiaries */}
+                  <div className="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-bold text-sm uppercase tracking-wide mb-2 print:text-black">Project Head</p>
+                      <p className="font-semibold print:text-black">{selectedProject.projectHead}</p>
+                      <p className="text-gray-600 text-xs print:text-gray-600">{selectedProject.projectHeadPosition}</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm uppercase tracking-wide mb-2 print:text-black">Beneficiaries</p>
+                      <p className="print:text-black">{selectedProject.beneficiaries}</p>
+                    </div>
+                  </div>
+
+                  {/* Remarks Section */}
                   <div className="border-t pt-4">
-                    <p className="font-semibold">PROJECT STATUS</p>
-                    <p>Status: <strong>{selectedProject.status}</strong></p>
-                    <p>Progress: <strong>{selectedProject.progress}%</strong></p>
+                    <p className="font-bold text-sm uppercase tracking-wide mb-2 print:text-black">Remarks</p>
+                    <p className="leading-relaxed print:text-black">{selectedProject.remarks || "No remarks"}</p>
                   </div>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold">PROJECT HEAD</p>
-                    <p className="font-bold">{selectedProject.projectHead}</p>
-                    <p>{selectedProject.projectHeadPosition}</p>
+
+                  {/* Signature Section */}
+                  <div className="mt-10 pt-8 border-t">
+                    <p className="text-xs text-gray-500 mb-6 text-center print:text-gray-600">Prepared and Certified Correct:</p>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="text-center">
+                        <div className="border-b border-black mx-4 md:mx-8 mb-1 h-8" />
+                        <p className="font-semibold text-sm print:text-black">{selectedProject.projectHead}</p>
+                        <p className="text-xs text-gray-600 print:text-gray-600">{selectedProject.projectHeadPosition}</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="border-b border-black mx-4 md:mx-8 mb-1 h-8" />
+                        <p className="font-semibold text-sm print:text-black">Rolando C. Borja</p>
+                        <p className="text-xs text-gray-600 print:text-gray-600">Barangay Captain</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold">BENEFICIARIES</p>
-                    <p>{selectedProject.beneficiaries}</p>
-                  </div>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold">REMARKS</p>
-                    <p>{selectedProject.remarks}</p>
-                  </div>
-                </div>
-                <div className="mt-12 grid grid-cols-2 gap-8 text-center text-sm">
-                  <div>
-                    <p className="border-t border-black pt-1">Prepared by</p>
-                  </div>
-                  <div>
-                    <p className="border-t border-black pt-1 font-semibold">ROLANDO C. BORJA</p>
-                    <p>Punong Barangay</p>
-                    <p className="text-xs text-gray-600 mt-1">Approved by</p>
+
+                  {/* Footer */}
+                  <div className="mt-8 pt-4 border-t text-center text-xs text-gray-500 print:text-gray-600">
+                    <p>This document is generated by the Barangay Santiago Management System</p>
+                    <p>Date Generated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   </div>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowPrintPreview(false)}>Close</Button>
             <Button onClick={() => window.print()}>
               <Printer className="mr-2 h-4 w-4" />
-              Print Report
+              Print
             </Button>
           </DialogFooter>
         </DialogContent>
