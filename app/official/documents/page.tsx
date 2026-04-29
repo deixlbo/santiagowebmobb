@@ -136,14 +136,14 @@ const itemVariants = {
 // Document Header Component with Logos
 function DocumentHeader() {
   return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
-      <div className="text-center flex-1">
-        <p className="text-[10px] md:text-xs text-muted-foreground">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground">City of Santiago, Isabela</p>
+    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
+      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <div className="text-center flex-1 px-2">
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
       </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
     </div>
   )
 }
