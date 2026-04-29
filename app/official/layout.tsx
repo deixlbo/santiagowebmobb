@@ -89,38 +89,29 @@ export default function OfficialLayout({
 
       {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 p-4">
-        {navigation.map((item, index) => {
+        {navigation.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== "/official" && pathname.startsWith(item.href))
           return (
-            <motion.div
+            <Link
               key={item.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
+              href={item.href}
+              prefetch={true}
+              onClick={() => setSidebarOpen(false)}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+                isActive
+                  ? "bg-white/90 text-green-800 shadow-lg"
+                  : "text-white/90 hover:bg-white/10"
+              )}
             >
-              <Link
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-white/90 text-green-800 shadow-lg"
-                    : "text-white/90 hover:bg-white/10"
-                )}
-              >
-                {/* Yellow accent bar for active item */}
-                {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="absolute -left-4 top-1 bottom-1 w-1 rounded-r-full bg-yellow-400"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-green-700" : "text-white/80")} />}
-                <span className="truncate">{item.name}</span>
-              </Link>
-            </motion.div>
+              {/* Yellow accent bar for active item */}
+              {isActive && (
+                <div className="absolute -left-4 top-1 bottom-1 w-1 rounded-r-full bg-yellow-400" />
+              )}
+              {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-green-700" : "text-white/80")} />}
+              <span className="truncate">{item.name}</span>
+            </Link>
           )
         })}
       </nav>
@@ -208,12 +199,7 @@ export default function OfficialLayout({
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Header */}
-        <motion.header 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-        >
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <button 
             className="rounded-lg p-2 hover:bg-muted lg:hidden"
             onClick={() => setSidebarOpen(true)}
@@ -257,21 +243,12 @@ export default function OfficialLayout({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </motion.header>
+        </header>
 
-        {/* Page Content with Animation */}
-        <AnimatePresence mode="wait">
-          <motion.main 
-            key={pathname}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="p-4 md:p-6"
-          >
-            {children}
-          </motion.main>
-        </AnimatePresence>
+        {/* Page Content */}
+        <main className="p-4 md:p-6">
+          {children}
+        </main>
       </div>
     </div>
   )
