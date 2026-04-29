@@ -191,7 +191,7 @@ export default function OfficialLayout({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col lg:hidden"
+            className="fixed inset-y-0 left-0 z-50 flex w-[50vw] max-w-72 flex-col lg:hidden"
             style={{
               background: "linear-gradient(180deg, #166534 0%, #14532d 50%, #0f3d1f 100%)"
             }}
