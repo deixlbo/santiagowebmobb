@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
@@ -23,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 const navigation = [
   { name: "Dashboard", href: "/resident", icon: LayoutDashboard },
@@ -39,17 +41,36 @@ export default function ResidentLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  // Skip layout for login and register pages
+  if (pathname === "/resident/login" || pathname === "/resident/register") {
+    return <>{children}</>
+  }
+
+  const handleLogout = () => {
+    toast.success("Logged out successfully")
+    router.push("/resident/login")
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      >
         <div className="flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-4">
             <Link href="/resident" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+              >
                 <span className="text-sm font-bold">BS</span>
-              </div>
+              </motion.div>
               <span className="hidden font-semibold md:inline-block">
                 Barangay Santiago
               </span>
@@ -57,23 +78,29 @@ export default function ResidentLayout({
           </div>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
               const isActive = pathname === item.href || 
                 (item.href !== "/resident" && pathname.startsWith(item.href))
               return (
-                <Link
+                <motion.div
                   key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </Link>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                </motion.div>
               )
             })}
           </nav>
@@ -83,7 +110,7 @@ export default function ResidentLayout({
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -104,17 +131,22 @@ export default function ResidentLayout({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Navigation */}
-      <nav className="sticky top-16 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
+      <motion.nav 
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        className="sticky top-16 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden"
+      >
         <div className="flex items-center gap-1 overflow-x-auto px-4 py-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href || 
@@ -124,9 +156,9 @@ export default function ResidentLayout({
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-md"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -136,10 +168,21 @@ export default function ResidentLayout({
             )
           })}
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 md:px-6">{children}</main>
+      {/* Main Content with Animation */}
+      <AnimatePresence mode="wait">
+        <motion.main 
+          key={pathname}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="container mx-auto px-4 py-6 md:px-6"
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
     </div>
   )
 }

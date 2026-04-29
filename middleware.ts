@@ -1,8 +1,9 @@
-import { updateSession } from '@/lib/supabase/middleware'
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  // Simple pass-through middleware - no Supabase auth required
+  // In a real app, you would check for session cookies here
+  return NextResponse.next()
 }
 
 export const config = {
