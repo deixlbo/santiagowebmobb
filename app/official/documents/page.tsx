@@ -169,6 +169,8 @@ export default function OfficialDocumentsPage() {
   const [newTypeName, setNewTypeName] = useState("")
   const [newTypeRequirements, setNewTypeRequirements] = useState<string[]>([""])
   const [newTypeFee, setNewTypeFee] = useState("")
+  const [showPrintDocument, setShowPrintDocument] = useState(false)
+  const [printRequest, setPrintRequest] = useState<typeof mockRequests[0] | null>(null)
 
   const pendingCount = mockRequests.filter(r => r.status === "pending").length
   const approvedCount = mockRequests.filter(r => r.status === "approved").length
@@ -354,7 +356,10 @@ export default function OfficialDocumentsPage() {
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{request.requester}</TableCell>
                           <TableCell className="py-2 md:py-4 text-right">
                             <div className="flex gap-1 md:gap-2 justify-end">
-                              <Button variant="outline" size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0" onClick={() => window.print()}>
+                              <Button variant="outline" size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0" onClick={() => {
+                                setPrintRequest(request)
+                                setShowPrintDocument(true)
+                              }}>
                                 <Printer className="h-3 w-3 md:mr-1" />
                                 <span className="hidden md:inline">Print</span>
                               </Button>
@@ -463,7 +468,10 @@ export default function OfficialDocumentsPage() {
               </>
             )}
             {selectedRequest?.status === "approved" && (
-              <Button size="sm" className="w-full sm:w-auto" onClick={() => window.print()}>
+              <Button size="sm" className="w-full sm:w-auto" onClick={() => {
+                setPrintRequest(selectedRequest)
+                setShowPrintDocument(true)
+              }}>
                 <Printer className="mr-2 h-3 w-3" />
                 Print Document
               </Button>
@@ -555,6 +563,84 @@ export default function OfficialDocumentsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setShowArchive(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Print Document Dialog */}
+      <Dialog open={showPrintDocument} onOpenChange={setShowPrintDocument}>
+        <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base md:text-lg">Document Preview</DialogTitle>
+          </DialogHeader>
+          {printRequest && (
+            <div id="print-document" className="bg-white p-4 md:p-8 text-black print:p-4">
+              {/* Document Header */}
+              <div className="text-center mb-4 md:mb-6 pb-4 border-b-2 border-black">
+                <p className="text-xs md:text-sm font-semibold">REPUBLIC OF THE PHILIPPINES</p>
+                <p className="text-xs md:text-sm">PROVINCE OF ZAMBALES</p>
+                <p className="text-xs md:text-sm">MUNICIPALITY OF SAN ANTONIO</p>
+                <p className="text-xs md:text-sm font-bold">BARANGAY SANTIAGO</p>
+                <p className="text-xs md:text-sm mt-2">OFFICE OF THE BARANGAY CAPTAIN</p>
+                <p className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</p>
+              </div>
+
+              {/* Document Body */}
+              <div className="space-y-4 text-xs md:text-sm leading-relaxed">
+                <p>TO WHOM IT MAY CONCERN:</p>
+
+                {printRequest.type === "Barangay Clearance" && (
+                  <>
+                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
+                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                  </>
+                )}
+
+                {printRequest.type === "Certificate of Residency" && (
+                  <>
+                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
+                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                  </>
+                )}
+
+                {printRequest.type === "Certificate of Indigency" && (
+                  <>
+                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
+                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                  </>
+                )}
+
+                {printRequest.type === "Business Clearance" && (
+                  <>
+                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, owner/operator of <span className="font-bold underline">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
+                    <p>This certification is issued upon request for business operations.</p>
+                  </>
+                )}
+
+                <p>Issued this _____ day of ______, 20__.</p>
+
+                <div className="mt-8 pt-4">
+                  <div className="inline-block">
+                    <div className="w-48 border-b border-black mb-1 h-12" />
+                    <p className="font-bold text-center">ROLANDO C. BORJA</p>
+                    <p className="text-center">Barangay Captain</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-4 space-y-1">
+                  <p>O.R. No.: ____________________</p>
+                  <p>Date Issued: _________________</p>
+                  <p>Doc. Stamp: Paid</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
+            <Button variant="outline" size="sm" onClick={() => setShowPrintDocument(false)}>Close</Button>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => window.print()}>
+              <Printer className="mr-2 h-3 w-3" />
+              Print Document
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
