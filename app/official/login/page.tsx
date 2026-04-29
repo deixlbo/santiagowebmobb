@@ -30,7 +30,6 @@ export default function OfficialLoginPage() {
     const user = authenticateOfficial(email, password)
     
     if (user) {
-      toast.success(`Welcome back, ${user.firstName}!`)
       router.push("/official")
     } else {
       toast.error("Invalid credentials. Try: admin@barangaysantiago.gov.ph / admin123")

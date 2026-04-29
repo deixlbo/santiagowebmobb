@@ -30,7 +30,6 @@ export default function ResidentLoginPage() {
     const user = authenticateResident(email, password)
     
     if (user) {
-      toast.success(`Welcome back, ${user.firstName}!`)
       router.push("/resident")
     } else {
       toast.error("Invalid email or password. Try: juan@example.com / password123")
