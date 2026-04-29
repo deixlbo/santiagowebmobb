@@ -470,7 +470,7 @@ export default function OfficialDocumentsPage() {
             {selectedRequest?.status === "approved" && (
               <Button size="sm" className="w-full sm:w-auto" onClick={() => {
                 setPrintRequest(selectedRequest)
-                setShowPrintDocument(true)
+                setTimeout(() => window.print(), 100)
               }}>
                 <Printer className="mr-2 h-3 w-3" />
                 Print Document
@@ -567,8 +567,8 @@ export default function OfficialDocumentsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Print Document Dialog */}
-      <Dialog open={showPrintDocument} onOpenChange={setShowPrintDocument}>
+      {/* Print Document Dialog - Hidden, prints directly */}
+      <Dialog open={false} onOpenChange={setShowPrintDocument}>
         <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Document Preview</DialogTitle>
