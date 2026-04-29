@@ -84,10 +84,11 @@ export default function OfficialLayout({
           <p className="text-xs text-white/70">Admin Portal</p>
         </div>
         <button 
-          className="absolute right-4 top-5 lg:hidden" 
+          className="absolute right-2 top-5 p-2 rounded-full hover:bg-white/20 transition-colors lg:hidden" 
           onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
         >
-          <X className="h-5 w-5 text-white" />
+          <X className="h-6 w-6 text-white" />
         </button>
       </div>
 
@@ -124,7 +125,7 @@ export default function OfficialLayout({
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
-                <item.icon className={cn("h-5 w-5", isActive ? "text-green-700" : "text-white/80")} />
+                {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-green-700" : "text-white/80")} />}
                 {item.name}
               </Link>
             </motion.div>
@@ -170,15 +171,16 @@ export default function OfficialLayout({
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay - Click to close */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden cursor-pointer"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
           />
         )}
       </AnimatePresence>
