@@ -506,10 +506,10 @@ export default function LandingPage() {
       </Dialog>
 
       {/* Contact Section */}
-      <section className="py-12 md:py-24">
+      <section className="py-8 md:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8 md:p-12">
-            <div className="grid gap-6 md:gap-8 md:grid-cols-2">
+          <div className="rounded-2xl bg-primary p-5 text-primary-foreground sm:p-6 md:p-8">
+            <div className="grid gap-4 md:gap-6 md:grid-cols-2">
               <div>
                 <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Visit Barangay Hall</h2>
                 <p className="mt-2 text-sm opacity-90 sm:text-base">We are here to serve you. Visit us during office hours or contact us for inquiries.</p>
@@ -538,7 +538,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-card py-6 sm:py-8">
+      <footer className="border-t bg-card py-4 sm:py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
             <div className="flex items-center gap-2">
