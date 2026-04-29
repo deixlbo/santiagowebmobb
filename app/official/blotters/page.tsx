@@ -493,111 +493,109 @@ export default function OfficialBlottersPage() {
 
       {/* Print Preview Dialog */}
       <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
-        <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh]">
+        <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Blotter Report Preview</DialogTitle>
           </DialogHeader>
           {selectedBlotter && (
-            <ScrollArea className="max-h-[60vh]">
-              <div id="print-content" className="rounded-lg border bg-white p-4 md:p-8 text-black print:p-0 print:border-0">
+            <div id="print-content" className="rounded-lg border bg-white p-3 sm:p-4 md:p-8 text-black print:p-0 print:border-0 print:bg-white">
                 {/* Header with circular logos */}
-                <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                  <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
-                  <div className="text-center flex-1 px-2">
-                    <p className="text-[10px] md:text-xs text-gray-600 print:text-black">Republic of the Philippines</p>
-                    <p className="text-xs md:text-sm font-bold print:text-black">BARANGAY SANTIAGO</p>
-                    <p className="text-[10px] md:text-xs text-gray-600 print:text-black">City of Santiago, Isabela</p>
+                <div className="flex items-center justify-between gap-1 sm:gap-2 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
+                  <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+                  <div className="text-center flex-1 px-1 sm:px-2">
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-600 print:text-black">Republic of the Philippines</p>
+                    <p className="text-[10px] sm:text-xs md:text-sm font-bold print:text-black">BARANGAY SANTIAGO</p>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-600 print:text-black">City of Santiago, Isabela</p>
                   </div>
-                  <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+                  <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
                 </div>
                 
                 {/* Title */}
-                <div className="text-center mb-6">
-                  <h2 className="text-base md:text-lg font-bold border-y-2 border-black py-2 print:text-black">BLOTTER REPORT</h2>
+                <div className="text-center mb-4 sm:mb-6">
+                  <h2 className="text-sm sm:text-base md:text-lg font-bold border-y-2 border-black py-1 sm:py-2 print:text-black">BLOTTER REPORT</h2>
                 </div>
                 
                 {/* Reference and Status */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium print:text-black">Reference: {selectedBlotter.id}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+                  <span className="text-xs sm:text-sm font-medium print:text-black">Reference: {selectedBlotter.id}</span>
                   {getStatusBadge(selectedBlotter.status)}
                 </div>
                 
                 {/* Details Grid */}
-                <div className="space-y-4 text-xs md:text-sm">
-                  <div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg print:bg-white print:border print:border-gray-300">
+                <div className="space-y-2 sm:space-y-3 md:space-y-4 text-xs sm:text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 bg-gray-50 rounded-lg print:bg-white print:border print:border-gray-300">
                     <div>
-                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Date Filed</p>
-                      <p className="font-semibold print:text-black">{selectedBlotter.date}</p>
+                      <p className="text-gray-500 text-[9px] sm:text-[10px] uppercase print:text-gray-600">Date Filed</p>
+                      <p className="font-semibold text-xs sm:text-sm print:text-black">{selectedBlotter.date}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Incident Type</p>
-                      <p className="font-semibold print:text-black">{selectedBlotter.type}</p>
+                      <p className="text-gray-500 text-[9px] sm:text-[10px] uppercase print:text-gray-600">Incident Type</p>
+                      <p className="font-semibold text-xs sm:text-sm print:text-black">{selectedBlotter.type}</p>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-3 border rounded-lg">
-                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Complainant</p>
-                      <p className="font-semibold print:text-black">{selectedBlotter.complainant}</p>
-                      <p className="text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.complainantAddress}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                    <div className="p-2 sm:p-3 border rounded-lg">
+                      <p className="text-gray-500 text-[9px] sm:text-[10px] uppercase print:text-gray-600">Complainant</p>
+                      <p className="font-semibold text-xs sm:text-sm print:text-black">{selectedBlotter.complainant}</p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.complainantAddress}</p>
                     </div>
-                    <div className="p-3 border rounded-lg">
-                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Respondent</p>
-                      <p className="font-semibold print:text-black">{selectedBlotter.respondent}</p>
-                      <p className="text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.respondentAddress}</p>
+                    <div className="p-2 sm:p-3 border rounded-lg">
+                      <p className="text-gray-500 text-[9px] sm:text-[10px] uppercase print:text-gray-600">Respondent</p>
+                      <p className="font-semibold text-xs sm:text-sm print:text-black">{selectedBlotter.respondent}</p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.respondentAddress}</p>
                     </div>
                   </div>
                   
-                  <div className="p-3 border rounded-lg">
-                    <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Location</p>
-                    <p className="font-semibold print:text-black">{selectedBlotter.location}</p>
+                  <div className="p-2 sm:p-3 border rounded-lg">
+                    <p className="text-gray-500 text-[9px] sm:text-[10px] uppercase print:text-gray-600">Location</p>
+                    <p className="font-semibold text-xs sm:text-sm print:text-black">{selectedBlotter.location}</p>
                   </div>
                   
-                  <div className="border-t pt-4">
-                    <p className="font-bold text-xs uppercase mb-2 print:text-black">Description of Incident</p>
-                    <p className="leading-relaxed print:text-black">{selectedBlotter.description}</p>
+                  <div className="border-t pt-2 sm:pt-3 md:pt-4">
+                    <p className="font-bold text-[9px] sm:text-xs md:text-xs uppercase mb-1 sm:mb-2 print:text-black">Description of Incident</p>
+                    <p className="leading-relaxed text-xs sm:text-sm print:text-black">{selectedBlotter.description}</p>
                   </div>
                   
                   {selectedBlotter.actionTaken && (
-                    <div className="border-t pt-4">
-                      <p className="font-bold text-xs uppercase mb-2 print:text-black">Action Taken</p>
-                      <p className="leading-relaxed print:text-black">{selectedBlotter.actionTaken}</p>
+                    <div className="border-t pt-2 sm:pt-3 md:pt-4">
+                      <p className="font-bold text-[9px] sm:text-xs uppercase mb-1 sm:mb-2 print:text-black">Action Taken</p>
+                      <p className="leading-relaxed text-xs sm:text-sm print:text-black">{selectedBlotter.actionTaken}</p>
                     </div>
                   )}
                   
                   {selectedBlotter.resolution && (
-                    <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 print:bg-white print:border-gray-300">
-                      <p className="font-bold text-xs uppercase mb-2 text-emerald-800 print:text-black">Resolution</p>
-                      <p className="leading-relaxed text-emerald-700 print:text-black">{selectedBlotter.resolution}</p>
+                    <div className="p-2 sm:p-3 bg-emerald-50 rounded-lg border border-emerald-200 print:bg-white print:border-gray-300">
+                      <p className="font-bold text-[9px] sm:text-xs uppercase mb-1 sm:mb-2 text-emerald-800 print:text-black">Resolution</p>
+                      <p className="leading-relaxed text-xs sm:text-sm text-emerald-700 print:text-black">{selectedBlotter.resolution}</p>
                     </div>
                   )}
                 </div>
                 
                 {/* Signature Section */}
-                <div className="mt-10 pt-6 border-t">
-                  <p className="text-[10px] text-gray-500 text-center mb-6 print:text-gray-600">Certified Correct:</p>
-                  <div className="flex justify-between">
-                    <div className="text-center">
-                      <div className="w-32 md:w-40 border-b border-black mb-1 h-8" />
-                      <p className="font-bold text-xs print:text-black">ROLANDO C. BORJA</p>
-                      <p className="text-[10px] text-gray-600 print:text-gray-600">Barangay Captain</p>
+                <div className="mt-6 sm:mt-8 md:mt-10 pt-4 sm:pt-6 border-t">
+                  <p className="text-[8px] sm:text-[10px] text-gray-500 text-center mb-4 sm:mb-6 print:text-gray-600">Certified Correct:</p>
+                  <div className="flex justify-between gap-2 sm:gap-4">
+                    <div className="flex-1 text-center">
+                      <div className="border-b border-black mb-1 h-6 sm:h-8" />
+                      <p className="font-bold text-[9px] sm:text-xs print:text-black">ROLANDO C. BORJA</p>
+                      <p className="text-[8px] sm:text-[10px] text-gray-600 print:text-gray-600">Barangay Captain</p>
                     </div>
-                    <div className="text-center">
-                      <div className="w-32 md:w-40 border-b border-black mb-1 h-8" />
-                      <p className="font-bold text-xs print:text-black">Date</p>
-                      <p className="text-[10px] text-gray-600 print:text-gray-600">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <div className="flex-1 text-center">
+                      <div className="border-b border-black mb-1 h-6 sm:h-8" />
+                      <p className="font-bold text-[9px] sm:text-xs print:text-black">Date</p>
+                      <p className="text-[8px] sm:text-[10px] text-gray-600 print:text-gray-600">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Footer */}
-                <div className="mt-6 pt-4 border-t text-center text-[10px] text-gray-500 print:text-gray-600">
+                <div className="mt-4 sm:mt-6 pt-2 sm:pt-4 border-t text-center text-[8px] sm:text-[10px] text-gray-500 print:text-gray-600">
                   <p>This document is generated by the Barangay Santiago Management System</p>
                 </div>
-              </div>
-            </ScrollArea>
+            </div>
           )}
-          <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-3 sm:pt-4">
             <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => window.print()}>
               <Printer className="mr-2 h-3 w-3" />
               Print

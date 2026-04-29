@@ -22,7 +22,10 @@ import {
   Download,
   Printer,
   Settings,
-  Archive
+  Archive,
+  Plus,
+  Trash2,
+  Edit2
 } from "lucide-react"
 
 const mockRequests = [
@@ -82,6 +85,13 @@ const archivedDocuments = [
   { id: "ARC-001", type: "Barangay Clearance", requester: "Juan Dela Cruz", releaseDate: "April 15, 2026" },
   { id: "ARC-002", type: "Business Clearance", requester: "Maria Santos", releaseDate: "April 10, 2026" },
   { id: "ARC-003", type: "Certificate of Residency", requester: "Pedro Reyes", releaseDate: "April 5, 2026" },
+]
+
+const defaultDocumentTypes = [
+  { id: "1", name: "Barangay Clearance", requirements: "Valid ID, Proof of Residency", fee: "50" },
+  { id: "2", name: "Certificate of Residency", requirements: "Proof of Address, Valid ID", fee: "30" },
+  { id: "3", name: "Business Clearance", requirements: "Business Registration, Valid ID", fee: "200" },
+  { id: "4", name: "Certificate of Indigency", requirements: "Proof of Residency, Income Statement", fee: "Free" },
 ]
 
 function getStatusBadge(status: string) {
@@ -153,6 +163,12 @@ export default function OfficialDocumentsPage() {
   const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null)
   const [showApproveDialog, setShowApproveDialog] = useState(false)
   const [showArchive, setShowArchive] = useState(false)
+  const [showManageTypes, setShowManageTypes] = useState(false)
+  const [documentTypes, setDocumentTypes] = useState(defaultDocumentTypes)
+  const [editingType, setEditingType] = useState<typeof defaultDocumentTypes[0] | null>(null)
+  const [newTypeName, setNewTypeName] = useState("")
+  const [newTypeRequirements, setNewTypeRequirements] = useState("")
+  const [newTypeFee, setNewTypeFee] = useState("")
 
   const pendingCount = mockRequests.filter(r => r.status === "pending").length
   const approvedCount = mockRequests.filter(r => r.status === "approved").length
@@ -175,7 +191,7 @@ export default function OfficialDocumentsPage() {
             <Archive className="h-3 w-3 md:mr-2" />
             <span className="hidden md:inline">Archive</span>
           </Button>
-          <Button variant="outline" size="sm" className="h-8 text-xs">
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowManageTypes(true)}>
             <Settings className="h-3 w-3 md:mr-2" />
             <span className="hidden md:inline">Manage Types</span>
           </Button>
@@ -539,6 +555,140 @@ export default function OfficialDocumentsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setShowArchive(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Document Types Dialog */}
+      <Dialog open={showManageTypes} onOpenChange={setShowManageTypes}>
+        <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto">
+          <DocumentHeader />
+          <DialogHeader>
+            <DialogTitle className="text-base md:text-lg">Manage Document Types</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">
+              Create, edit, and manage document types with requirements
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 md:space-y-5">
+            {/* Add New Type Form */}
+            <div className="rounded-lg border p-3 md:p-4 bg-blue-50 dark:bg-blue-950/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Plus className="w-4 h-4 text-blue-600" />
+                <p className="text-xs md:text-sm font-semibold">Add New Document Type</p>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs md:text-sm">Document Type Name</Label>
+                  <Input 
+                    placeholder="e.g., Barangay Clearance"
+                    value={newTypeName}
+                    onChange={(e) => setNewTypeName(e.target.value)}
+                    className="h-8 md:h-10 text-xs md:text-sm mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs md:text-sm">Requirements</Label>
+                  <Textarea 
+                    placeholder="List the requirements separated by comma..."
+                    value={newTypeRequirements}
+                    onChange={(e) => setNewTypeRequirements(e.target.value)}
+                    className="text-xs md:text-sm resize-none h-16 md:h-20 mt-1"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs md:text-sm">Fee</Label>
+                  <Input 
+                    placeholder="e.g., 50 or Free"
+                    value={newTypeFee}
+                    onChange={(e) => setNewTypeFee(e.target.value)}
+                    className="h-8 md:h-10 text-xs md:text-sm mt-1"
+                  />
+                </div>
+                <Button 
+                  size="sm" 
+                  className="w-full gap-2 bg-blue-600 hover:bg-blue-700 mt-2"
+                  onClick={() => {
+                    if (newTypeName.trim()) {
+                      const newType = {
+                        id: Math.random().toString(),
+                        name: newTypeName,
+                        requirements: newTypeRequirements,
+                        fee: newTypeFee
+                      }
+                      setDocumentTypes([...documentTypes, newType])
+                      setNewTypeName("")
+                      setNewTypeRequirements("")
+                      setNewTypeFee("")
+                    }
+                  }}
+                >
+                  <Plus className="w-3 h-3" />
+                  Add Type
+                </Button>
+              </div>
+            </div>
+
+            {/* Existing Types List */}
+            <div className="space-y-2">
+              <p className="text-xs md:text-sm font-semibold">Existing Document Types</p>
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+                {documentTypes.map((type) => (
+                  <div key={type.id} className="p-3 border rounded-lg bg-muted/50">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-xs md:text-sm">{type.name}</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Requirements: {type.requirements}</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground">Fee: {type.fee}</p>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={() => {
+                            setEditingType(type)
+                            setNewTypeName(type.name)
+                            setNewTypeRequirements(type.requirements)
+                            setNewTypeFee(type.fee)
+                          }}
+                        >
+                          <Edit2 className="w-3 h-3 text-blue-500" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={() => {
+                            setDocumentTypes(documentTypes.filter(t => t.id !== type.id))
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
+            <Button variant="outline" size="sm" onClick={() => {
+              setShowManageTypes(false)
+              setEditingType(null)
+              setNewTypeName("")
+              setNewTypeRequirements("")
+              setNewTypeFee("")
+            }}>
+              Close
+            </Button>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => {
+              setShowManageTypes(false)
+              setEditingType(null)
+            }}>
+              Done
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
