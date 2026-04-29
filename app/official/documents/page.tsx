@@ -575,14 +575,18 @@ export default function OfficialDocumentsPage() {
           </DialogHeader>
           {printRequest && (
             <div id="print-document" className="bg-white p-4 md:p-8 text-black print:p-4">
-              {/* Document Header */}
-              <div className="text-center mb-4 md:mb-6 pb-4 border-b-2 border-black">
-                <p className="text-xs md:text-sm font-semibold">REPUBLIC OF THE PHILIPPINES</p>
-                <p className="text-xs md:text-sm">PROVINCE OF ZAMBALES</p>
-                <p className="text-xs md:text-sm">MUNICIPALITY OF SAN ANTONIO</p>
-                <p className="text-xs md:text-sm font-bold">BARANGAY SANTIAGO</p>
-                <p className="text-xs md:text-sm mt-2">OFFICE OF THE BARANGAY CAPTAIN</p>
-                <p className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</p>
+              {/* Document Header with Logos */}
+              <div className="flex items-center justify-between mb-4 md:mb-6 pb-4 border-b-2 border-black">
+                <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover" />
+                <div className="text-center flex-1 px-2">
+                  <p className="text-xs md:text-sm font-semibold">REPUBLIC OF THE PHILIPPINES</p>
+                  <p className="text-xs md:text-sm">PROVINCE OF ZAMBALES</p>
+                  <p className="text-xs md:text-sm">MUNICIPALITY OF SAN ANTONIO</p>
+                  <p className="text-xs md:text-sm font-bold">BARANGAY SANTIAGO</p>
+                  <p className="text-xs md:text-sm mt-2">OFFICE OF THE BARANGAY CAPTAIN</p>
+                  <p className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</p>
+                </div>
+                <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover" />
               </div>
 
               {/* Document Body */}
@@ -617,7 +621,7 @@ export default function OfficialDocumentsPage() {
                   </>
                 )}
 
-                <p>Issued this _____ day of ______, 20__.</p>
+                <p>Issued this <span className="font-bold underline">{new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</span>.</p>
 
                 <div className="mt-8 pt-4">
                   <div className="inline-block">

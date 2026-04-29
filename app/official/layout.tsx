@@ -44,7 +44,6 @@ const navigation = [
   { name: "Projects", href: "/official/projects", icon: FolderKanban },
   { name: "Announcements", href: "/official/announcements", icon: Megaphone },
   { name: "Assets", href: "/official/assets", icon: Package },
-  { name: "Reports", href: "/official/reports", icon: BarChart3 },
 ]
 
 export default function OfficialLayout({
@@ -214,13 +213,13 @@ export default function OfficialLayout({
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 focus:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-muted/50">
+                <Button variant="ghost" className="flex items-center gap-2 focus:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-muted/50 hover:bg-transparent">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
                     <AvatarFallback className="bg-muted text-foreground">RB</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left md:block">
-                    <p className="text-sm font-medium">Rolando C. Borja</p>
+                    <p className="text-sm font-medium hover:text-current">Rolando C. Borja</p>
                     <p className="text-xs text-muted-foreground">Barangay Captain</p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
