@@ -167,7 +167,7 @@ export default function OfficialDocumentsPage() {
   const [documentTypes, setDocumentTypes] = useState(defaultDocumentTypes)
   const [editingType, setEditingType] = useState<typeof defaultDocumentTypes[0] | null>(null)
   const [newTypeName, setNewTypeName] = useState("")
-  const [newTypeRequirements, setNewTypeRequirements] = useState("")
+  const [newTypeRequirements, setNewTypeRequirements] = useState<string[]>([""])
   const [newTypeFee, setNewTypeFee] = useState("")
 
   const pendingCount = mockRequests.filter(r => r.status === "pending").length
@@ -562,7 +562,6 @@ export default function OfficialDocumentsPage() {
       {/* Manage Document Types Dialog */}
       <Dialog open={showManageTypes} onOpenChange={setShowManageTypes}>
         <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto">
-          <DocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Manage Document Types</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -577,7 +576,7 @@ export default function OfficialDocumentsPage() {
                 <Plus className="w-4 h-4 text-blue-600" />
                 <p className="text-xs md:text-sm font-semibold">Add New Document Type</p>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div>
                   <Label className="text-xs md:text-sm">Document Type Name</Label>
                   <Input 
@@ -587,15 +586,52 @@ export default function OfficialDocumentsPage() {
                     className="h-8 md:h-10 text-xs md:text-sm mt-1"
                   />
                 </div>
+                
                 <div>
-                  <Label className="text-xs md:text-sm">Requirements</Label>
-                  <Textarea 
-                    placeholder="List the requirements separated by comma..."
-                    value={newTypeRequirements}
-                    onChange={(e) => setNewTypeRequirements(e.target.value)}
-                    className="text-xs md:text-sm resize-none h-16 md:h-20 mt-1"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs md:text-sm">Requirements</Label>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-6 px-2 gap-1"
+                      onClick={() => {
+                        setNewTypeRequirements([...newTypeRequirements, ""])
+                      }}
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span className="text-xs">Add</span>
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {newTypeRequirements.map((requirement, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input 
+                          placeholder={`Requirement ${index + 1}`}
+                          value={requirement}
+                          onChange={(e) => {
+                            const updated = [...newTypeRequirements]
+                            updated[index] = e.target.value
+                            setNewTypeRequirements(updated)
+                          }}
+                          className="h-8 md:h-10 text-xs md:text-sm flex-1"
+                        />
+                        {newTypeRequirements.length > 1 && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              setNewTypeRequirements(newTypeRequirements.filter((_, i) => i !== index))
+                            }}
+                          >
+                            <Trash2 className="w-3 h-3 text-red-500" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+                
                 <div>
                   <Label className="text-xs md:text-sm">Fee</Label>
                   <Input 
@@ -605,6 +641,7 @@ export default function OfficialDocumentsPage() {
                     className="h-8 md:h-10 text-xs md:text-sm mt-1"
                   />
                 </div>
+                
                 <Button 
                   size="sm" 
                   className="w-full gap-2 bg-blue-600 hover:bg-blue-700 mt-2"
@@ -613,12 +650,12 @@ export default function OfficialDocumentsPage() {
                       const newType = {
                         id: Math.random().toString(),
                         name: newTypeName,
-                        requirements: newTypeRequirements,
+                        requirements: newTypeRequirements.filter(r => r.trim()).join(", "),
                         fee: newTypeFee
                       }
                       setDocumentTypes([...documentTypes, newType])
                       setNewTypeName("")
-                      setNewTypeRequirements("")
+                      setNewTypeRequirements([""])
                       setNewTypeFee("")
                     }
                   }}
@@ -649,7 +686,7 @@ export default function OfficialDocumentsPage() {
                           onClick={() => {
                             setEditingType(type)
                             setNewTypeName(type.name)
-                            setNewTypeRequirements(type.requirements)
+                            setNewTypeRequirements(type.requirements.split(", "))
                             setNewTypeFee(type.fee)
                           }}
                         >
@@ -678,7 +715,7 @@ export default function OfficialDocumentsPage() {
               setShowManageTypes(false)
               setEditingType(null)
               setNewTypeName("")
-              setNewTypeRequirements("")
+              setNewTypeRequirements([""])
               setNewTypeFee("")
             }}>
               Close
