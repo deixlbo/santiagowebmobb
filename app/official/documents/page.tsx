@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,78 +17,40 @@ import {
   XCircle,
   Clock,
   FileText,
-  Download,
   Printer,
-  Settings,
-  Archive
+  Archive,
+  Loader2
 } from "lucide-react"
+import useSWR from "swr"
 
-const mockRequests = [
-  {
-    id: "REQ-2026-001",
-    type: "Barangay Clearance",
-    purpose: "Employment",
-    requester: "Juan Dela Cruz",
-    email: "juan@example.com",
-    purok: "Purok 3",
-    status: "pending",
-    date: "April 28, 2026",
-    fee: "50",
-    documentsUploaded: true
-  },
-  {
-    id: "REQ-2026-002",
-    type: "Certificate of Residency",
-    purpose: "School Enrollment",
-    requester: "Maria Santos",
-    email: "maria@example.com",
-    purok: "Purok 1",
-    status: "approved",
-    date: "April 27, 2026",
-    fee: "30",
-    pickupTime: "April 30, 2026, 2:00 PM",
-    documentsUploaded: true
-  },
-  {
-    id: "REQ-2026-003",
-    type: "Business Clearance",
-    purpose: "Business Permit Application",
-    requester: "Pedro Reyes",
-    email: "pedro@example.com",
-    purok: "Purok 2",
-    status: "pending",
-    date: "April 26, 2026",
-    fee: "200",
-    documentsUploaded: false
-  },
-  {
-    id: "REQ-2026-004",
-    type: "Certificate of Indigency",
-    purpose: "Medical Assistance",
-    requester: "Ana Garcia",
-    email: "ana@example.com",
-    purok: "Purok 4",
-    status: "released",
-    date: "April 20, 2026",
-    fee: "Free",
-    releaseDate: "April 22, 2026",
-    documentsUploaded: true
-  },
-]
+interface DocumentRequest {
+  id: string
+  request_number: string
+  document_type_name: string
+  purpose: string
+  status: string
+  fee: number
+  pickup_date: string | null
+  pickup_time: string | null
+  remarks: string | null
+  created_at: string
+  profiles?: {
+    full_name: string
+    email: string
+    purok: string
+  }
+}
 
-const archivedDocuments = [
-  { id: "ARC-001", type: "Barangay Clearance", requester: "Juan Dela Cruz", releaseDate: "April 15, 2026" },
-  { id: "ARC-002", type: "Business Clearance", requester: "Maria Santos", releaseDate: "April 10, 2026" },
-  { id: "ARC-003", type: "Certificate of Residency", requester: "Pedro Reyes", releaseDate: "April 5, 2026" },
-]
+const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 function getStatusBadge(status: string) {
   switch (status) {
     case "approved":
+    case "ready":
       return (
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
           <CheckCircle2 className="mr-1 h-3 w-3" />
-          Approved
+          Ready
         </Badge>
       )
     case "pending":
@@ -112,6 +74,13 @@ function getStatusBadge(status: string) {
           Released
         </Badge>
       )
+    case "processing":
+      return (
+        <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">
+          <Clock className="mr-1 h-3 w-3" />
+          Processing
+        </Badge>
+      )
     default:
       return <Badge variant="secondary">{status}</Badge>
   }
@@ -119,33 +88,130 @@ function getStatusBadge(status: string) {
 
 export default function OfficialDocumentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null)
+  const [selectedRequest, setSelectedRequest] = useState<DocumentRequest | null>(null)
   const [showApproveDialog, setShowApproveDialog] = useState(false)
   const [showArchive, setShowArchive] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [pickupDate, setPickupDate] = useState("")
+  const [pickupTime, setPickupTime] = useState("")
+  const [notes, setNotes] = useState("")
 
-  const pendingCount = mockRequests.filter(r => r.status === "pending").length
+  const { data: requests = [], mutate, isLoading } = useSWR<DocumentRequest[]>('/api/documents', fetcher)
+  const { data: archiveData = [] } = useSWR('/api/documents/archive', fetcher, { 
+    revalidateOnFocus: false 
+  })
+
+  const filteredRequests = requests.filter((req: DocumentRequest) => 
+    req.request_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.document_type_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    req.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const pendingRequests = filteredRequests.filter((r: DocumentRequest) => r.status === "pending")
+  const readyRequests = filteredRequests.filter((r: DocumentRequest) => r.status === "approved" || r.status === "ready")
+  const pendingCount = pendingRequests.length
+  const approvedCount = readyRequests.length
+  const releasedCount = filteredRequests.filter((r: DocumentRequest) => r.status === "released").length
+
+  const handleApprove = async () => {
+    if (!selectedRequest) return
+    setIsUpdating(true)
+    
+    try {
+      await fetch('/api/documents', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedRequest.id,
+          status: 'approved',
+          pickup_date: pickupDate || null,
+          pickup_time: pickupTime || null,
+          remarks: notes || null
+        })
+      })
+      
+      mutate()
+      setShowApproveDialog(false)
+      setSelectedRequest(null)
+      setPickupDate("")
+      setPickupTime("")
+      setNotes("")
+    } catch (error) {
+      console.error('Error approving request:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleReject = async () => {
+    if (!selectedRequest) return
+    setIsUpdating(true)
+    
+    try {
+      await fetch('/api/documents', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedRequest.id,
+          status: 'rejected',
+          remarks: notes || 'Request rejected'
+        })
+      })
+      
+      mutate()
+      setSelectedRequest(null)
+    } catch (error) {
+      console.error('Error rejecting request:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleRelease = async (request: DocumentRequest) => {
+    setIsUpdating(true)
+    
+    try {
+      await fetch('/api/documents', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: request.id,
+          status: 'released',
+          released_at: new Date().toISOString()
+        })
+      })
+      
+      mutate()
+    } catch (error) {
+      console.error('Error releasing document:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Document Requests</h1>
           <p className="text-muted-foreground">Process and manage document requests</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowArchive(true)}>
-            <Archive className="mr-2 h-4 w-4" />
-            Archive
-          </Button>
-          <Button variant="outline">
-            <Settings className="mr-2 h-4 w-4" />
-            Manage Types
-          </Button>
-        </div>
+        <Button variant="outline" onClick={() => setShowArchive(true)}>
+          <Archive className="mr-2 h-4 w-4" />
+          Archive
+        </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
@@ -166,8 +232,8 @@ export default function OfficialDocumentsPage() {
                 <CheckCircle2 className="h-5 w-5 text-emerald-700" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockRequests.filter(r => r.status === "approved").length}</p>
-                <p className="text-sm text-muted-foreground">Approved</p>
+                <p className="text-2xl font-bold">{approvedCount}</p>
+                <p className="text-sm text-muted-foreground">Ready</p>
               </div>
             </div>
           </CardContent>
@@ -179,7 +245,7 @@ export default function OfficialDocumentsPage() {
                 <Archive className="h-5 w-5 text-blue-700" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockRequests.filter(r => r.status === "released").length}</p>
+                <p className="text-2xl font-bold">{releasedCount}</p>
                 <p className="text-sm text-muted-foreground">Released</p>
               </div>
             </div>
@@ -192,7 +258,7 @@ export default function OfficialDocumentsPage() {
                 <FileText className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockRequests.length}</p>
+                <p className="text-2xl font-bold">{requests.length}</p>
                 <p className="text-sm text-muted-foreground">Total</p>
               </div>
             </div>
@@ -219,13 +285,13 @@ export default function OfficialDocumentsPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="pending">
-            <TabsList>
+            <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="pending">Pending ({pendingCount})</TabsTrigger>
-              <TabsTrigger value="approved">For Pickup</TabsTrigger>
+              <TabsTrigger value="approved">For Pickup ({approvedCount})</TabsTrigger>
               <TabsTrigger value="all">All Requests</TabsTrigger>
             </TabsList>
             <TabsContent value="pending" className="mt-4">
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -233,40 +299,38 @@ export default function OfficialDocumentsPage() {
                       <TableHead>Type</TableHead>
                       <TableHead>Requester</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Documents</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockRequests.filter(r => r.status === "pending").map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.id}</TableCell>
-                        <TableCell>{request.type}</TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{request.requester}</p>
-                            <p className="text-sm text-muted-foreground">{request.purok}</p>
-                          </div>
+                    {pendingRequests.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                          No pending requests
                         </TableCell>
-                        <TableCell>{request.date}</TableCell>
-                        <TableCell>
-                          {request.documentsUploaded ? (
-                            <Badge className="bg-emerald-100 text-emerald-700">Complete</Badge>
-                          ) : (
-                            <Badge className="bg-red-100 text-red-700">Missing</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setSelectedRequest(request)}
-                            >
-                              <Eye className="mr-1 h-3 w-3" />
-                              View
-                            </Button>
-                            {request.documentsUploaded && (
+                      </TableRow>
+                    ) : (
+                      pendingRequests.map((request: DocumentRequest) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">{request.request_number}</TableCell>
+                          <TableCell>{request.document_type_name || 'Unknown'}</TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{request.profiles?.full_name || 'Unknown'}</p>
+                              <p className="text-sm text-muted-foreground">{request.profiles?.purok || ''}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setSelectedRequest(request)}
+                              >
+                                <Eye className="mr-1 h-3 w-3" />
+                                View
+                              </Button>
                               <Button 
                                 size="sm"
                                 onClick={() => {
@@ -276,55 +340,71 @@ export default function OfficialDocumentsPage() {
                               >
                                 Approve
                               </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
             </TabsContent>
             <TabsContent value="approved" className="mt-4">
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Request ID</TableHead>
                       <TableHead>Type</TableHead>
                       <TableHead>Requester</TableHead>
-                      <TableHead>Pickup Time</TableHead>
+                      <TableHead>Pickup</TableHead>
                       <TableHead>Fee</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockRequests.filter(r => r.status === "approved").map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.id}</TableCell>
-                        <TableCell>{request.type}</TableCell>
-                        <TableCell>{request.requester}</TableCell>
-                        <TableCell>{request.pickupTime}</TableCell>
-                        <TableCell>PHP {request.fee}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              <Printer className="mr-1 h-3 w-3" />
-                              Print
-                            </Button>
-                            <Button size="sm">
-                              Mark Released
-                            </Button>
-                          </div>
+                    {readyRequests.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          No documents ready for pickup
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      readyRequests.map((request: DocumentRequest) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">{request.request_number}</TableCell>
+                          <TableCell>{request.document_type_name || 'Unknown'}</TableCell>
+                          <TableCell>{request.profiles?.full_name || 'Unknown'}</TableCell>
+                          <TableCell>
+                            {request.pickup_date 
+                              ? `${new Date(request.pickup_date).toLocaleDateString()} ${request.pickup_time || ''}`
+                              : 'Not set'}
+                          </TableCell>
+                          <TableCell>PHP {request.fee || 0}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm">
+                                <Printer className="mr-1 h-3 w-3" />
+                                Print
+                              </Button>
+                              <Button 
+                                size="sm"
+                                onClick={() => handleRelease(request)}
+                                disabled={isUpdating}
+                              >
+                                {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Release'}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
             </TabsContent>
             <TabsContent value="all" className="mt-4">
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -337,24 +417,32 @@ export default function OfficialDocumentsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.id}</TableCell>
-                        <TableCell>{request.type}</TableCell>
-                        <TableCell>{request.requester}</TableCell>
-                        <TableCell>{request.date}</TableCell>
-                        <TableCell>{getStatusBadge(request.status)}</TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedRequest(request)}
-                          >
-                            View
-                          </Button>
+                    {filteredRequests.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          No requests found
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      filteredRequests.map((request: DocumentRequest) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">{request.request_number}</TableCell>
+                          <TableCell>{request.document_type_name || 'Unknown'}</TableCell>
+                          <TableCell>{request.profiles?.full_name || 'Unknown'}</TableCell>
+                          <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>{getStatusBadge(request.status)}</TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setSelectedRequest(request)}
+                            >
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -375,60 +463,63 @@ export default function OfficialDocumentsPage() {
           {selectedRequest && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="font-medium">{selectedRequest.id}</span>
+                <span className="font-medium">{selectedRequest.request_number}</span>
                 {getStatusBadge(selectedRequest.status)}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Document Type</p>
-                  <p className="font-medium">{selectedRequest.type}</p>
+                  <p className="font-medium">{selectedRequest.document_type_name || 'Unknown'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Purpose</p>
-                  <p className="font-medium">{selectedRequest.purpose}</p>
+                  <p className="font-medium">{selectedRequest.purpose || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Requester</p>
-                  <p className="font-medium">{selectedRequest.requester}</p>
+                  <p className="font-medium">{selectedRequest.profiles?.full_name || 'Unknown'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{selectedRequest.email}</p>
+                  <p className="font-medium">{selectedRequest.profiles?.email || 'Unknown'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Purok</p>
-                  <p className="font-medium">{selectedRequest.purok}</p>
+                  <p className="font-medium">{selectedRequest.profiles?.purok || 'Unknown'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Fee</p>
-                  <p className="font-medium">PHP {selectedRequest.fee}</p>
+                  <p className="font-medium">PHP {selectedRequest.fee || 0}</p>
                 </div>
               </div>
-              <div className="rounded-lg border p-4">
-                <p className="text-sm text-muted-foreground mb-2">Uploaded Requirements</p>
-                {selectedRequest.documentsUploaded ? (
-                  <div className="flex items-center gap-2 text-emerald-700">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>All required documents uploaded</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-red-700">
-                    <XCircle className="h-4 w-4" />
-                    <span>Missing required documents - notify resident</span>
-                  </div>
-                )}
-              </div>
+              {selectedRequest.remarks && (
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground mb-2">Remarks</p>
+                  <p>{selectedRequest.remarks}</p>
+                </div>
+              )}
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             <Button variant="outline" onClick={() => setSelectedRequest(null)}>Close</Button>
-            {selectedRequest?.status === "pending" && selectedRequest.documentsUploaded && (
+            {selectedRequest?.status === "pending" && (
               <>
-                <Button variant="destructive">Reject</Button>
-                <Button onClick={() => setShowApproveDialog(true)}>Approve</Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleReject}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Reject'}
+                </Button>
+                <Button 
+                  onClick={() => setShowApproveDialog(true)}
+                  disabled={isUpdating}
+                >
+                  Approve
+                </Button>
               </>
             )}
-            {selectedRequest?.status === "approved" && (
+            {(selectedRequest?.status === "approved" || selectedRequest?.status === "ready") && (
               <Button>
                 <Printer className="mr-2 h-4 w-4" />
                 Print Document
@@ -450,27 +541,37 @@ export default function OfficialDocumentsPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Pickup Date</Label>
-              <Input type="date" />
+              <Input 
+                type="date" 
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Pickup Time</Label>
-              <Input type="time" />
+              <Input 
+                type="time" 
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Fee Amount</Label>
-              <Input defaultValue={selectedRequest?.fee} placeholder="Enter fee" />
+              <Input defaultValue={selectedRequest?.fee || 0} placeholder="Enter fee" disabled />
             </div>
             <div className="space-y-2">
               <Label>Notes (Optional)</Label>
-              <Textarea placeholder="Additional instructions for the resident..." />
+              <Textarea 
+                placeholder="Additional instructions for the resident..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowApproveDialog(false)}>Cancel</Button>
-            <Button onClick={() => {
-              setShowApproveDialog(false)
-              setSelectedRequest(null)
-            }}>
+            <Button onClick={handleApprove} disabled={isUpdating}>
+              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Approve & Notify
             </Button>
           </DialogFooter>
@@ -487,14 +588,7 @@ export default function OfficialDocumentsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="flex gap-2">
-              <Input placeholder="Search archive..." className="flex-1" />
-              <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
-              </Button>
-            </div>
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -505,21 +599,26 @@ export default function OfficialDocumentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {archivedDocuments.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium">{doc.id}</TableCell>
-                      <TableCell>{doc.type}</TableCell>
-                      <TableCell>{doc.requester}</TableCell>
-                      <TableCell>{doc.releaseDate}</TableCell>
+                  {filteredRequests.filter((r: DocumentRequest) => r.status === 'released').length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                        No archived documents
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    filteredRequests.filter((r: DocumentRequest) => r.status === 'released').map((doc: DocumentRequest) => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium">{doc.request_number}</TableCell>
+                        <TableCell>{doc.document_type_name || 'Unknown'}</TableCell>
+                        <TableCell>{doc.profiles?.full_name || 'Unknown'}</TableCell>
+                        <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowArchive(false)}>Close</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

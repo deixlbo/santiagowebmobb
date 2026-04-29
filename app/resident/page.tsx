@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/server"
 import {
   FileText,
   AlertTriangle,
@@ -13,56 +14,6 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"
-
-// Mock data for dashboard
-const recentRequests = [
-  {
-    id: 1,
-    type: "Barangay Clearance",
-    status: "approved",
-    date: "April 25, 2026",
-  },
-  {
-    id: 2,
-    type: "Certificate of Residency",
-    status: "pending",
-    date: "April 28, 2026",
-  },
-  {
-    id: 3,
-    type: "Business Permit",
-    status: "rejected",
-    date: "April 20, 2026",
-  },
-]
-
-const recentBlotters = [
-  {
-    id: 1,
-    type: "Noise Complaint",
-    status: "resolved",
-    date: "April 22, 2026",
-  },
-  {
-    id: 2,
-    type: "Property Dispute",
-    status: "processing",
-    date: "April 26, 2026",
-  },
-]
-
-const latestAnnouncements = [
-  {
-    id: 1,
-    title: "Community Clean-up Drive",
-    date: "May 1, 2026",
-  },
-  {
-    id: 2,
-    title: "Free Medical Check-up",
-    date: "May 5, 2026",
-  },
-]
 
 const quickActions = [
   { name: "Request Document", href: "/resident/documents", icon: FileText },
@@ -76,6 +27,8 @@ function getStatusBadge(status: string) {
   switch (status) {
     case "approved":
     case "resolved":
+    case "ready":
+    case "released":
       return (
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
           <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -84,6 +37,8 @@ function getStatusBadge(status: string) {
       )
     case "pending":
     case "processing":
+    case "filed":
+    case "mediation":
       return (
         <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
           <Clock className="mr-1 h-3 w-3" />
@@ -102,13 +57,61 @@ function getStatusBadge(status: string) {
   }
 }
 
-export default function ResidentDashboard() {
+async function getDashboardData() {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return {
+      userName: 'Guest',
+      recentRequests: [],
+      recentBlotters: [],
+      latestAnnouncements: []
+    }
+  }
+
+  const [
+    { data: profile },
+    { data: recentRequests },
+    { data: recentBlotters },
+    { data: latestAnnouncements }
+  ] = await Promise.all([
+    supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+    supabase.from('document_requests')
+      .select('*')
+      .eq('resident_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(3),
+    supabase.from('blotter_reports')
+      .select('*')
+      .eq('complainant_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(2),
+    supabase.from('announcements')
+      .select('*')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(2)
+  ])
+
+  return {
+    userName: profile?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'Resident',
+    recentRequests: recentRequests || [],
+    recentBlotters: recentBlotters || [],
+    latestAnnouncements: latestAnnouncements || []
+  }
+}
+
+export default async function ResidentDashboard() {
+  const { userName, recentRequests, recentBlotters, latestAnnouncements } = await getDashboardData()
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back, Juan!
+          Welcome back, {userName}!
         </h1>
         <p className="text-muted-foreground">
           Here&apos;s what&apos;s happening in Barangay Santiago
@@ -122,7 +125,7 @@ export default function ResidentDashboard() {
           <CardDescription>Access barangay services quickly</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {quickActions.map((action) => (
               <Link key={action.name} href={action.href}>
                 <Card className="group cursor-pointer transition-all hover:border-primary hover:shadow-md">
@@ -154,22 +157,26 @@ export default function ResidentDashboard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div>
-                    <p className="font-medium">{request.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {request.date}
-                    </p>
+            {recentRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No document requests yet</p>
+            ) : (
+              <div className="space-y-3">
+                {recentRequests.map((request: any) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{request.document_type_name || 'Document Request'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(request.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {getStatusBadge(request.status)}
                   </div>
-                  {getStatusBadge(request.status)}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -187,22 +194,26 @@ export default function ResidentDashboard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentBlotters.map((blotter) => (
-                <div
-                  key={blotter.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div>
-                    <p className="font-medium">{blotter.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {blotter.date}
-                    </p>
+            {recentBlotters.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No blotter reports filed</p>
+            ) : (
+              <div className="space-y-3">
+                {recentBlotters.map((blotter: any) => (
+                  <div
+                    key={blotter.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{blotter.incident_type}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(blotter.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {getStatusBadge(blotter.status)}
                   </div>
-                  {getStatusBadge(blotter.status)}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -223,26 +234,32 @@ export default function ResidentDashboard() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {latestAnnouncements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="rounded-lg border p-4 transition-colors hover:bg-muted/50"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-primary/10 p-2">
-                    <Megaphone className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{announcement.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {announcement.date}
-                    </p>
+          {latestAnnouncements.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No announcements yet</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {latestAnnouncements.map((announcement: any) => (
+                <div
+                  key={announcement.id}
+                  className="rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <Megaphone className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{announcement.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {announcement.publish_date 
+                          ? new Date(announcement.publish_date).toLocaleDateString() 
+                          : new Date(announcement.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

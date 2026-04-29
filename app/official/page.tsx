@@ -2,62 +2,108 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/server"
 import {
   Users,
   FileText,
   AlertTriangle,
   Building2,
-  FolderKanban,
   Megaphone,
   ArrowRight,
   TrendingUp,
   Clock,
-  CheckCircle2,
 } from "lucide-react"
 
-// Stats data
-const stats = [
-  { name: "Total Residents", value: "1,245", change: "+12", icon: Users, href: "/official/residents" },
-  { name: "Pending Documents", value: "23", change: "-5", icon: FileText, href: "/official/documents" },
-  { name: "Active Blotters", value: "8", change: "+2", icon: AlertTriangle, href: "/official/blotters" },
-  { name: "Business Permits", value: "45", change: "+3", icon: Building2, href: "/official/business" },
-]
+async function getDashboardData() {
+  const supabase = await createClient()
+  
+  const [
+    { count: residentsCount },
+    { count: documentsCount },
+    { data: pendingDocuments },
+    { count: blotterCount },
+    { count: projectsCount },
+    { count: businessCount },
+    { data: recentDocuments },
+    { data: recentBlotters },
+    { data: ongoingProjects }
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('document_requests').select('*', { count: 'exact', head: true }),
+    supabase.from('document_requests').select('*, profiles:resident_id (full_name)').eq('status', 'pending').limit(3),
+    supabase.from('blotter_reports').select('*', { count: 'exact', head: true }).in('status', ['filed', 'processing', 'mediation']),
+    supabase.from('projects').select('*', { count: 'exact', head: true }),
+    supabase.from('business_permits').select('*', { count: 'exact', head: true }),
+    supabase.from('document_requests')
+      .select('*, profiles:resident_id (full_name)')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase.from('blotter_reports')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase.from('projects')
+      .select('*')
+      .eq('status', 'ongoing')
+      .limit(2)
+  ])
 
-// Recent activities
-const recentActivities = [
-  { id: 1, type: "document", action: "New document request", name: "Juan Dela Cruz", time: "5 minutes ago" },
-  { id: 2, type: "blotter", action: "Blotter filed", name: "Maria Santos", time: "15 minutes ago" },
-  { id: 3, type: "business", action: "Business permit approved", name: "Pedro Store", time: "1 hour ago" },
-  { id: 4, type: "resident", action: "New resident registered", name: "Ana Reyes", time: "2 hours ago" },
-]
+  return {
+    stats: {
+      residents: residentsCount || 0,
+      documents: documentsCount || 0,
+      pendingDocuments: pendingDocuments?.length || 0,
+      blotters: blotterCount || 0,
+      projects: projectsCount || 0,
+      businesses: businessCount || 0
+    },
+    pendingApprovals: pendingDocuments || [],
+    recentDocuments: recentDocuments || [],
+    recentBlotters: recentBlotters || [],
+    ongoingProjects: ongoingProjects || []
+  }
+}
 
-// Pending approvals
-const pendingApprovals = [
-  { id: 1, type: "Document Request", name: "Certificate of Residency", requester: "Juan Dela Cruz", date: "April 28, 2026" },
-  { id: 2, type: "Business Permit", name: "Sari-sari Store", requester: "Maria Santos", date: "April 27, 2026" },
-  { id: 3, type: "Verification", name: "Account Verification", requester: "Pedro Reyes", date: "April 26, 2026" },
-]
+export default async function OfficialDashboard() {
+  const { stats, pendingApprovals, recentDocuments, recentBlotters, ongoingProjects } = await getDashboardData()
+  
+  const statsData = [
+    { name: "Total Residents", value: stats.residents.toLocaleString(), icon: Users, href: "/official/residents" },
+    { name: "Pending Documents", value: stats.pendingDocuments.toString(), icon: FileText, href: "/official/documents" },
+    { name: "Active Blotters", value: stats.blotters.toString(), icon: AlertTriangle, href: "/official/blotters" },
+    { name: "Business Permits", value: stats.businesses.toString(), icon: Building2, href: "/official/business" },
+  ]
 
-// Ongoing projects
-const ongoingProjects = [
-  { id: 1, title: "Road Improvement", progress: 65, location: "Purok 3" },
-  { id: 2, title: "Community Watch", progress: 45, location: "All Puroks" },
-]
+  const recentActivities = [
+    ...recentDocuments.map((doc: any) => ({
+      id: doc.id,
+      type: "document" as const,
+      action: `Document Request: ${doc.document_type_name || 'Unknown'}`,
+      name: doc.profiles?.full_name || 'Unknown',
+      time: new Date(doc.created_at).toLocaleDateString()
+    })),
+    ...recentBlotters.map((blotter: any) => ({
+      id: blotter.id,
+      type: "blotter" as const,
+      action: `Blotter Filed: ${blotter.incident_type || 'Unknown'}`,
+      name: blotter.complainant_name || 'Unknown',
+      time: new Date(blotter.created_at).toLocaleDateString()
+    }))
+  ].slice(0, 4)
 
-export default function OfficialDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, Captain Borja. Here&apos;s your barangay overview.
+          Welcome back! Here&apos;s your barangay overview.
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statsData.map((stat) => (
           <Link key={stat.name} href={stat.href}>
             <Card className="transition-shadow hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -70,7 +116,7 @@ export default function OfficialDashboard() {
                 <div className="text-2xl font-bold">{stat.value}</div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <TrendingUp className="h-3 w-3 text-accent" />
-                  <span className="text-accent">{stat.change}</span> from last month
+                  <span className="text-accent">Active</span>
                 </p>
               </CardContent>
             </Card>
@@ -89,29 +135,34 @@ export default function OfficialDashboard() {
             <Badge variant="secondary">{pendingApprovals.length} pending</Badge>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {pendingApprovals.map((item) => (
-                <div 
-                  key={item.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3 w-3 text-amber-500" />
-                      <span className="text-xs text-muted-foreground">{item.type}</span>
+            {pendingApprovals.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No pending approvals</p>
+            ) : (
+              <div className="space-y-3">
+                {pendingApprovals.map((item: any) => (
+                  <div 
+                    key={item.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-amber-500" />
+                        <span className="text-xs text-muted-foreground">Document Request</span>
+                      </div>
+                      <p className="font-medium">{item.document_type_name || 'Unknown Document'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.profiles?.full_name || 'Unknown'} | {new Date(item.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {item.requester} | {item.date}
-                    </p>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href="/official/documents">View</Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">View</Button>
-                    <Button size="sm">Approve</Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -124,26 +175,28 @@ export default function OfficialDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentActivities.map((activity) => (
-                <div 
-                  key={activity.id}
-                  className="flex items-start gap-3 rounded-lg border p-3"
-                >
-                  <div className="mt-0.5 rounded-full bg-primary/10 p-1.5">
-                    {activity.type === "document" && <FileText className="h-3 w-3 text-primary" />}
-                    {activity.type === "blotter" && <AlertTriangle className="h-3 w-3 text-amber-500" />}
-                    {activity.type === "business" && <Building2 className="h-3 w-3 text-accent" />}
-                    {activity.type === "resident" && <Users className="h-3 w-3 text-blue-500" />}
+            {recentActivities.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
+            ) : (
+              <div className="space-y-3">
+                {recentActivities.map((activity) => (
+                  <div 
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-lg border p-3"
+                  >
+                    <div className="mt-0.5 rounded-full bg-primary/10 p-1.5">
+                      {activity.type === "document" && <FileText className="h-3 w-3 text-primary" />}
+                      {activity.type === "blotter" && <AlertTriangle className="h-3 w-3 text-amber-500" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{activity.action}</p>
+                      <p className="text-sm text-muted-foreground">{activity.name}</p>
+                      <p className="text-xs text-muted-foreground">{activity.time}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-sm text-muted-foreground">{activity.name}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -200,25 +253,29 @@ export default function OfficialDashboard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {ongoingProjects.map((project) => (
-                <div key={project.id} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{project.title}</p>
-                      <p className="text-sm text-muted-foreground">{project.location}</p>
+            {ongoingProjects.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No ongoing projects</p>
+            ) : (
+              <div className="space-y-4">
+                {ongoingProjects.map((project: any) => (
+                  <div key={project.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{project.title}</p>
+                        <p className="text-sm text-muted-foreground">{project.location || 'No location'}</p>
+                      </div>
+                      <span className="text-sm font-medium">{project.progress || 0}%</span>
                     </div>
-                    <span className="text-sm font-medium">{project.progress}%</span>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div 
+                        className="h-full bg-primary transition-all" 
+                        style={{ width: `${project.progress || 0}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div 
-                      className="h-full bg-primary transition-all" 
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
