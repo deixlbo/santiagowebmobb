@@ -382,7 +382,7 @@ export default function OfficialBlottersPage() {
 
       {/* Blotter Details Modal */}
       <Dialog open={!!selectedBlotter && !showUpdateDialog && !showPrintPreview} onOpenChange={() => setSelectedBlotter(null)}>
-        <DialogContent className="max-w-lg mx-4 md:mx-auto">
+        <DialogContent className="w-[95vw] max-w-lg sm:w-full">
           <DocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Blotter Details</DialogTitle>
@@ -393,11 +393,11 @@ export default function OfficialBlottersPage() {
           {selectedBlotter && (
             <ScrollArea className="max-h-[50vh]">
               <div className="space-y-3 pr-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="font-medium text-sm">{selectedBlotter.id}</span>
                   {getStatusBadge(selectedBlotter.status)}
                 </div>
-                <div className="grid gap-3 grid-cols-2">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                   <div>
                     <p className="text-[10px] md:text-sm text-muted-foreground">Incident Type</p>
                     <p className="font-medium text-sm">{selectedBlotter.type}</p>
@@ -414,11 +414,11 @@ export default function OfficialBlottersPage() {
                     <p className="text-[10px] md:text-sm text-muted-foreground">Respondent</p>
                     <p className="font-medium text-sm">{selectedBlotter.respondent}</p>
                   </div>
-                  <div className="col-span-2">
+                  <div className="sm:col-span-2">
                     <p className="text-[10px] md:text-sm text-muted-foreground">Location</p>
                     <p className="font-medium text-sm">{selectedBlotter.location}</p>
                   </div>
-                  <div className="col-span-2">
+                  <div className="sm:col-span-2">
                     <p className="text-[10px] md:text-sm text-muted-foreground">Description</p>
                     <p className="font-medium text-sm">{selectedBlotter.description}</p>
                   </div>
@@ -438,24 +438,24 @@ export default function OfficialBlottersPage() {
               </div>
             </ScrollArea>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setSelectedBlotter(null)}>Close</Button>
-            <Button variant="outline" size="sm" onClick={() => setShowPrintPreview(true)}>
-              <Printer className="mr-1 h-3 w-3" />
-              Print
-            </Button>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             {selectedBlotter?.status !== "resolved" && (
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowUpdateDialog(true)}>
+              <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowUpdateDialog(true)}>
                 Update
               </Button>
             )}
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setShowPrintPreview(true)}>
+              <Printer className="mr-1 h-3 w-3" />
+              Print
+            </Button>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setSelectedBlotter(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Update Status Dialog */}
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
-        <DialogContent className="mx-4 md:mx-auto">
+        <DialogContent className="w-[95vw] max-w-lg sm:w-full">
           <DocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Update Blotter Status</DialogTitle>
@@ -479,84 +479,130 @@ export default function OfficialBlottersPage() {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setShowUpdateDialog(false)}>Cancel</Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => {
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => {
               setShowUpdateDialog(false)
               setSelectedBlotter(null)
             }}>
               Save & Notify
             </Button>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setShowUpdateDialog(false)}>Cancel</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Print Preview Dialog */}
       <Dialog open={showPrintPreview} onOpenChange={setShowPrintPreview}>
-        <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh]">
+        <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Blotter Report Preview</DialogTitle>
           </DialogHeader>
           {selectedBlotter && (
             <ScrollArea className="max-h-[60vh]">
-              <div className="rounded-lg border bg-white p-4 md:p-8 text-black">
-                <div className="flex items-center justify-between mb-4">
-                  <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
-                  <div className="text-center flex-1">
-                    <p className="text-[10px] md:text-sm">Republic of the Philippines</p>
-                    <p className="text-sm md:text-lg font-bold">BARANGAY SANTIAGO</p>
-                    <p className="text-[10px] md:text-sm">City of Santiago, Isabela</p>
+              <div id="print-content" className="rounded-lg border bg-white p-4 md:p-8 text-black print:p-0 print:border-0">
+                {/* Header with circular logos */}
+                <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                  <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+                  <div className="text-center flex-1 px-2">
+                    <p className="text-[10px] md:text-xs text-gray-600 print:text-black">Republic of the Philippines</p>
+                    <p className="text-xs md:text-sm font-bold print:text-black">BARANGAY SANTIAGO</p>
+                    <p className="text-[10px] md:text-xs text-gray-600 print:text-black">City of Santiago, Isabela</p>
                   </div>
-                  <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+                  <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
                 </div>
+                
+                {/* Title */}
                 <div className="text-center mb-6">
-                  <h2 className="text-lg md:text-xl font-bold underline">BLOTTER REPORT</h2>
+                  <h2 className="text-base md:text-lg font-bold border-y-2 border-black py-2 print:text-black">BLOTTER REPORT</h2>
                 </div>
-                <div className="space-y-2 text-xs md:text-sm">
-                  <div className="flex justify-between">
-                    <span>Reference No:</span>
-                    <span className="font-bold">{selectedBlotter.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Date Filed:</span>
-                    <span>{selectedBlotter.date}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Incident Type:</span>
-                    <span>{selectedBlotter.type}</span>
-                  </div>
-                  <div className="border-t pt-2 mt-4">
-                    <p className="font-bold">Complainant: {selectedBlotter.complainant}</p>
-                    <p className="font-bold mt-2">Respondent: {selectedBlotter.respondent}</p>
-                  </div>
-                  <div className="border-t pt-2 mt-4">
-                    <p className="font-bold">Description:</p>
-                    <p>{selectedBlotter.description}</p>
-                  </div>
+                
+                {/* Reference and Status */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium print:text-black">Reference: {selectedBlotter.id}</span>
+                  {getStatusBadge(selectedBlotter.status)}
                 </div>
-                <div className="mt-8 flex justify-between text-xs md:text-sm">
-                  <div className="text-center">
-                    <div className="w-28 md:w-40 border-t border-black pt-1">
-                      <p className="font-bold">ROBERTO BORJA</p>
-                      <p className="text-[10px] md:text-xs">Barangay Captain</p>
+                
+                {/* Details Grid */}
+                <div className="space-y-4 text-xs md:text-sm">
+                  <div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg print:bg-white print:border print:border-gray-300">
+                    <div>
+                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Date Filed</p>
+                      <p className="font-semibold print:text-black">{selectedBlotter.date}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Incident Type</p>
+                      <p className="font-semibold print:text-black">{selectedBlotter.type}</p>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="w-28 md:w-40 border-t border-black pt-1">
-                      <p className="font-bold">Date</p>
-                      <p className="text-[10px] md:text-xs">{new Date().toLocaleDateString()}</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-3 border rounded-lg">
+                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Complainant</p>
+                      <p className="font-semibold print:text-black">{selectedBlotter.complainant}</p>
+                      <p className="text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.complainantAddress}</p>
+                    </div>
+                    <div className="p-3 border rounded-lg">
+                      <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Respondent</p>
+                      <p className="font-semibold print:text-black">{selectedBlotter.respondent}</p>
+                      <p className="text-[10px] text-gray-500 print:text-gray-600">{selectedBlotter.respondentAddress}</p>
                     </div>
                   </div>
+                  
+                  <div className="p-3 border rounded-lg">
+                    <p className="text-gray-500 text-[10px] uppercase print:text-gray-600">Location</p>
+                    <p className="font-semibold print:text-black">{selectedBlotter.location}</p>
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <p className="font-bold text-xs uppercase mb-2 print:text-black">Description of Incident</p>
+                    <p className="leading-relaxed print:text-black">{selectedBlotter.description}</p>
+                  </div>
+                  
+                  {selectedBlotter.actionTaken && (
+                    <div className="border-t pt-4">
+                      <p className="font-bold text-xs uppercase mb-2 print:text-black">Action Taken</p>
+                      <p className="leading-relaxed print:text-black">{selectedBlotter.actionTaken}</p>
+                    </div>
+                  )}
+                  
+                  {selectedBlotter.resolution && (
+                    <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 print:bg-white print:border-gray-300">
+                      <p className="font-bold text-xs uppercase mb-2 text-emerald-800 print:text-black">Resolution</p>
+                      <p className="leading-relaxed text-emerald-700 print:text-black">{selectedBlotter.resolution}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Signature Section */}
+                <div className="mt-10 pt-6 border-t">
+                  <p className="text-[10px] text-gray-500 text-center mb-6 print:text-gray-600">Certified Correct:</p>
+                  <div className="flex justify-between">
+                    <div className="text-center">
+                      <div className="w-32 md:w-40 border-b border-black mb-1 h-8" />
+                      <p className="font-bold text-xs print:text-black">ROLANDO C. BORJA</p>
+                      <p className="text-[10px] text-gray-600 print:text-gray-600">Barangay Captain</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-32 md:w-40 border-b border-black mb-1 h-8" />
+                      <p className="font-bold text-xs print:text-black">Date</p>
+                      <p className="text-[10px] text-gray-600 print:text-gray-600">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Footer */}
+                <div className="mt-6 pt-4 border-t text-center text-[10px] text-gray-500 print:text-gray-600">
+                  <p>This document is generated by the Barangay Santiago Management System</p>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setShowPrintPreview(false)}>Close</Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => window.print()}>
               <Printer className="mr-2 h-3 w-3" />
               Print
             </Button>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setShowPrintPreview(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
