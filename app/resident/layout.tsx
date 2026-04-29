@@ -28,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "sonner"
+
 import { useState } from "react"
 
 const navigation = [
@@ -55,7 +55,6 @@ export default function ResidentLayout({
   }
 
   const handleLogout = () => {
-    toast.success("Logged out successfully")
     router.push("/resident/login")
   }
 

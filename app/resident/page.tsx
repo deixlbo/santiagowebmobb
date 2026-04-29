@@ -105,16 +105,6 @@ function getStatusBadge(status: string) {
 export default function ResidentDashboard() {
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back, Juan!
-        </h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening in Barangay Santiago
-        </p>
-      </div>
-
       {/* Quick Actions */}
       <Card>
         <CardHeader>

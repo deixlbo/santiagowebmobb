@@ -33,7 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useState } from "react"
-import { toast } from "sonner"
+
 
 const navigation = [
   { name: "Dashboard", href: "/official", icon: LayoutDashboard },
@@ -63,7 +63,6 @@ export default function OfficialLayout({
   }
 
   const handleLogout = () => {
-    toast.success("Logged out successfully")
     router.push("/official/login")
   }
 

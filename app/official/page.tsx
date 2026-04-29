@@ -66,14 +66,6 @@ export default function OfficialDashboard() {
       animate="visible"
       className="space-y-4 md:space-y-6"
     >
-      {/* Welcome Section */}
-      <motion.div variants={itemVariants} className="space-y-1">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Welcome back, Captain Borja. Here&apos;s your barangay overview.
-        </p>
-      </motion.div>
-
       {/* Stats Grid */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
