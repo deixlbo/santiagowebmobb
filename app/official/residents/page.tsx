@@ -345,54 +345,54 @@ export default function ResidentsPage() {
 
       {/* Resident Details Modal */}
       <Dialog open={!!selectedResident} onOpenChange={() => setSelectedResident(null)}>
-        <DialogContent className="max-w-2xl mx-auto w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:w-full max-w-xl">
           <DialogHeader>
-            <DialogTitle className="text-lg md:text-xl">Resident Details</DialogTitle>
+            <DialogTitle className="text-base md:text-lg">Resident Details</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
               View resident information and verification status
             </DialogDescription>
           </DialogHeader>
           {selectedResident && (
-            <div className="space-y-4 md:space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <span className="text-xs md:text-sm text-muted-foreground font-medium">Status</span>
+            <div className="space-y-3 md:space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs md:text-sm text-muted-foreground">Status</span>
                 {getStatusBadge(selectedResident.status)}
               </div>
-              <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2">
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Full Name</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.name}</p>
+              <div className="grid gap-2 md:gap-3 grid-cols-1 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Full Name</p>
+                  <p className="font-medium text-sm md:text-base">{selectedResident.name}</p>
                 </div>
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Email</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.email}</p>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Email</p>
+                  <p className="font-medium text-sm md:text-base truncate">{selectedResident.email}</p>
                 </div>
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Purok</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.purok}</p>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Purok</p>
+                  <p className="font-medium text-sm md:text-base">{selectedResident.purok}</p>
                 </div>
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Gender</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.gender}</p>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Gender</p>
+                  <p className="font-medium text-sm md:text-base">{selectedResident.gender}</p>
                 </div>
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Document Type</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.documentType}</p>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Document Type</p>
+                  <p className="font-medium text-sm md:text-base">{selectedResident.documentType}</p>
                 </div>
-                <div className="border-l-2 border-primary/20 pl-3">
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide">Registered Date</p>
-                  <p className="font-medium text-sm md:text-base mt-1 break-words">{selectedResident.registeredDate}</p>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Registered Date</p>
+                  <p className="font-medium text-sm md:text-base">{selectedResident.registeredDate}</p>
                 </div>
               </div>
-              <div className="rounded-lg border p-3 md:p-5 bg-muted/30">
-                <p className="text-xs md:text-sm text-muted-foreground font-semibold uppercase tracking-wide mb-3">Uploaded Document</p>
-                <div className="aspect-video rounded bg-background flex items-center justify-center border border-dashed border-muted-foreground/30 min-h-[150px] md:min-h-[200px]">
+              <div className="rounded-lg border p-3 md:p-4 bg-muted/20">
+                <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Uploaded Document</p>
+                <div className="aspect-video rounded bg-muted flex items-center justify-center">
                   <span className="text-xs md:text-sm text-muted-foreground">Document Preview</span>
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-2 md:pt-4">
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button 
               variant="outline" 
               size="sm" 
