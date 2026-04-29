@@ -280,7 +280,7 @@ export default function OfficialDocumentsPage() {
                 <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">All Requests</TabsTrigger>
               </TabsList>
               <TabsContent value="pending" className="mt-3 md:mt-4">
-                <div className="rounded-md border overflow-x-auto">
+                <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -288,27 +288,27 @@ export default function OfficialDocumentsPage() {
                         <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
                         <TableHead className="text-xs md:text-sm hidden md:table-cell">Requester</TableHead>
                         <TableHead className="text-xs md:text-sm hidden lg:table-cell">Date</TableHead>
-                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
+                        <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {mockRequests.filter(r => r.status === "pending").map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
-                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{request.type}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
                           <TableCell className="py-2 md:py-4 hidden md:table-cell">
                             <div>
                               <p className="font-medium text-xs md:text-sm">{request.requester}</p>
                               <p className="text-[10px] md:text-xs text-muted-foreground">{request.purok}</p>
                             </div>
                           </TableCell>
-                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden lg:table-cell">{request.date}</TableCell>
-                          <TableCell className="py-2 md:py-4">
-                            <div className="flex gap-1 md:gap-2">
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden lg:table-cell whitespace-nowrap">{request.date}</TableCell>
+                          <TableCell className="py-2 md:py-4 text-right">
+                            <div className="flex gap-1 md:gap-2 justify-end">
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                className="h-7 md:h-8 px-2 md:px-3 text-xs"
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0"
                                 onClick={() => setSelectedRequest(request)}
                               >
                                 <Eye className="h-3 w-3 md:mr-1" />
@@ -317,7 +317,7 @@ export default function OfficialDocumentsPage() {
                               {request.documentsUploaded && (
                                 <Button 
                                   size="sm"
-                                  className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700"
+                                  className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700 flex-shrink-0"
                                   onClick={() => {
                                     setSelectedRequest(request)
                                     setShowApproveDialog(true)
@@ -336,29 +336,29 @@ export default function OfficialDocumentsPage() {
                 </div>
               </TabsContent>
               <TabsContent value="approved" className="mt-3 md:mt-4">
-                <div className="rounded-md border overflow-x-auto">
+                <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="text-xs md:text-sm">Request ID</TableHead>
                         <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
                         <TableHead className="text-xs md:text-sm hidden md:table-cell">Requester</TableHead>
-                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
+                        <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {mockRequests.filter(r => r.status === "approved").map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
-                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{request.type}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{request.requester}</TableCell>
-                          <TableCell className="py-2 md:py-4">
-                            <div className="flex gap-1 md:gap-2">
-                              <Button variant="outline" size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs">
+                          <TableCell className="py-2 md:py-4 text-right">
+                            <div className="flex gap-1 md:gap-2 justify-end">
+                              <Button variant="outline" size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0" onClick={() => window.print()}>
                                 <Printer className="h-3 w-3 md:mr-1" />
                                 <span className="hidden md:inline">Print</span>
                               </Button>
-                              <Button size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700">
+                              <Button size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700 flex-shrink-0">
                                 <CheckCircle2 className="h-3 w-3 md:mr-1" />
                                 <span className="hidden lg:inline">Released</span>
                               </Button>
@@ -371,7 +371,7 @@ export default function OfficialDocumentsPage() {
                 </div>
               </TabsContent>
               <TabsContent value="all" className="mt-3 md:mt-4">
-                <div className="rounded-md border overflow-x-auto">
+                <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -379,21 +379,21 @@ export default function OfficialDocumentsPage() {
                         <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
                         <TableHead className="text-xs md:text-sm hidden md:table-cell">Requester</TableHead>
                         <TableHead className="text-xs md:text-sm">Status</TableHead>
-                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
+                        <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {mockRequests.map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
-                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{request.type}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{request.requester}</TableCell>
                           <TableCell className="py-2 md:py-4">{getStatusBadge(request.status)}</TableCell>
-                          <TableCell className="py-2 md:py-4">
+                          <TableCell className="py-2 md:py-4 text-right">
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="h-7 md:h-8 px-2 md:px-3 text-xs"
+                              className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0"
                               onClick={() => setSelectedRequest(request)}
                             >
                               <Eye className="h-3 w-3" />
@@ -412,7 +412,7 @@ export default function OfficialDocumentsPage() {
 
       {/* Request Details Modal - with Document Header */}
       <Dialog open={!!selectedRequest && !showApproveDialog} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="max-w-lg mx-4 md:mx-auto">
+        <DialogContent className="w-[95vw] max-w-2xl sm:w-full">
           <DocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Request Details</DialogTitle>
@@ -421,49 +421,49 @@ export default function OfficialDocumentsPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedRequest && (
-            <div className="space-y-3 md:space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="space-y-3 md:space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <span className="font-medium text-sm md:text-base">{selectedRequest.id}</span>
                 {getStatusBadge(selectedRequest.status)}
               </div>
-              <div className="grid gap-3 md:gap-4 grid-cols-2">
+              <div className="grid gap-2 md:gap-3 grid-cols-1 sm:grid-cols-2">
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Document Type</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Document Type</p>
                   <p className="font-medium text-sm md:text-base">{selectedRequest.type}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Purpose</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Purpose</p>
                   <p className="font-medium text-sm md:text-base">{selectedRequest.purpose}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Requester</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Requester</p>
                   <p className="font-medium text-sm md:text-base">{selectedRequest.requester}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Purok</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Purok</p>
                   <p className="font-medium text-sm md:text-base">{selectedRequest.purok}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Fee</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Fee</p>
                   <p className="font-medium text-sm md:text-base">PHP {selectedRequest.fee}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] md:text-sm text-muted-foreground">Date</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Date</p>
                   <p className="font-medium text-sm md:text-base">{selectedRequest.date}</p>
                 </div>
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setSelectedRequest(null)}>Close</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setSelectedRequest(null)}>Close</Button>
             {selectedRequest?.status === "pending" && selectedRequest.documentsUploaded && (
               <>
-                <Button variant="destructive" size="sm">Reject</Button>
-                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApproveDialog(true)}>Approve</Button>
+                <Button variant="destructive" size="sm" className="w-full sm:w-auto">Reject</Button>
+                <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApproveDialog(true)}>Approve</Button>
               </>
             )}
             {selectedRequest?.status === "approved" && (
-              <Button size="sm">
+              <Button size="sm" className="w-full sm:w-auto" onClick={() => window.print()}>
                 <Printer className="mr-2 h-3 w-3" />
                 Print Document
               </Button>
