@@ -503,7 +503,6 @@ export default function ResidentsPage() {
                   </div>
                 </div>
               </div>
-              )}
             </div>
             )}
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
