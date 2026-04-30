@@ -504,45 +504,6 @@ export default function ResidentsPage() {
                 </div>
               </div>
               )}
-
-              {/* Documents Section */}
-              <div className="rounded-lg border p-3 md:p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                    <p className="text-xs md:text-sm font-semibold">Resident Documents</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="gap-1 h-7"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span className="text-xs">Add</span>
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <FileText className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs md:text-sm font-medium truncate">{selectedResident.documentType}</p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground">Registered: {selectedResident.registeredDate}</p>
-                      </div>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="h-7 w-7 p-0 flex-shrink-0"
-                    >
-                      <Trash2 className="w-3 h-3 text-red-500" />
-                    </Button>
-                  </div>
-                  <div className="text-center py-2 border-2 border-dashed rounded-md">
-                    <p className="text-[10px] md:text-xs text-muted-foreground">Drag & drop or click to add documents</p>
-                  </div>
-                </div>
-              </div>
             </div>
             )}
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
