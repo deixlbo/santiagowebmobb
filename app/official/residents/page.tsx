@@ -463,6 +463,7 @@ export default function ResidentsPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Documents Section */}
               <div className="rounded-lg border p-3 md:p-4">
