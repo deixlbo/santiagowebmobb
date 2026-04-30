@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,8 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { 
-  Search, 
+import {
+  Search,
   Eye,
   CheckCircle2,
   XCircle,
@@ -25,10 +24,30 @@ import {
   Archive,
   Plus,
   Trash2,
-  Edit2
+  Edit2,
+  ListChecks,
 } from "lucide-react"
+import { toast } from "sonner"
+import { exportToOfficialExcel } from "@/lib/excel-export"
+import { printDocument } from "@/lib/print-document"
 
-const mockRequests = [
+interface Request {
+  id: string
+  type: string
+  purpose: string
+  requester: string
+  email: string
+  purok: string
+  status: "pending" | "approved" | "rejected" | "released"
+  date: string
+  fee: string
+  pickupTime?: string
+  releaseDate?: string
+  documentsUploaded: boolean
+  uploadedImage?: string
+}
+
+const initialRequests: Request[] = [
   {
     id: "REQ-2026-001",
     type: "Barangay Clearance",
@@ -39,7 +58,8 @@ const mockRequests = [
     status: "pending",
     date: "April 28, 2026",
     fee: "50",
-    documentsUploaded: true
+    documentsUploaded: true,
+    uploadedImage: "/placeholder.jpg",
   },
   {
     id: "REQ-2026-002",
@@ -52,7 +72,8 @@ const mockRequests = [
     date: "April 27, 2026",
     fee: "30",
     pickupTime: "April 30, 2026, 2:00 PM",
-    documentsUploaded: true
+    documentsUploaded: true,
+    uploadedImage: "/placeholder.jpg",
   },
   {
     id: "REQ-2026-003",
@@ -64,7 +85,7 @@ const mockRequests = [
     status: "pending",
     date: "April 26, 2026",
     fee: "200",
-    documentsUploaded: false
+    documentsUploaded: false,
   },
   {
     id: "REQ-2026-004",
@@ -77,14 +98,9 @@ const mockRequests = [
     date: "April 20, 2026",
     fee: "Free",
     releaseDate: "April 22, 2026",
-    documentsUploaded: true
+    documentsUploaded: true,
+    uploadedImage: "/placeholder.jpg",
   },
-]
-
-const archivedDocuments = [
-  { id: "ARC-001", type: "Barangay Clearance", requester: "Juan Dela Cruz", releaseDate: "April 15, 2026" },
-  { id: "ARC-002", type: "Business Clearance", requester: "Maria Santos", releaseDate: "April 10, 2026" },
-  { id: "ARC-003", type: "Certificate of Residency", requester: "Pedro Reyes", releaseDate: "April 5, 2026" },
 ]
 
 const defaultDocumentTypes = [
@@ -99,33 +115,29 @@ function getStatusBadge(status: string) {
     case "approved":
       return (
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-[10px] md:text-xs">
-          <CheckCircle2 className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
-          <span className="hidden sm:inline">Approved</span>
-          <span className="sm:hidden">OK</span>
+          <CheckCircle2 className="mr-1 h-3 w-3" />
+          Approved
         </Badge>
       )
     case "pending":
       return (
         <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-[10px] md:text-xs">
-          <Clock className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
-          <span className="hidden sm:inline">Pending</span>
-          <span className="sm:hidden">Wait</span>
+          <Clock className="mr-1 h-3 w-3" />
+          Pending
         </Badge>
       )
     case "rejected":
       return (
         <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-[10px] md:text-xs">
-          <XCircle className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
-          <span className="hidden sm:inline">Rejected</span>
-          <span className="sm:hidden">No</span>
+          <XCircle className="mr-1 h-3 w-3" />
+          Rejected
         </Badge>
       )
     case "released":
       return (
         <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] md:text-xs">
-          <Archive className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
-          <span className="hidden sm:inline">Released</span>
-          <span className="sm:hidden">Done</span>
+          <Archive className="mr-1 h-3 w-3" />
+          Released
         </Badge>
       )
     default:
@@ -143,38 +155,241 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-// Document Header Component with Logos
-function DocumentHeader() {
-  return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
-      <div className="text-center flex-1 px-2">
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
-      </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
-    </div>
-  )
+function formatPHDate(date = new Date()) {
+  return date.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })
+}
+
+function buildPrintHtml(req: Request, releaseDate: string): string {
+  const certBody = (() => {
+    switch (req.type) {
+      case "Barangay Clearance":
+        return `
+          <p>This is to certify that <strong>${req.requester}</strong>, of legal age, a bonafide resident of <strong>${req.purok}, Barangay Santiago, San Antonio, Zambales</strong>, is known to be of good moral character and reputation in the community.</p>
+          <p>Based on the records of this office, the above-named person has no derogatory record nor any pending criminal case filed against him/her.</p>
+          <p>This certification is issued upon the request of the above-named person for <strong>${req.purpose}</strong>.</p>
+        `
+      case "Certificate of Residency":
+        return `
+          <p>This is to certify that <strong>${req.requester}</strong> is a bonafide resident of <strong>${req.purok}, Barangay Santiago, San Antonio, Zambales</strong>.</p>
+          <p>This certification is issued upon the request of the above-named person for <strong>${req.purpose}</strong>.</p>
+        `
+      case "Certificate of Indigency":
+        return `
+          <p>This is to certify that <strong>${req.requester}</strong> is a bonafide resident of <strong>${req.purok}, Barangay Santiago, San Antonio, Zambales</strong>, and belongs to an indigent family in this barangay.</p>
+          <p>This certification is issued upon the request of the above-named person for <strong>${req.purpose}</strong>.</p>
+        `
+      case "Business Clearance":
+        return `
+          <p>This is to certify that <strong>${req.requester}</strong>, owner/operator of <strong>${req.purpose}</strong>, located at <strong>${req.purok}, Barangay Santiago, San Antonio, Zambales</strong>, has been granted clearance to operate said business in this barangay.</p>
+          <p>This certification is issued for whatever legal purpose it may serve.</p>
+        `
+      default:
+        return `
+          <p>This certification is issued in favor of <strong>${req.requester}</strong>, a bonafide resident of <strong>${req.purok}, Barangay Santiago, San Antonio, Zambales</strong>, for the purpose of <strong>${req.purpose}</strong>.</p>
+        `
+    }
+  })()
+
+  return `
+    <h2>${req.type}</h2>
+    <p style="text-align:center; font-style:italic; margin-top:-6px;">Office of the Barangay Captain</p>
+    <p style="margin-top:24px;"><strong>TO WHOM IT MAY CONCERN:</strong></p>
+    ${certBody}
+    <p style="margin-top:24px;">Issued this <strong>${releaseDate}</strong> at Barangay Santiago, San Antonio, Zambales.</p>
+    <table style="width:100%; margin-top:48px;">
+      <tr>
+        <td style="width:50%; vertical-align:top;">
+          <div><span class="field">O.R. No.:</span> ____________________</div>
+          <div><span class="field">Date Issued:</span> ${releaseDate}</div>
+          <div><span class="field">Doc. Stamp:</span> Paid</div>
+          <div><span class="field">Fee:</span> PHP ${req.fee}</div>
+        </td>
+        <td style="width:50%; text-align:center; vertical-align:bottom;">
+          <div style="margin-top:36px; border-top:1px solid #000; padding-top:4px; display:inline-block; min-width:240px;">
+            <div style="font-weight:bold; text-transform:uppercase;">ROLANDO C. BORJA</div>
+            <div style="font-style:italic;">Punong Barangay</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  `
 }
 
 export default function OfficialDocumentsPage() {
+  const [requests, setRequests] = useState<Request[]>(initialRequests)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null)
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null)
   const [showApproveDialog, setShowApproveDialog] = useState(false)
+  const [pickupDate, setPickupDate] = useState("")
+  const [pickupTime, setPickupTime] = useState("")
+  const [pickupFee, setPickupFee] = useState("")
   const [showArchive, setShowArchive] = useState(false)
   const [showManageTypes, setShowManageTypes] = useState(false)
+  const [showInventory, setShowInventory] = useState(false)
   const [documentTypes, setDocumentTypes] = useState(defaultDocumentTypes)
-  const [editingType, setEditingType] = useState<typeof defaultDocumentTypes[0] | null>(null)
+  const [, setEditingType] = useState<typeof defaultDocumentTypes[0] | null>(null)
   const [newTypeName, setNewTypeName] = useState("")
   const [newTypeRequirements, setNewTypeRequirements] = useState<string[]>([""])
   const [newTypeFee, setNewTypeFee] = useState("")
-  const [showPrintDocument, setShowPrintDocument] = useState(false)
-  const [printRequest, setPrintRequest] = useState<typeof mockRequests[0] | null>(null)
+  const [imagePreview, setImagePreview] = useState<{ src: string; title: string } | null>(null)
 
-  const pendingCount = mockRequests.filter(r => r.status === "pending").length
-  const approvedCount = mockRequests.filter(r => r.status === "approved").length
-  const releasedCount = mockRequests.filter(r => r.status === "released").length
+  // Inventory filters
+  const [invFromDate, setInvFromDate] = useState("")
+  const [invToDate, setInvToDate] = useState("")
+  const [invDocType, setInvDocType] = useState("all")
+
+  const pendingCount = requests.filter(r => r.status === "pending").length
+  const approvedCount = requests.filter(r => r.status === "approved").length
+  const releasedCount = requests.filter(r => r.status === "released").length
+
+  const filteredRequests = useMemo(() => {
+    const q = searchTerm.toLowerCase()
+    return requests.filter(r =>
+      r.id.toLowerCase().includes(q) ||
+      r.type.toLowerCase().includes(q) ||
+      r.requester.toLowerCase().includes(q) ||
+      r.email.toLowerCase().includes(q)
+    )
+  }, [requests, searchTerm])
+
+  const archivedDocuments = requests.filter(r => r.status === "released")
+
+  const handleReject = (id: string) => {
+    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: "rejected" } : r))
+    setSelectedRequest(null)
+    toast.success("Request rejected")
+  }
+
+  const handleApproveSubmit = () => {
+    if (!selectedRequest) return
+    const pickupStr = pickupDate
+      ? `${formatPHDate(new Date(pickupDate))}${pickupTime ? `, ${pickupTime}` : ""}`
+      : ""
+    setRequests(prev => prev.map(r => r.id === selectedRequest.id ? {
+      ...r,
+      status: "approved",
+      pickupTime: pickupStr || r.pickupTime,
+      fee: pickupFee || r.fee,
+    } : r))
+    setShowApproveDialog(false)
+    setSelectedRequest(null)
+    setPickupDate("")
+    setPickupTime("")
+    setPickupFee("")
+    toast.success("Request approved")
+  }
+
+  const handleMarkReleased = (req: Request) => {
+    const today = formatPHDate()
+    setRequests(prev => prev.map(r => r.id === req.id ? {
+      ...r, status: "released", releaseDate: today,
+    } : r))
+    toast.success("Marked as released")
+  }
+
+  const handlePrint = (req: Request) => {
+    const today = formatPHDate()
+    // If not yet released, mark released with today's date (autofill)
+    const releaseDate = req.releaseDate || today
+    if (!req.releaseDate) {
+      setRequests(prev => prev.map(r => r.id === req.id ? {
+        ...r, status: "released", releaseDate: today,
+      } : r))
+    }
+    printDocument({
+      title: `${req.type} — ${req.requester}`,
+      bodyHtml: buildPrintHtml(req, releaseDate),
+    })
+  }
+
+  const handleArchiveExport = async () => {
+    try {
+      await exportToOfficialExcel({
+        title: "RELEASED DOCUMENTS ARCHIVE",
+        subtitle: `As of ${formatPHDate()}`,
+        filename: `barangay-santiago-archive-${new Date().toISOString().slice(0, 10)}.xlsx`,
+        sheetName: "Archive",
+        columns: [
+          { header: "ID", key: "id", width: 16 },
+          { header: "Type", key: "type", width: 26 },
+          { header: "Requester", key: "requester", width: 24 },
+          { header: "Purok", key: "purok", width: 12 },
+          { header: "Purpose", key: "purpose", width: 26 },
+          { header: "Fee (PHP)", key: "fee", width: 10 },
+          { header: "Release Date", key: "releaseDate", width: 18 },
+        ],
+        rows: archivedDocuments.map(d => ({
+          id: d.id,
+          type: d.type,
+          requester: d.requester,
+          purok: d.purok,
+          purpose: d.purpose,
+          fee: d.fee,
+          releaseDate: d.releaseDate || "",
+        })),
+      })
+      toast.success("Archive exported")
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to export archive")
+    }
+  }
+
+  const handleInventoryExport = async () => {
+    if (!invFromDate || !invToDate) {
+      toast.error("Please select both From and To dates")
+      return
+    }
+    const from = new Date(invFromDate)
+    const to = new Date(invToDate)
+    to.setHours(23, 59, 59, 999)
+    const filtered = requests.filter(r => {
+      if (!r.documentsUploaded) return false
+      if (invDocType !== "all" && r.type !== invDocType) return false
+      const d = new Date(r.date)
+      return d >= from && d <= to
+    })
+    if (filtered.length === 0) {
+      toast.error("No records match the selected filters")
+      return
+    }
+    try {
+      await exportToOfficialExcel({
+        title: "DOCUMENT REQUEST INVENTORY",
+        subtitle: `${invDocType === "all" ? "All Types" : invDocType} · ${formatPHDate(from)} to ${formatPHDate(to)}`,
+        filename: `barangay-santiago-inventory-${invFromDate}-to-${invToDate}.xlsx`,
+        sheetName: "Inventory",
+        columns: [
+          { header: "ID", key: "id", width: 16 },
+          { header: "Type", key: "type", width: 26 },
+          { header: "Requester", key: "requester", width: 24 },
+          { header: "Email", key: "email", width: 24 },
+          { header: "Purok", key: "purok", width: 12 },
+          { header: "Purpose", key: "purpose", width: 26 },
+          { header: "Status", key: "status", width: 14 },
+          { header: "Fee (PHP)", key: "fee", width: 10 },
+          { header: "Date Filed", key: "date", width: 18 },
+          { header: "Release Date", key: "releaseDate", width: 18 },
+        ],
+        rows: filtered.map(r => ({
+          id: r.id,
+          type: r.type,
+          requester: r.requester,
+          email: r.email,
+          purok: r.purok,
+          purpose: r.purpose,
+          status: r.status.toUpperCase(),
+          fee: r.fee,
+          date: r.date,
+          releaseDate: r.releaseDate || "",
+        })),
+      })
+      toast.success(`Exported ${filtered.length} records`)
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to export inventory")
+    }
+  }
 
   return (
     <motion.div
@@ -188,7 +403,11 @@ export default function OfficialDocumentsPage() {
           <h1 className="text-xl md:text-2xl font-bold tracking-tight">Document Requests</h1>
           <p className="text-xs md:text-sm text-muted-foreground">Process and manage document requests</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowInventory(true)}>
+            <ListChecks className="h-3 w-3 md:mr-2" />
+            <span className="hidden md:inline">Inventory</span>
+          </Button>
           <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowArchive(true)}>
             <Archive className="h-3 w-3 md:mr-2" />
             <span className="hidden md:inline">Archive</span>
@@ -200,56 +419,56 @@ export default function OfficialDocumentsPage() {
         </div>
       </motion.div>
 
-      {/* Stats */}
-      <motion.div variants={itemVariants} className="grid grid-cols-4 gap-2 md:gap-4">
-        <Card>
-          <CardContent className="p-2 md:p-4">
-            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
-              <div className="rounded-lg bg-amber-100 p-1.5 md:p-2">
-                <Clock className="h-4 w-4 md:h-5 md:w-5 text-amber-700" />
+      {/* Stats — compact, ratio 2/1/1/4 */}
+      <motion.div variants={itemVariants} className="grid grid-cols-8 gap-2 md:gap-3">
+        <Card className="col-span-2">
+          <CardContent className="p-2 md:p-3">
+            <div className="flex items-center gap-1.5">
+              <div className="rounded-md bg-amber-100 p-1.5">
+                <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 text-amber-700" />
               </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg md:text-2xl font-bold">{pendingCount}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Pending</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-2 md:p-4">
-            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
-              <div className="rounded-lg bg-emerald-100 p-1.5 md:p-2">
-                <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-700" />
-              </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg md:text-2xl font-bold">{approvedCount}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Approved</p>
+              <div className="min-w-0">
+                <p className="text-base md:text-lg font-bold leading-none">{pendingCount}</p>
+                <p className="text-[9px] md:text-xs text-muted-foreground truncate">Pending</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-2 md:p-4">
-            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
-              <div className="rounded-lg bg-blue-100 p-1.5 md:p-2">
-                <Archive className="h-4 w-4 md:h-5 md:w-5 text-blue-700" />
+        <Card className="col-span-1">
+          <CardContent className="p-2 md:p-3">
+            <div className="flex items-center gap-1.5">
+              <div className="rounded-md bg-emerald-100 p-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 text-emerald-700" />
               </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg md:text-2xl font-bold">{releasedCount}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Released</p>
+              <div className="min-w-0">
+                <p className="text-base md:text-lg font-bold leading-none">{approvedCount}</p>
+                <p className="text-[9px] md:text-xs text-muted-foreground truncate">Approved</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-2 md:p-4">
-            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
-              <div className="rounded-lg bg-primary/10 p-1.5 md:p-2">
-                <FileText className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+        <Card className="col-span-1">
+          <CardContent className="p-2 md:p-3">
+            <div className="flex items-center gap-1.5">
+              <div className="rounded-md bg-blue-100 p-1.5">
+                <Archive className="h-3.5 w-3.5 md:h-4 md:w-4 text-blue-700" />
               </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg md:text-2xl font-bold">{mockRequests.length}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Total</p>
+              <div className="min-w-0">
+                <p className="text-base md:text-lg font-bold leading-none">{releasedCount}</p>
+                <p className="text-[9px] md:text-xs text-muted-foreground truncate">Released</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="col-span-4">
+          <CardContent className="p-2 md:p-3">
+            <div className="flex items-center gap-2">
+              <div className="rounded-md bg-primary/10 p-1.5">
+                <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-base md:text-lg font-bold leading-none">{requests.length}</p>
+                <p className="text-[9px] md:text-xs text-muted-foreground truncate">Total Requests</p>
               </div>
             </div>
           </CardContent>
@@ -259,8 +478,8 @@ export default function OfficialDocumentsPage() {
       {/* Search */}
       <motion.div variants={itemVariants} className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input 
-          placeholder="Search requests..." 
+        <Input
+          placeholder="Search requests..."
           className="pl-10 h-9 md:h-10 text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -278,9 +497,10 @@ export default function OfficialDocumentsPage() {
             <Tabs defaultValue="pending">
               <TabsList className="h-8 md:h-9 w-full justify-start overflow-x-auto">
                 <TabsTrigger value="pending" className="text-xs md:text-sm px-2 md:px-3">Pending ({pendingCount})</TabsTrigger>
-                <TabsTrigger value="approved" className="text-xs md:text-sm px-2 md:px-3">For Pickup</TabsTrigger>
+                <TabsTrigger value="approved" className="text-xs md:text-sm px-2 md:px-3">For Pickup ({approvedCount})</TabsTrigger>
                 <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">All Requests</TabsTrigger>
               </TabsList>
+
               <TabsContent value="pending" className="mt-3 md:mt-4">
                 <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
@@ -294,7 +514,7 @@ export default function OfficialDocumentsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockRequests.filter(r => r.status === "pending").map((request) => (
+                      {filteredRequests.filter(r => r.status === "pending").map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
@@ -337,6 +557,7 @@ export default function OfficialDocumentsPage() {
                   </Table>
                 </div>
               </TabsContent>
+
               <TabsContent value="approved" className="mt-3 md:mt-4">
                 <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
@@ -345,27 +566,35 @@ export default function OfficialDocumentsPage() {
                         <TableHead className="text-xs md:text-sm">Request ID</TableHead>
                         <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
                         <TableHead className="text-xs md:text-sm hidden md:table-cell">Requester</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden lg:table-cell">Pickup Time</TableHead>
                         <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockRequests.filter(r => r.status === "approved").map((request) => (
+                      {filteredRequests.filter(r => r.status === "approved").map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{request.requester}</TableCell>
+                          <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden lg:table-cell">{request.pickupTime}</TableCell>
                           <TableCell className="py-2 md:py-4 text-right">
                             <div className="flex gap-1 md:gap-2 justify-end">
-                              <Button variant="outline" size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0" onClick={() => {
-                                setPrintRequest(request)
-                                setShowPrintDocument(true)
-                              }}>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0"
+                                onClick={() => handlePrint(request)}
+                              >
                                 <Printer className="h-3 w-3 md:mr-1" />
                                 <span className="hidden md:inline">Print</span>
                               </Button>
-                              <Button size="sm" className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700 flex-shrink-0">
+                              <Button 
+                                size="sm" 
+                                className="h-7 md:h-8 px-2 md:px-3 text-xs bg-emerald-600 hover:bg-emerald-700 flex-shrink-0"
+                                onClick={() => handleMarkReleased(request)}
+                              >
                                 <CheckCircle2 className="h-3 w-3 md:mr-1" />
-                                <span className="hidden lg:inline">Released</span>
+                                <span className="hidden md:inline">Released</span>
                               </Button>
                             </div>
                           </TableCell>
@@ -375,6 +604,7 @@ export default function OfficialDocumentsPage() {
                   </Table>
                 </div>
               </TabsContent>
+
               <TabsContent value="all" className="mt-3 md:mt-4">
                 <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
@@ -388,7 +618,7 @@ export default function OfficialDocumentsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockRequests.map((request) => (
+                      {filteredRequests.map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{request.id}</TableCell>
                           <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell truncate">{request.type}</TableCell>
@@ -401,7 +631,8 @@ export default function OfficialDocumentsPage() {
                               className="h-7 md:h-8 px-2 md:px-3 text-xs flex-shrink-0"
                               onClick={() => setSelectedRequest(request)}
                             >
-                              <Eye className="h-3 w-3" />
+                              <Eye className="h-3 w-3 md:mr-1" />
+                              <span className="hidden md:inline">View</span>
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -415,65 +646,85 @@ export default function OfficialDocumentsPage() {
         </Card>
       </motion.div>
 
-      {/* Request Details Modal - with Document Header */}
-      <Dialog open={!!selectedRequest && !showApproveDialog} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="w-[95vw] max-w-2xl sm:w-full">
-          <DocumentHeader />
+      {/* View Request Dialog */}
+      <Dialog open={!!selectedRequest && !showApproveDialog} onOpenChange={() => !showApproveDialog && setSelectedRequest(null)}>
+        <DialogContent className="max-w-md md:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Request Details</DialogTitle>
-            <DialogDescription className="text-xs md:text-sm">
-              View complete request information
-            </DialogDescription>
+            <DialogTitle>Request Details</DialogTitle>
+            <DialogDescription>REQ #{selectedRequest?.id}</DialogDescription>
           </DialogHeader>
           {selectedRequest && (
-            <div className="space-y-3 md:space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <span className="font-medium text-sm md:text-base">{selectedRequest.id}</span>
-                {getStatusBadge(selectedRequest.status)}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs md:text-sm font-semibold">Type</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.type}</p>
+                </div>
+                <div>
+                  <Label className="text-xs md:text-sm font-semibold">Status</Label>
+                  <div className="mt-1">{getStatusBadge(selectedRequest.status)}</div>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs md:text-sm font-semibold">Requester</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.requester}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs md:text-sm font-semibold">Email</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.email}</p>
+                </div>
+                <div>
+                  <Label className="text-xs md:text-sm font-semibold">Purok</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.purok}</p>
+                </div>
+                <div>
+                  <Label className="text-xs md:text-sm font-semibold">Fee</Label>
+                  <p className="text-xs md:text-sm">PHP {selectedRequest.fee}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs md:text-sm font-semibold">Purpose</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.purpose}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-xs md:text-sm font-semibold">Date Filed</Label>
+                  <p className="text-xs md:text-sm">{selectedRequest.date}</p>
+                </div>
               </div>
-              <div className="grid gap-2 md:gap-3 grid-cols-1 sm:grid-cols-2">
+              {selectedRequest.documentsUploaded && (
                 <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Document Type</p>
-                  <p className="font-medium text-sm md:text-base">{selectedRequest.type}</p>
+                  <Label className="text-xs md:text-sm font-semibold">Documents</Label>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mt-2 text-xs"
+                    onClick={() => setImagePreview({ src: selectedRequest.uploadedImage || "", title: selectedRequest.type })}
+                  >
+                    <Eye className="h-3 w-3 mr-2" />
+                    View Uploaded Documents
+                  </Button>
                 </div>
-                <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Purpose</p>
-                  <p className="font-medium text-sm md:text-base">{selectedRequest.purpose}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Requester</p>
-                  <p className="font-medium text-sm md:text-base">{selectedRequest.requester}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Purok</p>
-                  <p className="font-medium text-sm md:text-base">{selectedRequest.purok}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Fee</p>
-                  <p className="font-medium text-sm md:text-base">PHP {selectedRequest.fee}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Date</p>
-                  <p className="font-medium text-sm md:text-base">{selectedRequest.date}</p>
-                </div>
-              </div>
+              )}
             </div>
           )}
-          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => setSelectedRequest(null)}>Close</Button>
+          <DialogFooter>
             {selectedRequest?.status === "pending" && selectedRequest.documentsUploaded && (
-              <>
-                <Button variant="destructive" size="sm" className="w-full sm:w-auto">Reject</Button>
-                <Button size="sm" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApproveDialog(true)}>Approve</Button>
-              </>
+              <Button 
+                className="bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => {
+                  setShowApproveDialog(true)
+                }}
+              >
+                Approve Request
+              </Button>
             )}
-            {selectedRequest?.status === "approved" && (
-              <Button size="sm" className="w-full sm:w-auto" onClick={() => {
-                setPrintRequest(selectedRequest)
-                setShowPrintDocument(true)
-              }}>
-                <Printer className="mr-2 h-3 w-3" />
-                Print Document
+            {selectedRequest?.status === "pending" && (
+              <Button 
+                variant="destructive"
+                onClick={() => {
+                  handleReject(selectedRequest.id)
+                  setSelectedRequest(null)
+                }}
+              >
+                Reject Request
               </Button>
             )}
           </DialogFooter>
@@ -482,164 +733,137 @@ export default function OfficialDocumentsPage() {
 
       {/* Approve Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-        <DialogContent className="mx-4 md:mx-auto">
-          <DocumentHeader />
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Approve Request</DialogTitle>
-            <DialogDescription className="text-xs md:text-sm">
-              Set pickup details for the approved document
-            </DialogDescription>
+            <DialogTitle>Approve Request</DialogTitle>
+            <DialogDescription>Set pickup date and fee for {selectedRequest?.requester}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 md:space-y-4 py-2 md:py-4">
-            <div className="space-y-1 md:space-y-2">
-              <Label className="text-xs md:text-sm">Pickup Date</Label>
-              <Input type="date" className="h-8 md:h-10 text-sm" />
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="pickup-date" className="text-xs md:text-sm">Pickup Date</Label>
+              <Input 
+                id="pickup-date"
+                type="date" 
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                className="h-8 md:h-9 text-xs"
+              />
             </div>
-            <div className="space-y-1 md:space-y-2">
-              <Label className="text-xs md:text-sm">Pickup Time</Label>
-              <Input type="time" className="h-8 md:h-10 text-sm" />
+            <div>
+              <Label htmlFor="pickup-time" className="text-xs md:text-sm">Pickup Time</Label>
+              <Input 
+                id="pickup-time"
+                type="time" 
+                value={pickupTime}
+                onChange={(e) => setPickupTime(e.target.value)}
+                className="h-8 md:h-9 text-xs"
+              />
             </div>
-            <div className="space-y-1 md:space-y-2">
-              <Label className="text-xs md:text-sm">Fee Amount</Label>
-              <Input defaultValue={selectedRequest?.fee} placeholder="Enter fee" className="h-8 md:h-10 text-sm" />
-            </div>
-            <div className="space-y-1 md:space-y-2">
-              <Label className="text-xs md:text-sm">Notes (Optional)</Label>
-              <Textarea placeholder="Additional instructions..." className="text-sm min-h-[60px] md:min-h-[80px]" />
+            <div>
+              <Label htmlFor="pickup-fee" className="text-xs md:text-sm">Fee (PHP)</Label>
+              <Input 
+                id="pickup-fee"
+                placeholder={selectedRequest?.fee || "50"}
+                value={pickupFee}
+                onChange={(e) => setPickupFee(e.target.value)}
+                className="h-8 md:h-9 text-xs"
+              />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setShowApproveDialog(false)}>Cancel</Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => {
-              setShowApproveDialog(false)
-              setSelectedRequest(null)
-            }}>
-              Approve & Notify
-            </Button>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApproveDialog(false)} className="h-8 md:h-9 text-xs">Cancel</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700 h-8 md:h-9 text-xs" onClick={handleApproveSubmit}>Approve</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Archive Dialog */}
       <Dialog open={showArchive} onOpenChange={setShowArchive}>
-        <DialogContent className="max-w-2xl mx-4 md:mx-auto">
-          <DocumentHeader />
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Document Archive</DialogTitle>
-            <DialogDescription className="text-xs md:text-sm">
-              View all released documents
-            </DialogDescription>
+            <DialogTitle>Released Documents Archive</DialogTitle>
+            <DialogDescription>View and export all released documents</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 md:space-y-4">
-            <div className="flex gap-2">
-              <Input placeholder="Search archive..." className="flex-1 h-8 md:h-10 text-sm" />
-              <Button variant="outline" size="sm" className="h-8 md:h-10 text-xs">
-                <Download className="h-3 w-3 md:mr-2" />
-                <span className="hidden md:inline">Export CSV</span>
-              </Button>
-            </div>
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs md:text-sm">ID</TableHead>
-                    <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
-                    <TableHead className="text-xs md:text-sm">Requester</TableHead>
-                    <TableHead className="text-xs md:text-sm hidden md:table-cell">Release Date</TableHead>
+          <div className="max-h-96 overflow-y-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">ID</TableHead>
+                  <TableHead className="text-xs">Type</TableHead>
+                  <TableHead className="text-xs">Requester</TableHead>
+                  <TableHead className="text-xs">Release Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {archivedDocuments.map(doc => (
+                  <TableRow key={doc.id}>
+                    <TableCell className="text-xs font-medium">{doc.id}</TableCell>
+                    <TableCell className="text-xs">{doc.type}</TableCell>
+                    <TableCell className="text-xs">{doc.requester}</TableCell>
+                    <TableCell className="text-xs">{doc.releaseDate}</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {archivedDocuments.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{doc.id}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{doc.type}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4">{doc.requester}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{doc.releaseDate}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setShowArchive(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setShowArchive(false)} className="h-8 text-xs">Close</Button>
+            <Button onClick={handleArchiveExport} className="h-8 text-xs">
+              <Download className="h-3 w-3 mr-2" />
+              Export Excel
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Print Document Dialog */}
-      <Dialog open={showPrintDocument} onOpenChange={setShowPrintDocument}>
-        <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto">
+      {/* Inventory Export Dialog */}
+      <Dialog open={showInventory} onOpenChange={setShowInventory}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Document Preview</DialogTitle>
+            <DialogTitle>Document Inventory Export</DialogTitle>
+            <DialogDescription>Generate inventory report for a date range</DialogDescription>
           </DialogHeader>
-          {printRequest && (
-            <div id="print-document" className="bg-white p-4 md:p-8 text-black print:p-4">
-              {/* Document Header */}
-              <div className="text-center mb-4 md:mb-6 pb-4 border-b-2 border-black">
-                <p className="text-xs md:text-sm font-semibold">REPUBLIC OF THE PHILIPPINES</p>
-                <p className="text-xs md:text-sm">PROVINCE OF ZAMBALES</p>
-                <p className="text-xs md:text-sm">MUNICIPALITY OF SAN ANTONIO</p>
-                <p className="text-xs md:text-sm font-bold">BARANGAY SANTIAGO</p>
-                <p className="text-xs md:text-sm mt-2">OFFICE OF THE BARANGAY CAPTAIN</p>
-                <p className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</p>
-              </div>
-
-              {/* Document Body */}
-              <div className="space-y-4 text-xs md:text-sm leading-relaxed">
-                <p>TO WHOM IT MAY CONCERN:</p>
-
-                {printRequest.type === "Barangay Clearance" && (
-                  <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Certificate of Residency" && (
-                  <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Certificate of Indigency" && (
-                  <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Business Clearance" && (
-                  <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, owner/operator of <span className="font-bold underline">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
-                    <p>This certification is issued upon request for business operations.</p>
-                  </>
-                )}
-
-                <p>Issued this _____ day of ______, 20__.</p>
-
-                <div className="mt-8 pt-4">
-                  <div className="inline-block">
-                    <div className="w-48 border-b border-black mb-1 h-12" />
-                    <p className="font-bold text-center">ROLANDO C. BORJA</p>
-                    <p className="text-center">Barangay Captain</p>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4 space-y-1">
-                  <p>O.R. No.: ____________________</p>
-                  <p>Date Issued: _________________</p>
-                  <p>Doc. Stamp: Paid</p>
-                </div>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="inv-from" className="text-xs md:text-sm">From Date</Label>
+              <Input 
+                id="inv-from"
+                type="date" 
+                value={invFromDate}
+                onChange={(e) => setInvFromDate(e.target.value)}
+                className="h-8 md:h-9 text-xs"
+              />
             </div>
-          )}
-          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
-            <Button variant="outline" size="sm" onClick={() => setShowPrintDocument(false)}>Close</Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => window.print()}>
-              <Printer className="mr-2 h-3 w-3" />
-              Print Document
+            <div>
+              <Label htmlFor="inv-to" className="text-xs md:text-sm">To Date</Label>
+              <Input 
+                id="inv-to"
+                type="date" 
+                value={invToDate}
+                onChange={(e) => setInvToDate(e.target.value)}
+                className="h-8 md:h-9 text-xs"
+              />
+            </div>
+            <div>
+              <Label htmlFor="inv-type" className="text-xs md:text-sm">Document Type</Label>
+              <select 
+                id="inv-type"
+                value={invDocType}
+                onChange={(e) => setInvDocType(e.target.value)}
+                className="w-full h-8 md:h-9 px-2 text-xs border rounded-md"
+              >
+                <option value="all">All Types</option>
+                {documentTypes.map(type => (
+                  <option key={type.id} value={type.name}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowInventory(false)} className="h-8 text-xs">Cancel</Button>
+            <Button onClick={handleInventoryExport} className="h-8 text-xs">
+              <Download className="h-3 w-3 mr-2" />
+              Export
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -647,174 +871,51 @@ export default function OfficialDocumentsPage() {
 
       {/* Manage Document Types Dialog */}
       <Dialog open={showManageTypes} onOpenChange={setShowManageTypes}>
-        <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Manage Document Types</DialogTitle>
-            <DialogDescription className="text-xs md:text-sm">
-              Create, edit, and manage document types with requirements
-            </DialogDescription>
+            <DialogTitle>Manage Document Types</DialogTitle>
+            <DialogDescription>Add, edit, or remove document types</DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-4 md:space-y-5">
-            {/* Add New Type Form */}
-            <div className="rounded-lg border p-3 md:p-4 bg-blue-50 dark:bg-blue-950/20">
-              <div className="flex items-center gap-2 mb-3">
-                <Plus className="w-4 h-4 text-blue-600" />
-                <p className="text-xs md:text-sm font-semibold">Add New Document Type</p>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs md:text-sm">Document Type Name</Label>
-                  <Input 
-                    placeholder="e.g., Barangay Clearance"
-                    value={newTypeName}
-                    onChange={(e) => setNewTypeName(e.target.value)}
-                    className="h-8 md:h-10 text-xs md:text-sm mt-1"
-                  />
-                </div>
-                
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-xs md:text-sm">Requirements</Label>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="h-6 px-2 gap-1"
-                      onClick={() => {
-                        setNewTypeRequirements([...newTypeRequirements, ""])
-                      }}
-                    >
-                      <Plus className="w-3 h-3" />
-                      <span className="text-xs">Add</span>
-                    </Button>
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {documentTypes.map((type) => (
+              <Card key={type.id} className="p-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <p className="font-semibold text-xs md:text-sm">{type.name}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">{type.requirements}</p>
+                    <p className="text-[10px] md:text-xs font-medium mt-1">Fee: PHP {type.fee}</p>
                   </div>
-                  <div className="space-y-2">
-                    {newTypeRequirements.map((requirement, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input 
-                          placeholder={`Requirement ${index + 1}`}
-                          value={requirement}
-                          onChange={(e) => {
-                            const updated = [...newTypeRequirements]
-                            updated[index] = e.target.value
-                            setNewTypeRequirements(updated)
-                          }}
-                          className="h-8 md:h-10 text-xs md:text-sm flex-1"
-                        />
-                        {newTypeRequirements.length > 1 && (
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => {
-                              setNewTypeRequirements(newTypeRequirements.filter((_, i) => i !== index))
-                            }}
-                          >
-                            <Trash2 className="w-3 h-3 text-red-500" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 px-2"
+                    onClick={() => setEditingType(type)}
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
                 </div>
-                
-                <div>
-                  <Label className="text-xs md:text-sm">Fee</Label>
-                  <Input 
-                    placeholder="e.g., 50 or Free"
-                    value={newTypeFee}
-                    onChange={(e) => setNewTypeFee(e.target.value)}
-                    className="h-8 md:h-10 text-xs md:text-sm mt-1"
-                  />
-                </div>
-                
-                <Button 
-                  size="sm" 
-                  className="w-full gap-2 bg-blue-600 hover:bg-blue-700 mt-2"
-                  onClick={() => {
-                    if (newTypeName.trim()) {
-                      const newType = {
-                        id: Math.random().toString(),
-                        name: newTypeName,
-                        requirements: newTypeRequirements.filter(r => r.trim()).join(", "),
-                        fee: newTypeFee
-                      }
-                      setDocumentTypes([...documentTypes, newType])
-                      setNewTypeName("")
-                      setNewTypeRequirements([""])
-                      setNewTypeFee("")
-                    }
-                  }}
-                >
-                  <Plus className="w-3 h-3" />
-                  Add Type
-                </Button>
-              </div>
-            </div>
-
-            {/* Existing Types List */}
-            <div className="space-y-2">
-              <p className="text-xs md:text-sm font-semibold">Existing Document Types</p>
-              <div className="space-y-2 max-h-[40vh] overflow-y-auto">
-                {documentTypes.map((type) => (
-                  <div key={type.id} className="p-3 border rounded-lg bg-muted/50">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-xs md:text-sm">{type.name}</p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Requirements: {type.requirements}</p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground">Fee: {type.fee}</p>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={() => {
-                            setEditingType(type)
-                            setNewTypeName(type.name)
-                            setNewTypeRequirements(type.requirements.split(", "))
-                            setNewTypeFee(type.fee)
-                          }}
-                        >
-                          <Edit2 className="w-3 h-3 text-blue-500" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={() => {
-                            setDocumentTypes(documentTypes.filter(t => t.id !== type.id))
-                          }}
-                        >
-                          <Trash2 className="w-3 h-3 text-red-500" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              </Card>
+            ))}
           </div>
-
-          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4">
-            <Button variant="outline" size="sm" onClick={() => {
-              setShowManageTypes(false)
-              setEditingType(null)
-              setNewTypeName("")
-              setNewTypeRequirements([""])
-              setNewTypeFee("")
-            }}>
-              Close
-            </Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => {
-              setShowManageTypes(false)
-              setEditingType(null)
-            }}>
-              Done
-            </Button>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowManageTypes(false)} className="h-8 text-xs">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Preview Dialog */}
+      {imagePreview && (
+        <Dialog open={!!imagePreview} onOpenChange={() => setImagePreview(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{imagePreview.title}</DialogTitle>
+            </DialogHeader>
+            <div className="flex items-center justify-center bg-muted rounded-md p-4">
+              <img src={imagePreview.src} alt={imagePreview.title} className="max-w-full max-h-96" />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </motion.div>
   )
 }
