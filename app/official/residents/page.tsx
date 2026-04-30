@@ -122,15 +122,49 @@ const itemVariants = {
 export default function ResidentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedResident, setSelectedResident] = useState<typeof mockResidents[0] | null>(null)
+  const [purokFilter, setPurokFilter] = useState("all")
 
-  const filteredResidents = mockResidents.filter(res => 
-    res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    res.purok.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredResidents = mockResidents.filter(res => {
+    const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.purok.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesPurok = purokFilter === "all" || res.purok === purokFilter
+    
+    return matchesSearch && matchesPurok
+  })
 
   const pendingCount = mockResidents.filter(r => r.status === "pending").length
   const verifiedCount = mockResidents.filter(r => r.status === "verified").length
+
+  const exportToCSV = () => {
+    const headers = ["ID", "Name", "Email", "Purok", "Gender", "Status", "Document Type", "Registered Date"]
+    const rows = filteredResidents.map(resident => [
+      resident.id,
+      resident.name,
+      resident.email,
+      resident.purok,
+      resident.gender,
+      resident.status,
+      resident.documentType,
+      resident.registeredDate
+    ])
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `residents-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   return (
     <motion.div
@@ -144,7 +178,7 @@ export default function ResidentsPage() {
           <h1 className="text-xl md:text-2xl font-bold tracking-tight">Residents Management</h1>
           <p className="text-xs md:text-sm text-muted-foreground">Manage and verify resident accounts</p>
         </div>
-        <Button variant="outline" size="sm" className="w-fit h-8 md:h-9 text-xs md:text-sm">
+        <Button variant="outline" size="sm" className="w-fit h-8 md:h-9 text-xs md:text-sm" onClick={exportToCSV}>
           <Download className="h-3 w-3 md:h-4 md:w-4 md:mr-2" />
           <span className="hidden md:inline">Export CSV</span>
         </Button>
@@ -193,15 +227,31 @@ export default function ResidentsPage() {
         </Card>
       </motion.div>
 
-      {/* Search */}
-      <motion.div variants={itemVariants} className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input 
-          placeholder="Search residents..." 
-          className="pl-10 h-9 md:h-10 text-sm"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Search and Filters */}
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input 
+            placeholder="Search residents..." 
+            className="pl-10 h-9 md:h-10 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <select 
+          value={purokFilter}
+          onChange={(e) => setPurokFilter(e.target.value)}
+          className="h-9 md:h-10 px-3 text-sm border border-input rounded-md bg-background text-foreground dark:border-slate-700 dark:bg-slate-950 w-full sm:w-auto"
+        >
+          <option value="all">All Puroks</option>
+          <option value="Purok 1">Purok 1</option>
+          <option value="Purok 2">Purok 2</option>
+          <option value="Purok 3">Purok 3</option>
+          <option value="Purok 4">Purok 4</option>
+          <option value="Purok 5">Purok 5</option>
+          <option value="Purok 6">Purok 6</option>
+          <option value="Purok 7">Purok 7</option>
+        </select>
       </motion.div>
 
       {/* Residents Table */}
@@ -390,12 +440,13 @@ export default function ResidentsPage() {
                 </div>
               </div>
               
-              {/* Notification / Message Section */}
-              <div className="rounded-lg border p-3 md:p-4 bg-blue-50 dark:bg-blue-950/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <Bell className="w-4 h-4 text-blue-600" />
-                  <p className="text-xs md:text-sm font-semibold text-blue-900 dark:text-blue-200">Send Notification</p>
-                </div>
+                  {/* Notification / Message Section */}
+                  {selectedResident?.status !== "verified" && (
+                  <div className="rounded-lg border p-3 md:p-4 bg-blue-50 dark:bg-blue-950/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Bell className="w-4 h-4 text-blue-600" />
+                      <p className="text-xs md:text-sm font-semibold text-blue-900 dark:text-blue-200">Send Notification</p>
+                    </div>
                 <div className="space-y-2">
                   <textarea 
                     placeholder="Type a message that the resident will receive..."
@@ -451,16 +502,48 @@ export default function ResidentsPage() {
                   </div>
                 </div>
               </div>
+              )}
 
-              {/* Uploaded Document Preview */}
-              <div className="rounded-lg border p-3 md:p-4 bg-muted/20">
-                <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Document Preview</p>
-                <div className="aspect-video rounded bg-muted flex items-center justify-center">
-                  <span className="text-xs md:text-sm text-muted-foreground">No document to preview</span>
+              {/* Documents Section */}
+              <div className="rounded-lg border p-3 md:p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    <p className="text-xs md:text-sm font-semibold">Resident Documents</p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="gap-1 h-7"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span className="text-xs">Add</span>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium truncate">{selectedResident.documentType}</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground">Registered: {selectedResident.registeredDate}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-7 w-7 p-0 flex-shrink-0"
+                    >
+                      <Trash2 className="w-3 h-3 text-red-500" />
+                    </Button>
+                  </div>
+                  <div className="text-center py-2 border-2 border-dashed rounded-md">
+                    <p className="text-[10px] md:text-xs text-muted-foreground">Drag & drop or click to add documents</p>
+                  </div>
                 </div>
               </div>
             </div>
-          )}
+            )}
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
             <Button 
               variant="outline" 
