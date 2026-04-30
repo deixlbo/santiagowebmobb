@@ -179,7 +179,7 @@ export default function OfficialDocumentsPage() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-4 md:space-y-6"
+      className="space-y-4 md:space-y-6 no-print"
     >
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -731,12 +731,20 @@ export default function OfficialDocumentsPage() {
       </Dialog>
 
       {/* Hidden Print Template */}
-      <div id="print-document" className="hidden print:block print:w-full print:h-screen print:p-8 print:bg-white print:text-black print:overflow-hidden">
+      <div id="print-document" className="hidden print:block print:w-full print:p-8 print:bg-white print:text-black">
         <style>{`
           @media print {
-            body { margin: 0; padding: 0; }
-            #print-document { display: block !important; }
+            * { margin: 0; padding: 0; }
+            body { margin: 0; padding: 0; background: white; }
+            html { margin: 0; padding: 0; }
+            #__next { margin: 0; padding: 0; }
+            motion-div { display: block !important; }
+            #print-document { display: block !important; width: 100%; margin: 0; padding: 2rem; background: white; }
             .hidden { display: none !important; }
+            .print\:block { display: block !important; }
+            dialog { display: none !important; }
+            button { display: none !important; }
+            .no-print { display: none !important; }
           }
         `}</style>
         {selectedRequest && (
@@ -761,29 +769,29 @@ export default function OfficialDocumentsPage() {
 
               {selectedRequest.type === "Barangay Clearance" && (
                 <>
-                  <p>This is to certify that <span className="font-bold">{selectedRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
-                  <p>This certification is issued upon request for <span className="font-bold">{selectedRequest.purpose}</span>.</p>
+                  <p>This is to certify that ____________________________, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
+                  <p>This certification is issued upon request for ____________________________.</p>
                 </>
               )}
 
               {selectedRequest.type === "Certificate of Residency" && (
                 <>
-                  <p>This is to certify that <span className="font-bold">{selectedRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
-                  <p>This certification is issued upon request for <span className="font-bold">{selectedRequest.purpose}</span>.</p>
+                  <p>This is to certify that ____________________________ is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
+                  <p>This certification is issued upon request for ____________________________.</p>
                 </>
               )}
 
               {selectedRequest.type === "Certificate of Indigency" && (
                 <>
-                  <p>This is to certify that <span className="font-bold">{selectedRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
-                  <p>This certification is issued upon request for <span className="font-bold">{selectedRequest.purpose}</span>.</p>
+                  <p>This is to certify that ____________________________ is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
+                  <p>This certification is issued upon request for ____________________________.</p>
                 </>
               )}
 
               {selectedRequest.type === "Business Clearance" && (
                 <>
-                  <p>This is to certify that <span className="font-bold">{selectedRequest.requester}</span>, owner/operator of <span className="font-bold">{selectedRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
-                  <p>This certification is issued upon request for business operations.</p>
+                  <p>This is to certify that ____________________________, owner/operator of ____________________________, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
+                  <p>This certification is issued upon request for ____________________________.</p>
                 </>
               )}
 
@@ -792,7 +800,7 @@ export default function OfficialDocumentsPage() {
               <div className="mt-8 pt-4">
                 <div className="inline-block">
                   <div className="w-48 border-b border-black mb-1 h-12" />
-                  <p className="font-bold text-center">ROLANDO C. BORJA</p>
+                  <p className="text-center">ROLANDO C. BORJA</p>
                   <p className="text-center">Barangay Captain</p>
                 </div>
               </div>
