@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { authenticateResident } from "@/lib/mock-auth"
 import { toast } from "sonner"
 
@@ -147,14 +147,6 @@ export default function ResidentLoginPage() {
                 Register here
               </Link>
             </p>
-
-            <Link 
-              href="/" 
-              className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
           </form>
         </div>
       </div>
@@ -304,13 +296,6 @@ export default function ResidentLoginPage() {
                     Register here
                   </Link>
                 </p>
-                <Link 
-                  href="/" 
-                  className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Home
-                </Link>
               </CardFooter>
             </form>
           </Card>

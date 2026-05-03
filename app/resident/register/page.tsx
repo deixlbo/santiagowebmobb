@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, EyeOff, Upload, CheckCircle2, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Upload, CheckCircle2 } from "lucide-react"
 import { registerResident } from "@/lib/mock-auth"
 import { toast } from "sonner"
 
@@ -266,14 +266,6 @@ export default function ResidentRegisterPage() {
                 Login here
               </Link>
             </p>
-
-            <Link 
-              href="/" 
-              className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
           </form>
         </div>
       </div>
@@ -358,13 +350,6 @@ export default function ResidentRegisterPage() {
                     Login here
                   </Link>
                 </p>
-                <Link 
-                  href="/" 
-                  className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Home
-                </Link>
               </CardFooter>
             </form>
           </Card>
