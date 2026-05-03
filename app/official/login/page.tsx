@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, ShieldCheck } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { authenticateOfficial } from "@/lib/mock-auth"
 import { toast } from "sonner"
 
@@ -73,11 +73,8 @@ export default function OfficialLoginPage() {
 
           {/* Form Content */}
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <h1 className="text-2xl font-bold tracking-tight">OFFICIAL PORTAL</h1>
-            </div>
-            <p className="text-sm text-muted-foreground">Barangay Santiago Admin Access</p>
+            <h1 className="text-2xl font-bold tracking-tight">OFFICIAL PORTAL</h1>
+            <p className="text-sm text-muted-foreground mt-1">Barangay Santiago Admin Access</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,7 +85,7 @@ export default function OfficialLoginPage() {
                 <Input 
                   id="email-mobile" 
                   type="email" 
-                  placeholder="admin@barangaysantiago.gov.ph"
+                  placeholder="Enter your email"
                   className="pl-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -143,46 +140,48 @@ export default function OfficialLoginPage() {
                 "SIGN IN"
               )}
             </Button>
-
-
           </form>
         </div>
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden min-h-screen items-center justify-center bg-gradient-to-br from-sidebar via-sidebar/95 to-sidebar-accent p-4 md:flex">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.15, 0.1]
-            }}
-            transition={{ duration: 8, repeat: Infinity }}
-            className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-sidebar-primary/20"
-          />
-          <motion.div
-            animate={{ 
-              scale: [1.2, 1, 1.2],
-              opacity: [0.1, 0.2, 0.1]
-            }}
-            transition={{ duration: 10, repeat: Infinity }}
-            className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-sidebar-primary/20"
-          />
+      <div className="relative hidden min-h-screen items-center justify-center overflow-hidden md:flex">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Apr%2029%2C%202026%2C%2006_15_13%20PM-I4LDiaoUX8L79CBQB5w3LG3jad8eQ0.png')",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent" />
         </div>
 
+        {/* Welcome Text */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="absolute left-16 top-1/2 -translate-y-1/2 text-white lg:left-24"
+        >
+          <h1 className="text-5xl font-bold lg:text-6xl">Admin Portal</h1>
+          <p className="mt-4 max-w-xs text-lg text-white/90">
+            Barangay Santiago Management System
+          </p>
+        </motion.div>
+
+        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative z-10"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="relative z-10 mx-4 w-full max-w-md ml-auto mr-16 lg:mr-24"
         >
-          <Card className="w-full max-w-md border-0 shadow-2xl">
+          <Card className="border-0 shadow-2xl">
             <CardHeader className="pb-4 text-center">
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
+                transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
                 className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-lg overflow-hidden"
               >
                 <Image
@@ -193,10 +192,7 @@ export default function OfficialLoginPage() {
                   className="object-cover"
                 />
               </motion.div>
-              <div className="flex items-center justify-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                <CardTitle className="text-2xl font-bold tracking-tight">OFFICIAL PORTAL</CardTitle>
-              </div>
+              <CardTitle className="text-2xl font-bold tracking-tight">OFFICIAL PORTAL</CardTitle>
               <CardDescription>
                 Barangay Santiago Admin Access
               </CardDescription>
@@ -206,7 +202,7 @@ export default function OfficialLoginPage() {
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: 0.5 }}
                   className="space-y-2"
                 >
                   <Label htmlFor="email">Email</Label>
@@ -215,7 +211,7 @@ export default function OfficialLoginPage() {
                     <Input 
                       id="email" 
                       type="email" 
-                      placeholder="admin@barangaysantiago.gov.ph"
+                      placeholder="Enter your email"
                       className="pl-10"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -226,7 +222,7 @@ export default function OfficialLoginPage() {
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.6 }}
                   className="space-y-2"
                 >
                   <Label htmlFor="password">Password</Label>
@@ -250,12 +246,12 @@ export default function OfficialLoginPage() {
                     </button>
                   </div>
                 </motion.div>
-
+                
                 {/* Demo credentials hint */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.7 }}
                   className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground"
                 >
                   <p className="font-medium">Demo Credentials:</p>
@@ -267,7 +263,7 @@ export default function OfficialLoginPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.8 }}
                   className="w-full"
                 >
                   <Button 
@@ -287,13 +283,6 @@ export default function OfficialLoginPage() {
                     )}
                   </Button>
                 </motion.div>
-                <Link 
-                  href="/" 
-                  className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Home
-                </Link>
               </CardFooter>
             </form>
           </Card>
