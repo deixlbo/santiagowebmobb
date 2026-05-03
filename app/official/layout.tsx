@@ -44,7 +44,6 @@ const navigation = [
   { name: "Projects", href: "/official/projects", icon: FolderKanban },
   { name: "Announcements", href: "/official/announcements", icon: Megaphone },
   { name: "Assets", href: "/official/assets", icon: Package },
-  { name: "Reports", href: "/official/reports", icon: BarChart3 },
 ]
 
 export default function OfficialLayout({

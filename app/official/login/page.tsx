@@ -144,13 +144,7 @@ export default function OfficialLoginPage() {
               )}
             </Button>
 
-            <Link 
-              href="/" 
-              className="flex items-center justify-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
+
           </form>
         </div>
       </div>

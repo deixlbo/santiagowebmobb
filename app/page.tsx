@@ -439,7 +439,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Contact Info */}
-                <div className="rounded-lg border p-3 sm:p-4">
+                <div className="rounded-lg p-3 sm:p-4">
                   <h4 className="mb-3 font-semibold text-sm sm:text-base">Contact Information</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
