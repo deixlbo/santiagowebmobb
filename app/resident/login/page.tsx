@@ -45,7 +45,7 @@ export default function ResidentLoginPage() {
         <div 
           className="relative h-[45vh] bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Apr%2029%2C%202026%2C%2006_15_13%20PM-I4LDiaoUX8L79CBQB5w3LG3jad8eQ0.png')",
+            backgroundImage: "url('/images/bg.jpg')",
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/20" />
@@ -60,13 +60,13 @@ export default function ResidentLoginPage() {
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
             className="absolute -top-10 left-1/2 -translate-x-1/2"
           >
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary shadow-lg">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary shadow-lg overflow-hidden">
               <Image
-                src="/images/santiago.jpg"
+                src="/images/santiagologo.jpg"
                 alt="Barangay Santiago Logo"
                 width={60}
                 height={60}
-                className="rounded-full object-cover"
+                className="h-full w-full rounded-full object-cover"
               />
             </div>
           </motion.div>
@@ -157,7 +157,7 @@ export default function ResidentLoginPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Apr%2029%2C%202026%2C%2006_15_13%20PM-I4LDiaoUX8L79CBQB5w3LG3jad8eQ0.png')",
+            backgroundImage: "url('/images/bg.jpg')",
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent" />
@@ -192,11 +192,11 @@ export default function ResidentLoginPage() {
                 className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-lg overflow-hidden"
               >
                 <Image
-                  src="/images/santiago.jpg"
+                  src="/images/santiagologo.jpg"
                   alt="Barangay Santiago Logo"
                   width={80}
                   height={80}
-                  className="object-cover"
+                  className="h-full w-full rounded-full object-cover"
                 />
               </motion.div>
               <CardTitle className="text-2xl font-bold tracking-tight">RESIDENT LOGIN</CardTitle>
