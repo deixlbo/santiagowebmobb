@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DocumentHeader } from "@/components/document-header"
 import { 
   AlertTriangle, 
   Plus, 
@@ -19,7 +18,8 @@ import {
   CheckCircle2, 
   MapPin,
   FileText,
-  Printer
+  Printer,
+  Download
 } from "lucide-react"
 
 const incidentTypes = [
@@ -42,6 +42,8 @@ const mockBlotters = [
     status: "resolved",
     date: "April 22, 2026",
     resolution: "Parties agreed to limit karaoke hours until 9PM",
+    resolutionDate: "April 25, 2026",
+    resolutionDocument: "/documents/resolution-BLT-2026-001.pdf",
     complainant: "Juan Dela Cruz",
     respondent: "Pedro Santos"
   },
@@ -53,6 +55,8 @@ const mockBlotters = [
     status: "processing",
     date: "April 26, 2026",
     resolution: null,
+    resolutionDate: null,
+    resolutionDocument: null,
     complainant: "Juan Dela Cruz",
     respondent: "Maria Garcia"
   },
@@ -64,6 +68,8 @@ const mockBlotters = [
     status: "filed",
     date: "April 28, 2026",
     resolution: null,
+    resolutionDate: null,
+    resolutionDocument: null,
     complainant: "Juan Dela Cruz",
     respondent: "Jose Reyes"
   },
@@ -110,24 +116,132 @@ export default function BlotterPage() {
         printWindow.document.write(`
           <html>
             <head>
-              <title>Blotter Report</title>
+              <title>Blotter Report - ${showPreview?.id}</title>
               <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                .header { text-align: center; margin-bottom: 20px; }
-                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
-                .center-text { text-align: center; }
-                .center-text p { margin: 2px 0; font-size: 12px; }
-                .center-text .bold { font-weight: bold; }
-                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
-                .content { font-size: 14px; }
-                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-                .label { color: #666; font-size: 12px; }
-                .value { font-weight: 500; }
+                * { box-sizing: border-box; }
+                body { 
+                  font-family: Arial, sans-serif; 
+                  padding: 40px; 
+                  margin: 0;
+                  line-height: 1.6;
+                }
+                .document {
+                  max-width: 800px;
+                  margin: 0 auto;
+                }
+                .header-row {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 24px;
+                  margin-bottom: 20px;
+                }
+                .header-logo {
+                  width: 80px;
+                  height: 80px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                  flex-shrink: 0;
+                }
+                .header-text {
+                  text-align: center;
+                  flex: 1;
+                }
+                .header-text p {
+                  margin: 3px 0;
+                  font-size: 13px;
+                }
+                .header-text .brgy-name {
+                  font-weight: bold;
+                  font-size: 15px;
+                }
+                .title-section {
+                  border-top: 2px solid #000;
+                  border-bottom: 2px solid #000;
+                  padding: 14px 0;
+                  margin: 24px 0;
+                  text-align: center;
+                }
+                .title-section h1 {
+                  margin: 0;
+                  font-size: 20px;
+                  font-weight: bold;
+                  letter-spacing: 1px;
+                }
+                .info-grid {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 20px;
+                  margin-bottom: 24px;
+                }
+                .info-item {
+                  margin-bottom: 12px;
+                }
+                .info-label {
+                  color: #666;
+                  font-size: 12px;
+                  margin-bottom: 4px;
+                }
+                .info-value {
+                  font-size: 14px;
+                  font-weight: 500;
+                }
+                .full-width {
+                  grid-column: 1 / -1;
+                }
+                .description-section {
+                  margin: 24px 0;
+                }
+                .description-section .label {
+                  color: #666;
+                  font-size: 12px;
+                  margin-bottom: 8px;
+                }
+                .description-section .content {
+                  font-size: 14px;
+                  text-align: justify;
+                  line-height: 1.8;
+                }
+                .resolution-section {
+                  background: #f0fdf4;
+                  border: 1px solid #86efac;
+                  border-radius: 8px;
+                  padding: 16px;
+                  margin: 24px 0;
+                }
+                .resolution-section .label {
+                  color: #166534;
+                  font-size: 12px;
+                  font-weight: bold;
+                  margin-bottom: 8px;
+                }
+                .resolution-section .content {
+                  font-size: 14px;
+                  color: #166534;
+                }
+                .signatures {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 60px;
+                  margin-top: 80px;
+                  text-align: center;
+                }
+                .signature-box .name {
+                  border-top: 1px solid #000;
+                  padding-top: 8px;
+                  font-weight: bold;
+                  font-size: 14px;
+                }
+                .signature-box .title {
+                  font-size: 12px;
+                  color: #666;
+                }
               </style>
             </head>
             <body>
-              ${printContent.innerHTML}
+              <div class="document">
+                ${printContent.innerHTML}
+              </div>
             </body>
           </html>
         `)
@@ -321,6 +435,11 @@ export default function BlotterPage() {
                       {getStatusBadge(blotter.status)}
                     </div>
                     <p className="text-xs sm:text-sm text-muted-foreground">{blotter.id} | {blotter.date}</p>
+                    {blotter.resolution && (
+                      <div className="mt-2 rounded bg-emerald-50 p-2 text-xs sm:text-sm text-emerald-700">
+                        <strong>Resolution:</strong> {blotter.resolution}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -338,59 +457,84 @@ export default function BlotterPage() {
           {showPreview && (
             <ScrollArea className="max-h-[70vh]">
               <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black">
-                <DocumentHeader title="BLOTTER REPORT" />
+                {/* Print-friendly header with inline styles */}
+                <div className="header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '20px' }}>
+                  <img 
+                    src="/images/santiagologo.jpg" 
+                    alt="Barangay Santiago" 
+                    className="header-logo"
+                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                  />
+                  <div className="header-text" style={{ textAlign: 'center', flex: 1 }}>
+                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Republic of the Philippines</p>
+                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Province of Zambales</p>
+                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Municipality of San Antonio</p>
+                    <p className="brgy-name" style={{ margin: '3px 0', fontSize: '15px', fontWeight: 'bold' }}>Barangay Santiago</p>
+                  </div>
+                  <img 
+                    src="/images/saz.jpg" 
+                    alt="Municipal Mayor" 
+                    className="header-logo"
+                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                  />
+                </div>
+                
+                <div className="title-section" style={{ borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '14px 0', margin: '24px 0', textAlign: 'center' }}>
+                  <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>BLOTTER REPORT</h1>
+                </div>
+                
                 <div className="space-y-4 text-xs sm:text-sm">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Reference No:</p>
-                      <p className="font-medium">{showPreview.id}</p>
+                  <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div className="info-item">
+                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Reference No:</p>
+                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.id}</p>
                     </div>
-                    <div>
-                      <p className="text-gray-600">Date Reported:</p>
-                      <p className="font-medium">{showPreview.date}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Complainant:</p>
-                      <p className="font-medium">{showPreview.complainant}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Respondent:</p>
-                      <p className="font-medium">{showPreview.respondent}</p>
+                    <div className="info-item">
+                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Date Reported:</p>
+                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.date}</p>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Incident Type:</p>
-                    <p className="font-medium">{showPreview.type}</p>
+                  <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div className="info-item">
+                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Complainant:</p>
+                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.complainant}</p>
+                    </div>
+                    <div className="info-item">
+                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Respondent:</p>
+                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.respondent}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Location:</p>
-                    <p className="font-medium">{showPreview.location}</p>
+                  <div className="info-item">
+                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Incident Type:</p>
+                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.type}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Description:</p>
-                    <p className="font-medium">{showPreview.description}</p>
+                  <div className="info-item">
+                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Location:</p>
+                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.location}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-600">Status:</p>
-                    <p className="font-medium capitalize">{showPreview.status}</p>
+                  <div className="description-section" style={{ margin: '24px 0' }}>
+                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '8px' }}>Description:</p>
+                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500, textAlign: 'justify', lineHeight: 1.8 }}>{showPreview.description}</p>
+                  </div>
+                  <div className="info-item">
+                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Status:</p>
+                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500, textTransform: 'capitalize' }}>{showPreview.status}</p>
                   </div>
                   {showPreview.resolution && (
-                    <div className="border-t pt-4">
-                      <p className="text-gray-600">Resolution:</p>
-                      <p className="font-medium">{showPreview.resolution}</p>
+                    <div className="resolution-section" style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px', margin: '24px 0' }}>
+                      <p style={{ color: '#166534', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>Resolution ({showPreview.resolutionDate}):</p>
+                      <p style={{ fontSize: '14px', color: '#166534' }}>{showPreview.resolution}</p>
                     </div>
                   )}
                 </div>
-                <div className="mt-8 sm:mt-12 grid grid-cols-2 gap-4 sm:gap-8 text-center text-xs sm:text-sm">
-                  <div>
-                    <p className="border-t border-black pt-1 font-semibold">APRIL JOY C. CANO</p>
-                    <p>Barangay Secretary</p>
+                <div className="signatures" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', marginTop: '80px', textAlign: 'center' }}>
+                  <div className="signature-box">
+                    <p className="name" style={{ borderTop: '1px solid #000', paddingTop: '8px', fontWeight: 'bold', fontSize: '14px' }}>APRIL JOY C. CANO</p>
+                    <p className="title" style={{ fontSize: '12px', color: '#666' }}>Barangay Secretary</p>
                   </div>
-                  <div>
-                    <p className="border-t border-black pt-1 font-semibold">ROLANDO C. BORJA</p>
-                    <p>Punong Barangay</p>
+                  <div className="signature-box">
+                    <p className="name" style={{ borderTop: '1px solid #000', paddingTop: '8px', fontWeight: 'bold', fontSize: '14px' }}>ROLANDO C. BORJA</p>
+                    <p className="title" style={{ fontSize: '12px', color: '#666' }}>Punong Barangay</p>
                   </div>
                 </div>
               </div>
@@ -400,10 +544,23 @@ export default function BlotterPage() {
             <Button variant="outline" onClick={() => setShowPreview(null)} className="w-full sm:w-auto">
               Close
             </Button>
-            <Button onClick={handlePrint} className="w-full sm:w-auto">
-              <Printer className="mr-2 h-4 w-4" />
-              Print Report
-            </Button>
+            {/* Only show print for resolved status */}
+            {showPreview?.status === "resolved" && (
+              <>
+                {showPreview.resolutionDocument && (
+                  <Button variant="outline" className="w-full sm:w-auto" asChild>
+                    <a href={showPreview.resolutionDocument} download>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Resolution
+                    </a>
+                  </Button>
+                )}
+                <Button onClick={handlePrint} className="w-full sm:w-auto">
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print Report
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
