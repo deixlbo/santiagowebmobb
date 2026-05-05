@@ -3,11 +3,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import {
-  FileText,
-  AlertTriangle,
-  Scroll,
-  FolderKanban,
-  Megaphone,
   ArrowRight,
   Clock,
   CheckCircle2,
@@ -64,14 +59,6 @@ const latestAnnouncements = [
   },
 ]
 
-const quickActions = [
-  { name: "Request Document", href: "/resident/documents", icon: FileText },
-  { name: "File Blotter", href: "/resident/blotter", icon: AlertTriangle },
-  { name: "View Ordinances", href: "/resident/ordinances", icon: Scroll },
-  { name: "View Projects", href: "/resident/projects", icon: FolderKanban },
-  { name: "Announcements", href: "/resident/announcements", icon: Megaphone },
-]
-
 function getStatusBadge(status: string) {
   switch (status) {
     case "approved":
@@ -105,30 +92,6 @@ function getStatusBadge(status: string) {
 export default function ResidentDashboard() {
   return (
     <div className="space-y-6">
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
-          <CardDescription>Access barangay services quickly</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            {quickActions.map((action) => (
-              <Link key={action.name} href={action.href}>
-                <Card className="group cursor-pointer transition-all hover:border-primary hover:shadow-md">
-                  <CardContent className="flex flex-col items-center justify-center p-4 text-center">
-                    <div className="mb-2 rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                      <action.icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium">{action.name}</span>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="grid gap-6 md:grid-cols-2">
         {/* Recent Document Requests */}
         <Card>

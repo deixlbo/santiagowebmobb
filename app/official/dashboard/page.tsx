@@ -137,10 +137,9 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Activity & Quick Links */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activities */}
-          <Card className="lg:col-span-2">
+        {/* Recent Activities */}
+        <div className="grid gap-6">
+          <Card>
             <CardHeader>
               <CardTitle>📊 Recent Activities</CardTitle>
             </CardHeader>
@@ -166,38 +165,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle>⚡ Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link href="/official/documents">
-                <Button className="w-full justify-start" variant="ghost">
-                  <FileText className="w-4 h-4 mr-2" />
-                  View Documents
-                </Button>
-              </Link>
-              <Link href="/official/residents">
-                <Button className="w-full justify-start" variant="ghost">
-                  <Users className="w-4 h-4 mr-2" />
-                  Manage Residents
-                </Button>
-              </Link>
-              <Link href="/official/blotters">
-                <Button className="w-full justify-start" variant="ghost">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  View Blotters
-                </Button>
-              </Link>
-              <Link href="/official/announcements">
-                <Button className="w-full justify-start" variant="ghost">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Post Announcement
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+
         </div>
       </div>
     </div>
