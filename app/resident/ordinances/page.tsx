@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DocumentHeader } from "@/components/document-header"
-import { Search, Eye, Printer, Scroll, Calendar } from "lucide-react"
+import { Search, Printer, Scroll, Calendar } from "lucide-react"
 
 const mockOrdinances = [
   {
@@ -198,9 +198,13 @@ export default function OrdinancesPage() {
       </div>
 
       {/* Ordinances List */}
-      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredOrdinances.map((ordinance) => (
-          <Card key={ordinance.id} className="transition-shadow hover:shadow-lg">
+          <Card 
+            key={ordinance.id} 
+            className="transition-shadow hover:shadow-lg cursor-pointer"
+            onClick={() => setSelectedOrdinance(ordinance)}
+          >
             <CardHeader className="pb-2 sm:pb-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge variant="secondary" className="text-xs">
@@ -216,41 +220,33 @@ export default function OrdinancesPage() {
                 {ordinance.date}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="flex items-center gap-2">
                 <Scroll className="h-4 w-4 text-muted-foreground" />
                 <span className="text-xs sm:text-sm text-muted-foreground">By: {ordinance.author}</span>
               </div>
-              <Button 
-                variant="outline" 
-                className="mt-4 w-full text-xs sm:text-sm"
-                onClick={() => setSelectedOrdinance(ordinance)}
-              >
-                <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                View Document
-              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {filteredOrdinances.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Scroll className="h-12 w-12 text-muted-foreground/50" />
-          <h3 className="mt-4 text-lg font-semibold">No ordinances found</h3>
-          <p className="text-muted-foreground">Try adjusting your search term</p>
+        <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+          <Scroll className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50" />
+          <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold">No ordinances found</h3>
+          <p className="text-sm text-muted-foreground">Try adjusting your search term</p>
         </div>
       )}
 
       {/* Ordinance Preview Modal */}
       <Dialog open={!!selectedOrdinance} onOpenChange={() => setSelectedOrdinance(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+        <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] sm:w-full mx-auto bg-white">
           <DialogHeader>
-            <DialogTitle>Ordinance Document</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg text-foreground">Ordinance Document</DialogTitle>
           </DialogHeader>
           {selectedOrdinance && (
-            <ScrollArea className="max-h-[70vh]">
-              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print:border-0 print:p-0">
+            <ScrollArea className="max-h-[65vh] sm:max-h-[70vh]">
+              <div ref={printRef} className="rounded-lg border border-gray-200 bg-white p-3 sm:p-6 md:p-8 text-gray-900 print:border-0 print:p-0">
                 <DocumentHeader title={`BARANGAY ORDINANCE NO. ${selectedOrdinance.number} SERIES OF ${selectedOrdinance.year}`} />
 
                 <h3 className="text-center font-bold mb-6 text-xs sm:text-sm">{selectedOrdinance.fullTitle}</h3>
@@ -300,13 +296,13 @@ export default function OrdinancesPage() {
               </div>
             </ScrollArea>
           )}
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setSelectedOrdinance(null)} className="w-full sm:w-auto">
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-2">
+            <Button variant="outline" onClick={() => setSelectedOrdinance(null)} className="w-full sm:w-auto text-sm">
               Close
             </Button>
-            <Button onClick={handlePrint} className="w-full sm:w-auto">
+            <Button onClick={handlePrint} className="w-full sm:w-auto text-sm">
               <Printer className="mr-2 h-4 w-4" />
-              Print Document
+              Print
             </Button>
           </DialogFooter>
         </DialogContent>
