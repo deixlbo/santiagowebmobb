@@ -81,17 +81,18 @@ const mockProjects = [
 
 const projectTypes = ["Infrastructure", "Health", "Education", "Environment", "Peace and Order", "Social Welfare"]
 
-// Document Header Component with Logos
-function DocumentHeader() {
+// Document Header Component with Logos - Only visible when printing
+function DocumentHeader({ printOnly = false }: { printOnly?: boolean }) {
   return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+    <div className={`flex items-center justify-between mb-4 p-4 border-b ${printOnly ? 'hidden print:flex' : ''}`}>
+      <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
       <div className="text-center flex-1 px-2">
         <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Province of Zambales</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Municipality of San Antonio</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">Barangay Santiago</p>
       </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
     </div>
   )
 }

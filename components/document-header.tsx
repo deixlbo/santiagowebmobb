@@ -2,11 +2,12 @@ import Image from "next/image"
 
 interface DocumentHeaderProps {
   title?: string
+  printOnly?: boolean
 }
 
-export function DocumentHeader({ title }: DocumentHeaderProps) {
+export function DocumentHeader({ title, printOnly = false }: DocumentHeaderProps) {
   return (
-    <div className="mb-6">
+    <div className={`mb-6 ${printOnly ? 'hidden print:block' : ''}`}>
       {/* Header with logos */}
       <div className="flex items-center justify-center gap-4 mb-4">
         {/* Left Logo - Santiago Logo */}

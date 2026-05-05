@@ -364,7 +364,7 @@ export default function ProjectsPage() {
           {selectedProject && (
             <ScrollArea className="max-h-[70vh]">
               <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print:border-0 print:p-0">
-                <DocumentHeader title="BARANGAY PROJECT REPORT" />
+                <DocumentHeader title="BARANGAY PROJECT REPORT" printOnly />
 
                 {/* Project Details */}
                 <div className="space-y-4 text-xs sm:text-sm">

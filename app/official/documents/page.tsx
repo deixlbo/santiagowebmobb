@@ -144,10 +144,10 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-// Document Header Component with Logos
-function OfficialDocumentHeader() {
+// Document Header Component with Logos - Only visible when printing
+function OfficialDocumentHeader({ printOnly = false }: { printOnly?: boolean }) {
   return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
+    <div className={`flex items-center justify-between mb-4 p-4 border-b ${printOnly ? 'hidden print:flex' : ''}`}>
       <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
       <div className="text-center flex-1 px-2">
         <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
@@ -417,10 +417,9 @@ export default function OfficialDocumentsPage() {
         </Card>
       </motion.div>
 
-      {/* Request Details Modal - with Document Header */}
+      {/* Request Details Modal */}
       <Dialog open={!!selectedRequest && !showApproveDialog} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="w-[95vw] max-w-2xl sm:w-full">
-          <OfficialDocumentHeader />
+        <DialogContent className="w-[95vw] max-w-2xl sm:w-full bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Request Details</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -484,8 +483,7 @@ export default function OfficialDocumentsPage() {
 
       {/* Approve Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-        <DialogContent className="mx-4 md:mx-auto">
-          <OfficialDocumentHeader />
+        <DialogContent className="mx-4 md:mx-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Approve Request</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -524,8 +522,7 @@ export default function OfficialDocumentsPage() {
 
       {/* Archive Dialog */}
       <Dialog open={showArchive} onOpenChange={setShowArchive}>
-        <DialogContent className="max-w-2xl mx-4 md:mx-auto">
-          <OfficialDocumentHeader />
+        <DialogContent className="max-w-2xl mx-4 md:mx-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Document Archive</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -571,12 +568,24 @@ export default function OfficialDocumentsPage() {
 
       {/* Print Document Dialog */}
       <Dialog open={showPrintDocument} onOpenChange={setShowPrintDocument}>
-        <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Document Preview</DialogTitle>
+            <DialogTitle className="text-base md:text-lg text-foreground">Document Preview</DialogTitle>
           </DialogHeader>
           {printRequest && (
-            <div id="print-document" className="bg-white p-4 md:p-8 text-black print:p-4 print-only">
+            <div id="print-document" className="bg-white p-4 md:p-8 text-gray-900 print:p-4">
+              {/* Header - Only visible when printing */}
+              <div className="hidden print:flex items-center justify-between mb-4 pb-4 border-b">
+                <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
+                <div className="text-center flex-1 px-2">
+                  <p className="text-xs">Republic of the Philippines</p>
+                  <p className="text-xs">Province of Zambales</p>
+                  <p className="text-xs">Municipality of San Antonio</p>
+                  <p className="text-sm font-semibold">Barangay Santiago</p>
+                </div>
+                <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
+              </div>
+
               <div className="text-center mb-6">
                 <h2 className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</h2>
               </div>
@@ -587,46 +596,40 @@ export default function OfficialDocumentsPage() {
 
                 {printRequest.type === "Barangay Clearance" && (
                   <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
+                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
                   </>
                 )}
 
                 {printRequest.type === "Certificate of Residency" && (
                   <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
+                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
                   </>
                 )}
 
                 {printRequest.type === "Certificate of Indigency" && (
                   <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
-                    <p>This certification is issued upon request for <span className="font-bold underline">{printRequest.purpose}</span>.</p>
+                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
+                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
                   </>
                 )}
 
                 {printRequest.type === "Business Clearance" && (
                   <>
-                    <p>This is to certify that <span className="font-bold underline">{printRequest.requester}</span>, owner/operator of <span className="font-bold underline">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
-                    <p>This certification is issued upon request for business operations.</p>
+                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, owner/operator of <span className="font-bold">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
+                    <p className="text-justify">This certification is issued upon request for business operations.</p>
                   </>
                 )}
 
-                <p>Issued this _____ day of ______, 20__.</p>
+                <p>Issued this {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} at Barangay Santiago, San Antonio, Zambales.</p>
 
                 <div className="mt-8 pt-4">
                   <div className="inline-block">
-                    <div className="w-48 border-b border-black mb-1 h-12" />
+                    <div className="w-48 mb-1 h-12" />
                     <p className="font-bold text-center">ROLANDO C. BORJA</p>
                     <p className="text-center">Barangay Captain</p>
                   </div>
-                </div>
-
-                <div className="mt-8 pt-4 space-y-1">
-                  <p>O.R. No.: ____________________</p>
-                  <p>Date Issued: _________________</p>
-                  <p>Doc. Stamp: Paid</p>
                 </div>
               </div>
             </div>

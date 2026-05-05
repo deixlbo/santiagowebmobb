@@ -67,17 +67,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-// Document Header Component with Logos
-function DocumentHeader() {
+// Document Header Component with Logos - Only visible when printing
+function DocumentHeader({ printOnly = false }: { printOnly?: boolean }) {
   return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+    <div className={`flex items-center justify-between mb-4 p-4 border-b ${printOnly ? 'hidden print:flex' : ''}`}>
+      <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
       <div className="text-center flex-1 px-2">
         <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Province of Zambales</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Municipality of San Antonio</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">Barangay Santiago</p>
       </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
     </div>
   )
 }
@@ -110,8 +111,7 @@ export default function OfficialOrdinancesPage() {
               <span className="hidden md:inline">Create Ordinance</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh]">
-            <DocumentHeader />
+          <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh] bg-white">
             <DialogHeader>
               <DialogTitle className="text-base md:text-lg">Create New Ordinance</DialogTitle>
               <DialogDescription className="text-xs md:text-sm">Fill in the ordinance template</DialogDescription>
@@ -306,8 +306,7 @@ export default function OfficialOrdinancesPage() {
 
       {/* View Details Modal */}
       <Dialog open={!!selectedOrdinance && !showPreview} onOpenChange={() => setSelectedOrdinance(null)}>
-        <DialogContent className="max-w-lg mx-4 md:mx-auto">
-          <DocumentHeader />
+        <DialogContent className="max-w-lg mx-4 md:mx-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Ordinance Details</DialogTitle>
           </DialogHeader>
@@ -361,13 +360,24 @@ export default function OfficialOrdinancesPage() {
 
       {/* Print Preview Modal */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh]">
+        <DialogContent className="max-w-2xl mx-4 md:mx-auto max-h-[90vh] bg-white">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Ordinance Document Preview</DialogTitle>
+            <DialogTitle className="text-base md:text-lg text-foreground">Ordinance Document Preview</DialogTitle>
           </DialogHeader>
           {selectedOrdinance && (
             <ScrollArea className="max-h-[60vh]">
-              <div id="print-preview" className="rounded-lg border bg-white p-4 md:p-8 text-black print-only">
+              <div id="print-preview" className="rounded-lg border border-gray-200 bg-white p-4 md:p-8 text-gray-900">
+                {/* Header - Only visible when printing */}
+                <div className="hidden print:flex items-center justify-between mb-4 pb-4 border-b">
+                  <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
+                  <div className="text-center flex-1 px-2">
+                    <p className="text-xs">Republic of the Philippines</p>
+                    <p className="text-xs">Province of Zambales</p>
+                    <p className="text-xs">Municipality of San Antonio</p>
+                    <p className="text-sm font-semibold">Barangay Santiago</p>
+                  </div>
+                  <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
+                </div>
                 <div className="border-t border-b border-black py-2 md:py-4 my-4 md:my-6">
                   <h2 className="text-center font-bold text-sm md:text-base">
                     BARANGAY ORDINANCE NO. {selectedOrdinance.number} SERIES OF {selectedOrdinance.year}

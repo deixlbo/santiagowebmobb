@@ -17,11 +17,7 @@ import {
   Clock,
   Users,
   Download,
-  Bell,
-  Send,
-  FileText,
-  Trash2,
-  Plus
+  FileText
 } from "lucide-react"
 
 const mockResidents = [
@@ -390,47 +386,16 @@ export default function ResidentsPage() {
                 </div>
               </div>
               
-              {/* Notification / Message Section */}
-              <div className="rounded-lg border p-3 md:p-4 bg-blue-50 dark:bg-blue-950/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <Bell className="w-4 h-4 text-blue-600" />
-                  <p className="text-xs md:text-sm font-semibold text-blue-900 dark:text-blue-200">Send Notification</p>
-                </div>
-                <div className="space-y-2">
-                  <textarea 
-                    placeholder="Type a message that the resident will receive..."
-                    className="w-full text-xs md:text-sm p-2 border rounded-md resize-none bg-white dark:bg-slate-900 border-gray-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"
-                  />
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      className="flex-1 md:flex-none gap-2 bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Send className="w-3 h-3" />
-                      Send Message
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
               {/* Documents Section */}
               <div className="rounded-lg border p-3 md:p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                    <p className="text-xs md:text-sm font-semibold">Resident Documents</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="gap-1 h-7"
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span className="text-xs">Add</span>
-                  </Button>
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <p className="text-xs md:text-sm font-semibold">Resident Documents</p>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                  <div 
+                    className="flex items-center p-2 bg-muted/50 rounded-md cursor-pointer hover:bg-muted transition-colors"
+                  >
                     <div className="flex items-center gap-2 min-w-0">
                       <FileText className="w-4 h-4 text-slate-500 flex-shrink-0" />
                       <div className="min-w-0">
@@ -438,25 +403,19 @@ export default function ResidentsPage() {
                         <p className="text-[10px] md:text-xs text-muted-foreground">Registered: {selectedResident.registeredDate}</p>
                       </div>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="h-7 w-7 p-0 flex-shrink-0"
-                    >
-                      <Trash2 className="w-3 h-3 text-red-500" />
-                    </Button>
-                  </div>
-                  <div className="text-center py-2 border-2 border-dashed rounded-md">
-                    <p className="text-[10px] md:text-xs text-muted-foreground">Drag & drop or click to add documents</p>
                   </div>
                 </div>
               </div>
 
-              {/* Uploaded Document Preview */}
-              <div className="rounded-lg border p-3 md:p-4 bg-muted/20">
-                <p className="text-xs md:text-sm text-muted-foreground font-medium mb-2">Document Preview</p>
-                <div className="aspect-video rounded bg-muted flex items-center justify-center">
-                  <span className="text-xs md:text-sm text-muted-foreground">No document to preview</span>
+              {/* Document Preview */}
+              <div className="rounded-lg border p-3 md:p-4 bg-white">
+                <p className="text-xs md:text-sm text-gray-600 font-medium mb-2">Document Preview</p>
+                <div className="aspect-video rounded bg-gray-100 flex items-center justify-center border">
+                  <div className="text-center p-4">
+                    <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-xs md:text-sm font-medium text-gray-700">{selectedResident.documentType}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500 mt-1">Submitted for verification</p>
+                  </div>
                 </div>
               </div>
             </div>

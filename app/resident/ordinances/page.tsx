@@ -247,7 +247,7 @@ export default function OrdinancesPage() {
           {selectedOrdinance && (
             <ScrollArea className="max-h-[65vh] sm:max-h-[70vh]">
               <div ref={printRef} className="rounded-lg border border-gray-200 bg-white p-3 sm:p-6 md:p-8 text-gray-900 print:border-0 print:p-0">
-                <DocumentHeader title={`BARANGAY ORDINANCE NO. ${selectedOrdinance.number} SERIES OF ${selectedOrdinance.year}`} />
+                <DocumentHeader title={`BARANGAY ORDINANCE NO. ${selectedOrdinance.number} SERIES OF ${selectedOrdinance.year}`} printOnly />
 
                 <h3 className="text-center font-bold mb-6 text-xs sm:text-sm">{selectedOrdinance.fullTitle}</h3>
 

@@ -119,17 +119,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-// Document Header Component with Logos
-function DocumentHeader() {
+// Document Header Component with Logos - Only visible when printing
+function DocumentHeader({ printOnly = false }: { printOnly?: boolean }) {
   return (
-    <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+    <div className={`flex items-center justify-between mb-4 p-4 border-b ${printOnly ? 'hidden print:flex' : ''}`}>
+      <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
       <div className="text-center flex-1 px-2">
         <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Province of Zambales</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Municipality of San Antonio</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">Barangay Santiago</p>
       </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
     </div>
   )
 }
@@ -380,8 +381,7 @@ export default function OfficialBusinessPage() {
 
       {/* Business Details Modal */}
       <Dialog open={!!selectedBusiness && !showApproveDialog && !showPrintPreview} onOpenChange={() => setSelectedBusiness(null)}>
-        <DialogContent className="max-w-lg mx-4 md:mx-auto">
-          <DocumentHeader />
+        <DialogContent className="max-w-lg mx-4 md:mx-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Business Application Details</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -446,8 +446,7 @@ export default function OfficialBusinessPage() {
 
       {/* Approve Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-        <DialogContent className="mx-4 md:mx-auto">
-          <DocumentHeader />
+        <DialogContent className="mx-4 md:mx-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Approve Business Permit</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
