@@ -62,13 +62,13 @@ export default function ResidentLayout({
     <>
       {/* Header with Logo */}
       <div className="relative flex items-center gap-3 px-4 py-5">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 ring-2 ring-yellow-400/50">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 ring-2 ring-yellow-400/50 overflow-hidden">
           <Image
-            src="/santiago-logo.png"
+            src="/images/santiagologo.jpg"
             alt="Barangay Santiago"
             width={40}
             height={40}
-            className="rounded-full"
+            className="h-full w-full rounded-full object-cover"
           />
         </div>
         <div>
@@ -149,7 +149,20 @@ export default function ResidentLayout({
   )
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 flex">
+      {/* Desktop Sidebar */}
+      <motion.aside 
+        initial={{ x: -280 }}
+        animate={{ x: 0 }}
+        transition={{ duration: 0.3 }}
+        className="hidden md:flex w-72 flex-col fixed inset-y-0 left-0 z-20"
+        style={{
+          background: "linear-gradient(180deg, #166534 0%, #14532d 50%, #0f3d1f 100%)"
+        }}
+      >
+        <MobileSidebarContent />
+      </motion.aside>
+
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -181,18 +194,18 @@ export default function ResidentLayout({
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-      >
-        <div className="flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Button */}
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col md:ml-72">
+        {/* Mobile Header */}
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden"
+        >
+          <div className="flex h-16 items-center justify-between px-4">
             <button 
-              className="rounded-lg p-2 hover:bg-muted md:hidden"
+              className="rounded-lg p-2 hover:bg-muted"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-6 w-6" />
@@ -201,98 +214,67 @@ export default function ResidentLayout({
             <Link href="/resident" className="flex items-center gap-2">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary overflow-hidden"
               >
                 <Image
-                  src="/santiago-logo.png"
+                  src="/images/santiagologo.jpg"
                   alt="Barangay Santiago"
                   width={32}
                   height={32}
-                  className="rounded-lg"
+                  className="h-full w-full object-cover"
                 />
               </motion.div>
-              <span className="hidden font-semibold sm:inline-block">
-                Barangay Santiago
-              </span>
             </Link>
-          </div>
 
-          <nav className="hidden items-center gap-1 md:flex">
-            {navigation.map((item, index) => {
-              const isActive = pathname === item.href || 
-                (item.href !== "/resident" && pathname.startsWith(item.href))
-              return (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
+                    <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Juan Dela Cruz</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      juan@example.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/resident/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
                   </Link>
-                </motion.div>
-              )
-            })}
-          </nav>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </motion.header>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Juan Dela Cruz</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    juan@example.com
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/resident/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </motion.header>
-
-      {/* Main Content with Animation */}
-      <AnimatePresence mode="wait">
-        <motion.main 
-          key={pathname}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="container mx-auto px-4 py-6 md:px-6"
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+        {/* Main Content with Animation */}
+        <AnimatePresence mode="wait">
+          <motion.main 
+            key={pathname}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 container mx-auto px-4 py-6 md:px-6"
+          >
+            {children}
+          </motion.main>
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
