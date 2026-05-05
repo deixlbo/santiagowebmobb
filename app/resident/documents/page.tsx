@@ -12,7 +12,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   FileText, 
-  Plus, 
   Clock, 
   CheckCircle2, 
   XCircle, 
@@ -66,21 +65,21 @@ function getStatusBadge(status: string) {
       return (
         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
           <CheckCircle2 className="mr-1 h-3 w-3" />
-          Approved
+          Ready to Release
         </Badge>
       )
     case "pending":
       return (
         <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
           <Clock className="mr-1 h-3 w-3" />
-          Pending
+          Waiting for Official Approval
         </Badge>
       )
     case "rejected":
       return (
         <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
           <XCircle className="mr-1 h-3 w-3" />
-          Rejected
+          Rejected - Please Resubmit
         </Badge>
       )
     default:
@@ -97,41 +96,37 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Document Requests</h1>
-          <p className="text-muted-foreground">Request and track your document applications</p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Request
-            </Button>
-          </DialogTrigger>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Document Requests</h1>
+        <p className="text-muted-foreground">Request and track your document applications</p>
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Request Document</DialogTitle>
               <DialogDescription>
-                Select a document type and provide required information
+                {selectedDoc ? `Complete the form to request ${selectedDoc.name}` : "Select a document type and provide required information"}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Document Type</Label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select document type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {documentTypes.map((doc) => (
-                      <SelectItem key={doc.id} value={doc.id}>
-                        {doc.name} - PHP {doc.fee}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {!selectedType && (
+                <div className="space-y-2">
+                  <Label>Document Type</Label>
+                  <Select value={selectedType} onValueChange={setSelectedType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select document type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {documentTypes.map((doc) => (
+                        <SelectItem key={doc.id} value={doc.id}>
+                          {doc.name} - PHP {doc.fee}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {selectedDoc && (
                 <>
@@ -170,10 +165,22 @@ export default function DocumentsPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsDialogOpen(false)
+                  setSelectedType("")
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => setIsDialogOpen(false)} disabled={!selectedType}>
+              <Button 
+                onClick={() => {
+                  setIsDialogOpen(false)
+                  setSelectedType("")
+                }} 
+                disabled={!selectedType}
+              >
                 Submit Request
               </Button>
             </DialogFooter>
@@ -190,16 +197,20 @@ export default function DocumentsPage() {
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {documentTypes.map((doc) => (
-              <div 
+              <button
                 key={doc.id}
-                className="rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                onClick={() => {
+                  setSelectedType(doc.id)
+                  setIsDialogOpen(true)
+                }}
+                className="rounded-lg border p-4 text-left transition-all hover:bg-muted/50 hover:border-primary hover:shadow-md cursor-pointer"
               >
                 <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-medium">{doc.name}</h3>
                 <p className="text-sm text-muted-foreground">Fee: PHP {doc.fee}</p>
-              </div>
+              </button>
             ))}
           </div>
         </CardContent>
