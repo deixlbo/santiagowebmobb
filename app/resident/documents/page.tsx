@@ -186,7 +186,6 @@ export default function DocumentsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
 
       {/* Available Documents */}
       <Card>
