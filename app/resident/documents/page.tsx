@@ -17,8 +17,6 @@ import {
   Clock, 
   CheckCircle2, 
   XCircle, 
-  Printer,
-  Eye,
   Upload,
   X,
   AlertCircle,
@@ -154,13 +152,11 @@ function getStatusCircle(status: RequirementStatus) {
 export default function DocumentsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedType, setSelectedType] = useState<string>("")
-  const [showPreview, setShowPreview] = useState<typeof mockRequests[0] | null>(null)
   const [showResubmit, setShowResubmit] = useState<typeof mockRequests[0] | null>(null)
   const [requirements, setRequirements] = useState<Requirement[]>([])
   const [expandedRequirement, setExpandedRequirement] = useState<string | null>(null)
   const [resubmitFiles, setResubmitFiles] = useState<{ [key: string]: File }>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const printRef = useRef<HTMLDivElement>(null)
 
   const selectedDoc = documentTypes.find(d => d.id === selectedType)
 
@@ -193,95 +189,6 @@ export default function DocumentsPage() {
           : r
       )
     )
-  }
-
-  const handlePrint = () => {
-    if (!showPreview) return
-    
-    const printWindow = window.open('', '_blank')
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${showPreview.type} - ${showPreview.id}</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
-              .header { text-align: center; margin-bottom: 24px; }
-              .header-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
-              .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
-              .header-text { text-align: center; }
-              .header-text p { margin: 2px 0; font-size: 12px; }
-              .header-text .bold { font-weight: 600; }
-              .title-bar { border-top: 2px solid black; border-bottom: 2px solid black; padding: 12px; margin: 24px 0; text-align: center; font-weight: bold; font-size: 16px; }
-              .content { font-size: 14px; }
-              .content p { margin: 10px 0; text-align: justify; line-height: 1.8; }
-              .info-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
-              .info-item { }
-              .info-label { color: #666; font-size: 11px; }
-              .info-value { font-weight: 500; }
-              .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; text-align: center; }
-              .signature-box { }
-              .signature-line { border-top: 1px solid black; padding-top: 4px; font-weight: bold; }
-              .signature-title { font-size: 12px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="header-row">
-                <img src="/images/santiagologo.jpg" alt="Barangay Santiago" class="logo" />
-                <div class="header-text">
-                  <p>Republic of the Philippines</p>
-                  <p>Province of Zambales</p>
-                  <p>Municipality of San Antonio</p>
-                  <p class="bold">Barangay Santiago</p>
-                </div>
-                <img src="/images/saz.jpg" alt="Municipal Seal" class="logo" />
-              </div>
-            </div>
-            
-            <div class="title-bar">${showPreview.type.toUpperCase()}</div>
-            
-            <div class="content">
-              <div class="info-row">
-                <div class="info-item">
-                  <p class="info-label">Control No:</p>
-                  <p class="info-value">${showPreview.id}</p>
-                </div>
-                <div class="info-item">
-                  <p class="info-label">Date Issued:</p>
-                  <p class="info-value">${showPreview.date}</p>
-                </div>
-              </div>
-              
-              <p><strong>TO WHOM IT MAY CONCERN:</strong></p>
-              
-              <p>This is to certify that <strong>${showPreview.residentName}</strong>, of legal age, Filipino, and a resident of <strong>${showPreview.address}</strong>, has been known to be a person of good moral character and law-abiding citizen of this barangay.</p>
-              
-              <p>This certification is issued upon the request of the above-named person for <strong>${showPreview.purpose}</strong> purposes.</p>
-              
-              <p>Issued this ${showPreview.date} at the Office of the Punong Barangay, Barangay Santiago, San Antonio, Zambales.</p>
-            </div>
-            
-            <div class="signatures">
-              <div class="signature-box">
-                <p class="signature-line">${showPreview.residentName.toUpperCase()}</p>
-                <p class="signature-title">Requesting Party</p>
-              </div>
-              <div class="signature-box">
-                <p class="signature-line">ROLANDO C. BORJA</p>
-                <p class="signature-title">Punong Barangay</p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `)
-      printWindow.document.close()
-      
-      setTimeout(() => {
-        printWindow.print()
-      }, 500)
-    }
   }
 
   const handleResubmit = () => {
@@ -612,43 +519,17 @@ export default function DocumentsPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {request.status === "approved" && (
-                        <>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setShowPreview(request)}
-                            className="flex-1 sm:flex-none text-xs sm:text-sm"
-                          >
-                            <Eye className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                            Preview
-                          </Button>
-                          <Button 
-                            size="sm"
-                            onClick={() => {
-                              setShowPreview(request)
-                              setTimeout(handlePrint, 100)
-                            }}
-                            className="flex-1 sm:flex-none text-xs sm:text-sm"
-                          >
-                            <Printer className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                            Print
-                          </Button>
-                        </>
-                      )}
-                      {request.status === "rejected" && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setShowResubmit(request)}
-                          className="w-full sm:w-auto text-xs sm:text-sm"
-                        >
-                          <Upload className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                          Resubmit with Missing Documents
-                        </Button>
-                      )}
-                    </div>
+                    {request.status === "rejected" && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowResubmit(request)}
+                        className="w-full sm:w-auto text-xs sm:text-sm"
+                      >
+                        <Upload className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                        Resubmit with Missing Documents
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -676,37 +557,18 @@ export default function DocumentsPage() {
                 {mockRequests.filter(r => r.status === "approved").map((request) => (
                   <div 
                     key={request.id}
-                    className="flex flex-col gap-3 rounded-lg border p-3 sm:p-4"
+                    className="rounded-lg border p-3 sm:p-4"
                   >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-sm">{request.type}</span>
-                        {getStatusBadge(request.status)}
-                      </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground">{request.id} | {request.date}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium text-sm">{request.type}</span>
+                      {getStatusBadge(request.status)}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setShowPreview(request)}
-                        className="flex-1 sm:flex-none text-xs sm:text-sm"
-                      >
-                        <Eye className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                        Preview
-                      </Button>
-                      <Button 
-                        size="sm"
-                        onClick={() => {
-                          setShowPreview(request)
-                          setTimeout(handlePrint, 100)
-                        }}
-                        className="flex-1 sm:flex-none text-xs sm:text-sm"
-                      >
-                        <Printer className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                        Print
-                      </Button>
-                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{request.id} | {request.date}</p>
+                    {request.pickupTime && (
+                      <p className="text-xs sm:text-sm text-primary font-medium mt-1">
+                        Pickup: {request.pickupTime} | Fee: PHP {request.fee}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -748,80 +610,6 @@ export default function DocumentsPage() {
         </CardContent>
       </Card>
 
-      {/* Document Preview Modal - Only for approved documents */}
-      <Dialog open={!!showPreview} onOpenChange={() => setShowPreview(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Document Preview</DialogTitle>
-          </DialogHeader>
-          {showPreview && (
-            <ScrollArea className="max-h-[70vh]">
-              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print-content">
-                {/* Print-friendly header */}
-                <div className="header-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '16px' }}>
-                  <img 
-                    src="/images/santiagologo.jpg" 
-                    alt="Barangay Santiago" 
-                    style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                  <div className="center-text" style={{ textAlign: 'center', flex: 1 }}>
-                    <p style={{ margin: '2px 0', fontSize: '12px' }}>Republic of the Philippines</p>
-                    <p style={{ margin: '2px 0', fontSize: '12px' }}>Province of Zambales</p>
-                    <p style={{ margin: '2px 0', fontSize: '12px' }}>Municipality of San Antonio</p>
-                    <p style={{ margin: '2px 0', fontSize: '14px', fontWeight: 'bold' }}>Barangay Santiago</p>
-                  </div>
-                  <img 
-                    src="/images/saz.jpg" 
-                    alt="Municipal Mayor" 
-                    style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                </div>
-                
-                <div className="title" style={{ borderTop: '2px solid black', borderBottom: '2px solid black', padding: '12px', margin: '20px 0', textAlign: 'center', fontWeight: 'bold', fontSize: '16px' }}>
-                  {showPreview.type.toUpperCase()}
-                </div>
-                
-                <div className="content" style={{ fontSize: '14px' }}>
-                  <p style={{ margin: '10px 0' }}><strong>To Whom It May Concern:</strong></p>
-                  <p style={{ margin: '10px 0', textAlign: 'justify', lineHeight: '1.8' }}>
-                    This is to certify that <strong>{showPreview.residentName}</strong>, of legal age, 
-                    Filipino citizen, and a resident of <strong>{showPreview.address}</strong>, 
-                    is known to me to be a person of good moral character and a law-abiding citizen 
-                    in our barangay.
-                  </p>
-                  <p style={{ margin: '10px 0', textAlign: 'justify', lineHeight: '1.8' }}>
-                    This certification is being issued upon the request of the above-named person 
-                    for <strong>{showPreview.purpose}</strong> purposes.
-                  </p>
-                  <p style={{ margin: '10px 0', textAlign: 'justify', lineHeight: '1.8' }}>
-                    Issued this {showPreview.date} at Barangay Santiago, San Antonio, Zambales.
-                  </p>
-                </div>
-                
-                <div className="signatures" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginTop: '60px', textAlign: 'center' }}>
-                  <div>
-                    <p style={{ borderTop: '1px solid black', paddingTop: '4px', fontWeight: 'bold' }}>APRIL JOY C. CANO</p>
-                    <p style={{ fontSize: '12px' }}>Barangay Secretary</p>
-                  </div>
-                  <div>
-                    <p style={{ borderTop: '1px solid black', paddingTop: '4px', fontWeight: 'bold' }}>ROLANDO C. BORJA</p>
-                    <p style={{ fontSize: '12px' }}>Punong Barangay</p>
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
-          )}
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setShowPreview(null)} className="w-full sm:w-auto">
-              Close
-            </Button>
-            <Button onClick={handlePrint} className="w-full sm:w-auto">
-              <Printer className="mr-2 h-4 w-4" />
-              Print Document
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

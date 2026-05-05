@@ -14,16 +14,8 @@ import {
   Megaphone,
   User,
   Menu,
+  Bell,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 
 import { useState } from "react"
@@ -238,33 +230,11 @@ export default function ResidentLayout({
             
             <span className="text-sm font-semibold text-foreground">Barangay Santiago</span>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
-                    <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Juan Dela Cruz</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      juan@example.com
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/resident/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link href="/resident/dashboard">
+              <Button variant="ghost" size="sm" className="relative h-9 w-9 p-0">
+                <Bell className="h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </motion.header>
 

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,8 +26,7 @@ import {
   Clock,
   Trash2,
   AlertTriangle,
-  Eye,
-  LogOut
+  Eye
 } from "lucide-react"
 
 // Mock user data
@@ -447,24 +445,16 @@ export default function ProfilePage() {
 
       {/* Account Actions Section */}
       <Card className="border-destructive/20">
-        <CardContent className="p-4 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              If you want to delete your account,{" "}
-              <button 
-                onClick={() => setShowDeleteDialog(true)}
-                className="text-destructive hover:underline font-medium"
-              >
-                delete account
-              </button>
-            </p>
-            <Link href="/resident/login">
-              <Button variant="outline" size="sm" className="gap-2">
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
-            </Link>
-          </div>
+        <CardContent className="p-4 sm:p-6">
+          <p className="text-sm text-muted-foreground">
+            If you want to delete your account,{" "}
+            <button 
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-destructive hover:underline font-medium"
+            >
+              delete account
+            </button>
+          </p>
         </CardContent>
       </Card>
 

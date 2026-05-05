@@ -352,11 +352,6 @@ export default function BlotterPage() {
                         <MapPin className="h-3 w-3" />
                         {blotter.location}
                       </div>
-                      {blotter.resolution && (
-                        <div className="rounded bg-emerald-50 p-2 text-xs sm:text-sm text-emerald-700">
-                          <strong>Resolution:</strong> {blotter.resolution}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -409,11 +404,6 @@ export default function BlotterPage() {
                       {getStatusBadge(blotter.status)}
                     </div>
                     <p className="text-xs sm:text-sm text-muted-foreground">{blotter.id} | {blotter.date}</p>
-                    {blotter.resolution && (
-                      <div className="mt-2 rounded bg-emerald-50 p-2 text-xs sm:text-sm text-emerald-700">
-                        <strong>Resolution:</strong> {blotter.resolution}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -426,116 +416,170 @@ export default function BlotterPage() {
       <Dialog open={!!showPreview} onOpenChange={() => setShowPreview(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Blotter Report Details</DialogTitle>
+            <DialogTitle>Case Details - {showPreview?.id}</DialogTitle>
           </DialogHeader>
           {showPreview && (
-            <ScrollArea className="max-h-[70vh]">
-              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black">
-                {/* Print-friendly header with inline styles */}
-                <div className="header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '20px' }}>
-                  <img 
-                    src="/images/santiagologo.jpg" 
-                    alt="Barangay Santiago" 
-                    className="header-logo"
-                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                  />
-                  <div className="header-text" style={{ textAlign: 'center', flex: 1 }}>
-                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Republic of the Philippines</p>
-                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Province of Zambales</p>
-                    <p style={{ margin: '3px 0', fontSize: '13px' }}>Municipality of San Antonio</p>
-                    <p className="brgy-name" style={{ margin: '3px 0', fontSize: '15px', fontWeight: 'bold' }}>Barangay Santiago</p>
-                  </div>
-                  <img 
-                    src="/images/saz.jpg" 
-                    alt="Municipal Mayor" 
-                    className="header-logo"
-                    style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                  />
-                </div>
-                
-                <div className="title-section" style={{ borderTop: '2px solid #000', borderBottom: '2px solid #000', padding: '14px 0', margin: '24px 0', textAlign: 'center' }}>
-                  <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>BLOTTER REPORT</h1>
-                </div>
-                
-                <div className="space-y-4 text-xs sm:text-sm">
-                  <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div className="info-item">
-                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Reference No:</p>
-                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.id}</p>
+            <>
+              {/* Show tabs only if resolved (has resolution) */}
+              {showPreview.status === "resolved" && showPreview.resolution ? (
+                <Tabs defaultValue="blotter" className="w-full">
+                  <TabsList className="w-full grid grid-cols-2">
+                    <TabsTrigger value="blotter" className="text-xs sm:text-sm">
+                      <FileText className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                      Blotter Report
+                    </TabsTrigger>
+                    <TabsTrigger value="resolution" className="text-xs sm:text-sm">
+                      <CheckCircle2 className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                      Resolution
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="blotter" className="mt-4">
+                    <ScrollArea className="max-h-[55vh]">
+                      <div className="rounded-lg border bg-white p-4 sm:p-6 text-black space-y-4">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Reference No:</p>
+                            <p className="font-medium">{showPreview.id}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Date Reported:</p>
+                            <p className="font-medium">{showPreview.date}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Incident Type:</p>
+                            <p className="font-medium">{showPreview.type}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Status:</p>
+                            {getStatusBadge(showPreview.status)}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Location:</p>
+                          <p className="font-medium text-sm">{showPreview.location}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Complainant:</p>
+                            <p className="font-medium">{showPreview.complainant}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Respondent:</p>
+                            <p className="font-medium">{showPreview.respondent}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Description:</p>
+                          <p className="text-sm">{showPreview.description}</p>
+                        </div>
+                      </div>
+                    </ScrollArea>
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" onClick={() => setShowPreview(null)} className="flex-1">
+                        Close
+                      </Button>
+                      <Button onClick={handlePrint} className="flex-1">
+                        <Printer className="mr-2 h-4 w-4" />
+                        Print Blotter
+                      </Button>
                     </div>
-                    <div className="info-item">
-                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Date Reported:</p>
-                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.date}</p>
+                  </TabsContent>
+                  
+                  <TabsContent value="resolution" className="mt-4">
+                    <ScrollArea className="max-h-[55vh]">
+                      <div className="rounded-lg border bg-emerald-50 p-4 sm:p-6 space-y-4">
+                        <div className="flex items-center gap-2 text-emerald-700">
+                          <CheckCircle2 className="h-5 w-5" />
+                          <span className="font-semibold">Case Resolved</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-xs text-emerald-600">Reference No:</p>
+                            <p className="font-medium text-emerald-800">{showPreview.id}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-emerald-600">Resolution Date:</p>
+                            <p className="font-medium text-emerald-800">{showPreview.resolutionDate}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-emerald-600 mb-1">Resolution Details:</p>
+                          <p className="text-sm text-emerald-800">{showPreview.resolution}</p>
+                        </div>
+                      </div>
+                    </ScrollArea>
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" onClick={() => setShowPreview(null)} className="flex-1">
+                        Close
+                      </Button>
+                      {showPreview.resolutionDocument && (
+                        <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700" asChild>
+                          <a href={showPreview.resolutionDocument} download>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Resolution
+                          </a>
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                  <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div className="info-item">
-                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Complainant:</p>
-                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.complainant}</p>
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                /* Show only blotter report if not resolved */
+                <>
+                  <ScrollArea className="max-h-[60vh]">
+                    <div className="rounded-lg border bg-white p-4 sm:p-6 text-black space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Reference No:</p>
+                          <p className="font-medium">{showPreview.id}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Date Reported:</p>
+                          <p className="font-medium">{showPreview.date}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Incident Type:</p>
+                          <p className="font-medium">{showPreview.type}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Status:</p>
+                          {getStatusBadge(showPreview.status)}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Location:</p>
+                        <p className="font-medium text-sm">{showPreview.location}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Complainant:</p>
+                          <p className="font-medium">{showPreview.complainant}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Respondent:</p>
+                          <p className="font-medium">{showPreview.respondent}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Description:</p>
+                        <p className="text-sm">{showPreview.description}</p>
+                      </div>
                     </div>
-                    <div className="info-item">
-                      <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Respondent:</p>
-                      <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.respondent}</p>
-                    </div>
-                  </div>
-                  <div className="info-item">
-                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Incident Type:</p>
-                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.type}</p>
-                  </div>
-                  <div className="info-item">
-                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Location:</p>
-                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500 }}>{showPreview.location}</p>
-                  </div>
-                  <div className="description-section" style={{ margin: '24px 0' }}>
-                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '8px' }}>Description:</p>
-                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500, textAlign: 'justify', lineHeight: 1.8 }}>{showPreview.description}</p>
-                  </div>
-                  <div className="info-item">
-                    <p className="info-label" style={{ color: '#666', fontSize: '12px', marginBottom: '4px' }}>Status:</p>
-                    <p className="info-value" style={{ fontSize: '14px', fontWeight: 500, textTransform: 'capitalize' }}>{showPreview.status}</p>
-                  </div>
-                  {showPreview.resolution && (
-                    <div className="resolution-section" style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '16px', margin: '24px 0' }}>
-                      <p style={{ color: '#166534', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>Resolution ({showPreview.resolutionDate}):</p>
-                      <p style={{ fontSize: '14px', color: '#166534' }}>{showPreview.resolution}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="signatures" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', marginTop: '80px', textAlign: 'center' }}>
-                  <div className="signature-box">
-                    <p className="name" style={{ borderTop: '1px solid #000', paddingTop: '8px', fontWeight: 'bold', fontSize: '14px' }}>APRIL JOY C. CANO</p>
-                    <p className="title" style={{ fontSize: '12px', color: '#666' }}>Barangay Secretary</p>
-                  </div>
-                  <div className="signature-box">
-                    <p className="name" style={{ borderTop: '1px solid #000', paddingTop: '8px', fontWeight: 'bold', fontSize: '14px' }}>ROLANDO C. BORJA</p>
-                    <p className="title" style={{ fontSize: '12px', color: '#666' }}>Punong Barangay</p>
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
+                  </ScrollArea>
+                  <DialogFooter className="flex-col sm:flex-row gap-2">
+                    <Button variant="outline" onClick={() => setShowPreview(null)} className="w-full sm:w-auto">
+                      Close
+                    </Button>
+                    <Button onClick={handlePrint} className="w-full sm:w-auto">
+                      <Printer className="mr-2 h-4 w-4" />
+                      Print Report
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </>
           )}
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setShowPreview(null)} className="w-full sm:w-auto">
-              Close
-            </Button>
-            {/* Only show print for resolved status */}
-            {showPreview?.status === "resolved" && (
-              <>
-                {showPreview.resolutionDocument && (
-                  <Button variant="outline" className="w-full sm:w-auto" asChild>
-                    <a href={showPreview.resolutionDocument} download>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Resolution
-                    </a>
-                  </Button>
-                )}
-                <Button onClick={handlePrint} className="w-full sm:w-auto">
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print Report
-                </Button>
-              </>
-            )}
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
