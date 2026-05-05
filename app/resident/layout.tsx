@@ -14,7 +14,6 @@ import {
   Megaphone,
   User,
   Menu,
-  X,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -28,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 
 import { useState } from "react"
+import { LogOut } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/resident/dashboard", icon: LayoutDashboard },
@@ -100,13 +100,24 @@ export default function ResidentLayout({
           )
         })}
       </nav>
+
+      {/* Logout Button */}
+      <div className="p-4 border-t border-white/20">
+        <Link
+          href="/resident/login"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/90 hover:bg-white/10 transition-all duration-200"
+        >
+          <LogOut className="h-5 w-5 text-white/80" />
+          Logout
+        </Link>
+      </div>
     </>
   )
 
   const MobileSidebarContent = () => (
     <>
-      {/* Header with Logo and Close Button */}
-      <div className="relative flex items-center gap-3 px-4 py-5">
+      {/* Header with Logo */}
+      <div className="flex items-center gap-3 px-4 py-5">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 overflow-hidden">
           <Image
             src="/images/santiagologo.jpg"
@@ -120,12 +131,6 @@ export default function ResidentLayout({
           <h1 className="font-semibold text-white">Barangay Santiago</h1>
           <p className="text-xs text-white/70">Resident Portal</p>
         </div>
-        <button 
-          className="absolute right-4 top-5" 
-          onClick={() => setSidebarOpen(false)}
-        >
-          <X className="h-5 w-5 text-white" />
-        </button>
       </div>
 
       {/* Navigation */}
@@ -157,6 +162,18 @@ export default function ResidentLayout({
           )
         })}
       </nav>
+
+      {/* Logout Button */}
+      <div className="p-4 border-t border-white/20">
+        <Link
+          href="/resident/login"
+          onClick={() => setSidebarOpen(false)}
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/90 hover:bg-white/10 transition-all duration-200"
+        >
+          <LogOut className="h-5 w-5 text-white/80" />
+          Logout
+        </Link>
+      </div>
     </>
   )
 
@@ -194,7 +211,7 @@ export default function ResidentLayout({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col md:hidden"
+            className="fixed inset-y-0 left-0 z-50 flex w-64 max-w-[75vw] flex-col md:hidden"
             style={{ backgroundColor: "#4ADE80" }}
           >
             <MobileSidebarContent />
@@ -211,7 +228,7 @@ export default function ResidentLayout({
           transition={{ duration: 0.3 }}
           className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden"
         >
-          <div className="flex h-16 items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-between px-4">
             <button 
               className="rounded-lg p-2 hover:bg-muted"
               onClick={() => setSidebarOpen(true)}
@@ -219,20 +236,7 @@ export default function ResidentLayout({
               <Menu className="h-6 w-6" />
             </button>
             
-            <Link href="/resident/dashboard" className="flex items-center gap-2">
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary overflow-hidden"
-              >
-                <Image
-                  src="/images/santiagologo.jpg"
-                  alt="Barangay Santiago"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-            </Link>
+            <span className="text-sm font-semibold text-foreground">Barangay Santiago</span>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -109,145 +109,119 @@ export default function BlotterPage() {
   const printRef = useRef<HTMLDivElement>(null)
 
   const handlePrint = () => {
-    const printContent = printRef.current
-    if (printContent) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Blotter Report - ${showPreview?.id}</title>
-              <style>
-                * { box-sizing: border-box; }
-                body { 
-                  font-family: Arial, sans-serif; 
-                  padding: 40px; 
-                  margin: 0;
-                  line-height: 1.6;
-                }
-                .document {
-                  max-width: 800px;
-                  margin: 0 auto;
-                }
-                .header-row {
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  gap: 24px;
-                  margin-bottom: 20px;
-                }
-                .header-logo {
-                  width: 80px;
-                  height: 80px;
-                  border-radius: 50%;
-                  object-fit: cover;
-                  flex-shrink: 0;
-                }
-                .header-text {
-                  text-align: center;
-                  flex: 1;
-                }
-                .header-text p {
-                  margin: 3px 0;
-                  font-size: 13px;
-                }
-                .header-text .brgy-name {
-                  font-weight: bold;
-                  font-size: 15px;
-                }
-                .title-section {
-                  border-top: 2px solid #000;
-                  border-bottom: 2px solid #000;
-                  padding: 14px 0;
-                  margin: 24px 0;
-                  text-align: center;
-                }
-                .title-section h1 {
-                  margin: 0;
-                  font-size: 20px;
-                  font-weight: bold;
-                  letter-spacing: 1px;
-                }
-                .info-grid {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 20px;
-                  margin-bottom: 24px;
-                }
-                .info-item {
-                  margin-bottom: 12px;
-                }
-                .info-label {
-                  color: #666;
-                  font-size: 12px;
-                  margin-bottom: 4px;
-                }
-                .info-value {
-                  font-size: 14px;
-                  font-weight: 500;
-                }
-                .full-width {
-                  grid-column: 1 / -1;
-                }
-                .description-section {
-                  margin: 24px 0;
-                }
-                .description-section .label {
-                  color: #666;
-                  font-size: 12px;
-                  margin-bottom: 8px;
-                }
-                .description-section .content {
-                  font-size: 14px;
-                  text-align: justify;
-                  line-height: 1.8;
-                }
-                .resolution-section {
-                  background: #f0fdf4;
-                  border: 1px solid #86efac;
-                  border-radius: 8px;
-                  padding: 16px;
-                  margin: 24px 0;
-                }
-                .resolution-section .label {
-                  color: #166534;
-                  font-size: 12px;
-                  font-weight: bold;
-                  margin-bottom: 8px;
-                }
-                .resolution-section .content {
-                  font-size: 14px;
-                  color: #166534;
-                }
-                .signatures {
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  gap: 60px;
-                  margin-top: 80px;
-                  text-align: center;
-                }
-                .signature-box .name {
-                  border-top: 1px solid #000;
-                  padding-top: 8px;
-                  font-weight: bold;
-                  font-size: 14px;
-                }
-                .signature-box .title {
-                  font-size: 12px;
-                  color: #666;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="document">
-                ${printContent.innerHTML}
+    if (!showPreview) return
+    
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Blotter Report - ${showPreview.id}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+              .header { text-align: center; margin-bottom: 24px; }
+              .header-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+              .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
+              .header-text { text-align: center; }
+              .header-text p { margin: 2px 0; font-size: 12px; }
+              .header-text .bold { font-weight: 600; }
+              .title-bar { border-top: 2px solid black; border-bottom: 2px solid black; padding: 12px; margin: 24px 0; text-align: center; font-weight: bold; font-size: 16px; }
+              .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+              .label { color: #666; font-size: 11px; margin-bottom: 2px; }
+              .value { font-weight: 500; }
+              .section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e5e5; }
+              .section-title { color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; }
+              .resolution { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px; margin: 24px 0; }
+              .resolution-label { color: #166534; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+              .resolution-content { font-size: 14px; color: #166534; }
+              .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 60px; text-align: center; }
+              .signature-box .name { border-top: 1px solid #000; padding-top: 8px; font-weight: bold; font-size: 14px; }
+              .signature-box .title { font-size: 12px; color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="header-row">
+                <img src="/images/santiagologo.jpg" alt="Barangay Santiago" class="logo" />
+                <div class="header-text">
+                  <p>Republic of the Philippines</p>
+                  <p>Province of Zambales</p>
+                  <p>Municipality of San Antonio</p>
+                  <p class="bold">Barangay Santiago</p>
+                </div>
+                <img src="/images/saz.jpg" alt="Municipal Seal" class="logo" />
               </div>
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
+            </div>
+            
+            <div class="title-bar">BLOTTER REPORT</div>
+            
+            <div class="grid">
+              <div>
+                <p class="label">Reference No:</p>
+                <p class="value">${showPreview.id}</p>
+              </div>
+              <div>
+                <p class="label">Date Reported:</p>
+                <p class="value">${showPreview.date}</p>
+              </div>
+              <div>
+                <p class="label">Incident Type:</p>
+                <p class="value">${showPreview.type}</p>
+              </div>
+              <div>
+                <p class="label">Status:</p>
+                <p class="value">${showPreview.status.toUpperCase()}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p class="label">Location:</p>
+              <p class="value">${showPreview.location}</p>
+            </div>
+            
+            <div class="grid" style="margin-top: 16px;">
+              <div>
+                <p class="label">Complainant:</p>
+                <p class="value">${showPreview.complainant}</p>
+              </div>
+              <div>
+                <p class="label">Respondent:</p>
+                <p class="value">${showPreview.respondent}</p>
+              </div>
+            </div>
+            
+            <div class="section">
+              <p class="section-title">INCIDENT DESCRIPTION</p>
+              <p style="text-align: justify;">${showPreview.description}</p>
+            </div>
+            
+            ${showPreview.resolution ? `
+            <div class="resolution">
+              <p class="resolution-label">RESOLUTION</p>
+              <p class="resolution-content">${showPreview.resolution}</p>
+              <p style="margin-top: 8px; font-size: 12px; color: #166534;">Resolved on: ${showPreview.resolutionDate}</p>
+            </div>
+            ` : ''}
+            
+            <div class="signatures">
+              <div class="signature-box">
+                <p class="name">${showPreview.complainant.toUpperCase()}</p>
+                <p class="title">Complainant</p>
+              </div>
+              <div class="signature-box">
+                <p class="name">ROLANDO C. BORJA</p>
+                <p class="title">Punong Barangay</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+      
+      setTimeout(() => {
         printWindow.print()
-      }
+      }, 500)
     }
   }
 

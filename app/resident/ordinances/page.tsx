@@ -81,34 +81,101 @@ export default function OrdinancesPage() {
   )
 
   const handlePrint = () => {
-    const printContent = printRef.current
-    if (printContent) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Ordinance Document</title>
-              <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                .header { text-align: center; margin-bottom: 20px; }
-                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
-                .center-text { text-align: center; }
-                .center-text p { margin: 2px 0; font-size: 12px; }
-                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
-                .content { font-size: 14px; }
-                .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; text-align: center; }
-              </style>
-            </head>
-            <body>
-              ${printContent.innerHTML}
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
+    if (!selectedOrdinance) return
+    
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Ordinance No. ${selectedOrdinance.number} - ${selectedOrdinance.year}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+              .header { text-align: center; margin-bottom: 24px; }
+              .header-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+              .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
+              .header-text { text-align: center; }
+              .header-text p { margin: 2px 0; font-size: 12px; }
+              .header-text .bold { font-weight: 600; }
+              .title-bar { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 24px 0; text-align: center; font-weight: bold; font-size: 13px; }
+              .full-title { text-align: center; font-weight: bold; margin-bottom: 24px; }
+              .whereas { margin-bottom: 24px; }
+              .whereas-title { font-weight: bold; margin-bottom: 8px; }
+              .whereas-clause { margin-bottom: 8px; text-align: justify; }
+              .now-therefore { margin-bottom: 24px; }
+              .now-therefore-title { font-weight: bold; margin-bottom: 8px; }
+              .section { margin-bottom: 16px; }
+              .section-title { font-weight: bold; }
+              .section-content { text-align: justify; white-space: pre-line; }
+              .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e5e5; }
+              .enacted { margin-bottom: 48px; }
+              .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; text-align: center; margin-top: 48px; }
+              .signature-box { }
+              .signature-line { border-top: 1px solid black; padding-top: 4px; font-weight: 600; }
+              .signature-role { font-size: 12px; }
+              .signature-label { font-size: 11px; color: #666; margin-top: 4px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="header-row">
+                <img src="/images/santiagologo.jpg" alt="Barangay Santiago" class="logo" />
+                <div class="header-text">
+                  <p>Republic of the Philippines</p>
+                  <p>Province of Zambales</p>
+                  <p>Municipality of San Antonio</p>
+                  <p class="bold">Barangay Santiago</p>
+                </div>
+                <img src="/images/saz.jpg" alt="Municipal Seal" class="logo" />
+              </div>
+            </div>
+            
+            <div class="title-bar">BARANGAY ORDINANCE NO. ${selectedOrdinance.number} SERIES OF ${selectedOrdinance.year}</div>
+            
+            <p class="full-title">${selectedOrdinance.fullTitle}</p>
+            
+            <div class="whereas">
+              <p class="whereas-title">WHEREAS:</p>
+              ${selectedOrdinance.whereas.map(clause => `<p class="whereas-clause">${clause}</p>`).join('')}
+            </div>
+            
+            <div class="now-therefore">
+              <p class="now-therefore-title">NOW THEREFORE:</p>
+              <p>BE IT ORDAINED by the Sangguniang Barangay of Barangay Santiago, Municipality of San Antonio, Province of Zambales, in session duly assembled, that:</p>
+            </div>
+            
+            ${selectedOrdinance.sections.map((section, i) => `
+              <div class="section">
+                <p class="section-title">SECTION ${i + 1}. ${section.title}</p>
+                <p class="section-content">${section.content}</p>
+              </div>
+            `).join('')}
+            
+            <div class="footer">
+              <p class="enacted">ENACTED this ${selectedOrdinance.date} at Barangay Santiago.</p>
+              
+              <div class="signatures">
+                <div class="signature-box">
+                  <p class="signature-line">APRIL JOY C. CANO</p>
+                  <p class="signature-role">Barangay Secretary</p>
+                  <p class="signature-label">CERTIFIED CORRECT</p>
+                </div>
+                <div class="signature-box">
+                  <p class="signature-line">ROLANDO C. BORJA</p>
+                  <p class="signature-role">Punong Barangay</p>
+                  <p class="signature-label">ATTESTED BY</p>
+                </div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+      
+      setTimeout(() => {
         printWindow.print()
-      }
+      }, 500)
     }
   }
 

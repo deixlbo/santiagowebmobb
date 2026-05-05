@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -26,7 +27,8 @@ import {
   Clock,
   Trash2,
   AlertTriangle,
-  Eye
+  Eye,
+  LogOut
 } from "lucide-react"
 
 // Mock user data
@@ -54,21 +56,35 @@ const mockUser = {
   validId: "/documents/valid-id.pdf"
 }
 
-// Mock family members
+// Mock family members with personal info
 const mockFamilyMembers = [
   {
     id: "resident-002",
     name: "Maria Dela Cruz",
     relationship: "Spouse",
     status: "accepted",
-    avatar: null
+    avatar: null,
+    firstName: "Maria",
+    middleName: "Santos",
+    lastName: "Dela Cruz",
+    suffix: "",
+    birthDate: "1992-08-20",
+    gender: "Female",
+    civilStatus: "Married"
   },
   {
     id: "resident-003",
     name: "Pedro Dela Cruz Jr.",
     relationship: "Son",
     status: "accepted",
-    avatar: null
+    avatar: null,
+    firstName: "Pedro",
+    middleName: "Santos",
+    lastName: "Dela Cruz",
+    suffix: "Jr.",
+    birthDate: "2015-03-10",
+    gender: "Male",
+    civilStatus: "Single"
   }
 ]
 
@@ -97,6 +113,7 @@ export default function ProfilePage() {
   const [familySearch, setFamilySearch] = useState("")
   const [searchResults, setSearchResults] = useState<typeof mockSearchResults>([])
   const [selectedRelationship, setSelectedRelationship] = useState("")
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState<typeof mockFamilyMembers[0] | null>(null)
 
   const handleFamilySearch = () => {
     if (familySearch.trim()) {
@@ -392,7 +409,11 @@ export default function ProfilePage() {
               {mockFamilyMembers.length > 0 ? (
                 <div className="space-y-3">
                   {mockFamilyMembers.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <button
+                      key={member.id} 
+                      className="w-full flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors text-left"
+                      onClick={() => setSelectedFamilyMember(member)}
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
@@ -402,11 +423,14 @@ export default function ProfilePage() {
                           <p className="text-xs text-muted-foreground">{member.relationship}</p>
                         </div>
                       </div>
-                      <Badge className="bg-emerald-100 text-emerald-700">
-                        <CheckCircle2 className="mr-1 h-3 w-3" />
-                        Connected
-                      </Badge>
-                    </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-emerald-100 text-emerald-700">
+                          <CheckCircle2 className="mr-1 h-3 w-3" />
+                          Connected
+                        </Badge>
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -421,18 +445,26 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
 
-      {/* Delete Account Section */}
+      {/* Account Actions Section */}
       <Card className="border-destructive/20">
-        <CardContent className="p-4 sm:p-6">
-          <p className="text-sm text-muted-foreground">
-            If you want to delete your account,{" "}
-            <button 
-              onClick={() => setShowDeleteDialog(true)}
-              className="text-destructive hover:underline font-medium"
-            >
-              delete account
-            </button>
-          </p>
+        <CardContent className="p-4 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              If you want to delete your account,{" "}
+              <button 
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-destructive hover:underline font-medium"
+              >
+                delete account
+              </button>
+            </p>
+            <Link href="/resident/login">
+              <Button variant="outline" size="sm" className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
 
@@ -625,6 +657,75 @@ export default function ProfilePage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDocumentPreview(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Family Member Info Dialog */}
+      <Dialog open={!!selectedFamilyMember} onOpenChange={() => setSelectedFamilyMember(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Personal Information
+            </DialogTitle>
+            <DialogDescription>Basic personal details</DialogDescription>
+          </DialogHeader>
+          {selectedFamilyMember && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-4 pb-4 border-b">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-lg">
+                    {selectedFamilyMember.firstName[0]}{selectedFamilyMember.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-lg">{selectedFamilyMember.name}</p>
+                  <Badge variant="outline">{selectedFamilyMember.relationship}</Badge>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">First Name</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.firstName}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Middle Name</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.middleName}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Last Name</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.lastName}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Suffix</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.suffix || "N/A"}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Birth Date</Label>
+                  <p className="text-sm font-medium">
+                    {new Date(selectedFamilyMember.birthDate).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Gender</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.gender}</p>
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label className="text-xs text-muted-foreground">Civil Status</Label>
+                  <p className="text-sm font-medium">{selectedFamilyMember.civilStatus}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedFamilyMember(null)} className="w-full">
               Close
             </Button>
           </DialogFooter>

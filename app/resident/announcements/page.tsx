@@ -89,33 +89,86 @@ export default function AnnouncementsPage() {
   )
 
   const handlePrint = () => {
-    const printContent = printRef.current
-    if (printContent) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Announcement</title>
-              <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                .header { text-align: center; margin-bottom: 20px; }
-                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
-                .center-text { text-align: center; }
-                .center-text p { margin: 2px 0; font-size: 12px; }
-                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
-                .content { font-size: 14px; }
-              </style>
-            </head>
-            <body>
-              ${printContent.innerHTML}
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
+    if (!selectedAnnouncement) return
+    
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Announcement - ${selectedAnnouncement.title}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+              .header { text-align: center; margin-bottom: 24px; }
+              .header-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+              .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
+              .header-text { text-align: center; }
+              .header-text p { margin: 2px 0; font-size: 12px; }
+              .header-text .bold { font-weight: 600; }
+              .title-bar { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 24px 0; text-align: center; font-weight: bold; font-size: 14px; }
+              .content { font-size: 13px; line-height: 1.6; }
+              .label { color: #666; margin-bottom: 4px; }
+              .value { font-weight: 500; margin-bottom: 16px; }
+              .section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e5e5; }
+              .section-title { color: #666; font-size: 12px; margin-bottom: 8px; }
+              .event-info { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+              .footer { margin-top: 48px; text-align: center; font-size: 12px; }
+              .footer .name { font-weight: 600; margin-top: 8px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="header-row">
+                <img src="/images/santiagologo.jpg" alt="Barangay Santiago" class="logo" />
+                <div class="header-text">
+                  <p>Republic of the Philippines</p>
+                  <p>Province of Zambales</p>
+                  <p>Municipality of San Antonio</p>
+                  <p class="bold">Barangay Santiago</p>
+                </div>
+                <img src="/images/saz.jpg" alt="Municipal Seal" class="logo" />
+              </div>
+            </div>
+            
+            <div class="title-bar">BARANGAY ANNOUNCEMENT</div>
+            
+            <div class="content">
+              <p class="label">Title:</p>
+              <p class="value" style="font-size: 16px; font-weight: bold;">${selectedAnnouncement.title}</p>
+              
+              <p class="label">Date Posted:</p>
+              <p class="value">${selectedAnnouncement.date}</p>
+              
+              <div class="section">
+                <p class="section-title">DETAILS</p>
+                <p style="text-align: justify;">${selectedAnnouncement.content}</p>
+              </div>
+              
+              ${selectedAnnouncement.eventDate ? `
+              <div class="section">
+                <p class="section-title">EVENT INFORMATION</p>
+                <div class="event-info">Date: ${selectedAnnouncement.eventDate}</div>
+                ${selectedAnnouncement.eventTime ? `<div class="event-info">Time: ${selectedAnnouncement.eventTime}</div>` : ''}
+                <div class="event-info">Venue: ${selectedAnnouncement.venue}</div>
+              </div>
+              ` : ''}
+            </div>
+            
+            <div class="footer">
+              <p>Issued by:</p>
+              <p class="name">Barangay Office</p>
+              <p>Barangay Santiago, San Antonio, Zambales</p>
+            </div>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+      
+      // Wait for images to load before printing
+      setTimeout(() => {
         printWindow.print()
-      }
+      }, 500)
     }
   }
 

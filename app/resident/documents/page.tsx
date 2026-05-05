@@ -196,67 +196,91 @@ export default function DocumentsPage() {
   }
 
   const handlePrint = () => {
-    const printContent = printRef.current
-    if (printContent) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Document Preview</title>
-              <style>
-                body { font-family: Arial, sans-serif; padding: 40px; margin: 0; }
-                .header { margin-bottom: 20px; }
-                .header-content { 
-                  display: flex; 
-                  align-items: center; 
-                  justify-content: center; 
-                  gap: 20px; 
-                  margin-bottom: 16px; 
-                }
-                .header-content img { 
-                  width: 70px; 
-                  height: 70px; 
-                  border-radius: 50%; 
-                  object-fit: cover;
-                  flex-shrink: 0;
-                }
-                .center-text { 
-                  text-align: center; 
-                  flex: 1;
-                }
-                .center-text p { margin: 2px 0; font-size: 12px; }
-                .center-text .bold { font-weight: bold; font-size: 14px; }
-                .title { 
-                  border-top: 2px solid black; 
-                  border-bottom: 2px solid black; 
-                  padding: 12px; 
-                  margin: 20px 0; 
-                  text-align: center; 
-                  font-weight: bold; 
-                  font-size: 16px;
-                }
-                .content { font-size: 14px; }
-                .content p { margin: 10px 0; text-align: justify; line-height: 1.8; }
-                .signatures { 
-                  display: grid; 
-                  grid-template-columns: 1fr 1fr; 
-                  gap: 40px; 
-                  margin-top: 60px; 
-                  text-align: center; 
-                }
-                .signature-line { border-top: 1px solid black; padding-top: 4px; font-weight: bold; }
-                .signature-title { font-size: 12px; }
-              </style>
-            </head>
-            <body>
-              ${printContent.innerHTML}
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
+    if (!showPreview) return
+    
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${showPreview.type} - ${showPreview.id}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+              .header { text-align: center; margin-bottom: 24px; }
+              .header-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+              .logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e5e5; }
+              .header-text { text-align: center; }
+              .header-text p { margin: 2px 0; font-size: 12px; }
+              .header-text .bold { font-weight: 600; }
+              .title-bar { border-top: 2px solid black; border-bottom: 2px solid black; padding: 12px; margin: 24px 0; text-align: center; font-weight: bold; font-size: 16px; }
+              .content { font-size: 14px; }
+              .content p { margin: 10px 0; text-align: justify; line-height: 1.8; }
+              .info-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
+              .info-item { }
+              .info-label { color: #666; font-size: 11px; }
+              .info-value { font-weight: 500; }
+              .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; text-align: center; }
+              .signature-box { }
+              .signature-line { border-top: 1px solid black; padding-top: 4px; font-weight: bold; }
+              .signature-title { font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="header-row">
+                <img src="/images/santiagologo.jpg" alt="Barangay Santiago" class="logo" />
+                <div class="header-text">
+                  <p>Republic of the Philippines</p>
+                  <p>Province of Zambales</p>
+                  <p>Municipality of San Antonio</p>
+                  <p class="bold">Barangay Santiago</p>
+                </div>
+                <img src="/images/saz.jpg" alt="Municipal Seal" class="logo" />
+              </div>
+            </div>
+            
+            <div class="title-bar">${showPreview.type.toUpperCase()}</div>
+            
+            <div class="content">
+              <div class="info-row">
+                <div class="info-item">
+                  <p class="info-label">Control No:</p>
+                  <p class="info-value">${showPreview.id}</p>
+                </div>
+                <div class="info-item">
+                  <p class="info-label">Date Issued:</p>
+                  <p class="info-value">${showPreview.date}</p>
+                </div>
+              </div>
+              
+              <p><strong>TO WHOM IT MAY CONCERN:</strong></p>
+              
+              <p>This is to certify that <strong>${showPreview.residentName}</strong>, of legal age, Filipino, and a resident of <strong>${showPreview.address}</strong>, has been known to be a person of good moral character and law-abiding citizen of this barangay.</p>
+              
+              <p>This certification is issued upon the request of the above-named person for <strong>${showPreview.purpose}</strong> purposes.</p>
+              
+              <p>Issued this ${showPreview.date} at the Office of the Punong Barangay, Barangay Santiago, San Antonio, Zambales.</p>
+            </div>
+            
+            <div class="signatures">
+              <div class="signature-box">
+                <p class="signature-line">${showPreview.residentName.toUpperCase()}</p>
+                <p class="signature-title">Requesting Party</p>
+              </div>
+              <div class="signature-box">
+                <p class="signature-line">ROLANDO C. BORJA</p>
+                <p class="signature-title">Punong Barangay</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+      
+      setTimeout(() => {
         printWindow.print()
-      }
+      }, 500)
     }
   }
 
