@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Progress } from "@/components/ui/progress"
-import { Search, Eye, Printer, FolderKanban, MapPin, Calendar, Wallet } from "lucide-react"
+import { DocumentHeader } from "@/components/document-header"
+import { Search, Printer, FolderKanban, MapPin, Calendar, Wallet } from "lucide-react"
 
 const mockProjects = [
   {
@@ -84,13 +85,13 @@ const mockProjects = [
 function getStatusBadge(status: string) {
   switch (status) {
     case "Completed":
-      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">{status}</Badge>
+      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-xs">{status}</Badge>
     case "Ongoing":
-      return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">{status}</Badge>
+      return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-xs">{status}</Badge>
     case "Planned":
-      return <Badge variant="outline">{status}</Badge>
+      return <Badge variant="outline" className="text-xs">{status}</Badge>
     default:
-      return <Badge variant="secondary">{status}</Badge>
+      return <Badge variant="secondary" className="text-xs">{status}</Badge>
   }
 }
 
@@ -98,6 +99,7 @@ export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedProject, setSelectedProject] = useState<typeof mockProjects[0] | null>(null)
   const [filterStatus, setFilterStatus] = useState("all")
+  const printRef = useRef<HTMLDivElement>(null)
 
   const filteredProjects = mockProjects.filter(proj => {
     const matchesSearch = proj.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,16 +108,51 @@ export default function ProjectsPage() {
     return matchesSearch && matchesStatus
   })
 
+  const handlePrint = () => {
+    const printContent = printRef.current
+    if (printContent) {
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Project Report</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .header { text-align: center; margin-bottom: 20px; }
+                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+                .center-text { text-align: center; }
+                .center-text p { margin: 2px 0; font-size: 12px; }
+                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
+                .content { font-size: 14px; }
+                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                .label { color: #666; font-size: 12px; }
+                .value { font-weight: 500; }
+                .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; text-align: center; }
+              </style>
+            </head>
+            <body>
+              ${printContent.innerHTML}
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        printWindow.print()
+      }
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Community Projects</h1>
-        <p className="text-muted-foreground">View ongoing and completed barangay projects</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Community Projects</h1>
+        <p className="text-sm text-muted-foreground">View ongoing and completed barangay projects</p>
       </div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input 
             placeholder="Search projects..." 
@@ -124,11 +161,12 @@ export default function ProjectsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant={filterStatus === "all" ? "default" : "outline"} 
             size="sm"
             onClick={() => setFilterStatus("all")}
+            className="text-xs sm:text-sm"
           >
             All
           </Button>
@@ -136,6 +174,7 @@ export default function ProjectsPage() {
             variant={filterStatus === "ongoing" ? "default" : "outline"} 
             size="sm"
             onClick={() => setFilterStatus("ongoing")}
+            className="text-xs sm:text-sm"
           >
             Ongoing
           </Button>
@@ -143,6 +182,7 @@ export default function ProjectsPage() {
             variant={filterStatus === "completed" ? "default" : "outline"} 
             size="sm"
             onClick={() => setFilterStatus("completed")}
+            className="text-xs sm:text-sm"
           >
             Completed
           </Button>
@@ -150,6 +190,7 @@ export default function ProjectsPage() {
             variant={filterStatus === "planned" ? "default" : "outline"} 
             size="sm"
             onClick={() => setFilterStatus("planned")}
+            className="text-xs sm:text-sm"
           >
             Planned
           </Button>
@@ -157,29 +198,33 @@ export default function ProjectsPage() {
       </div>
 
       {/* Projects Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProjects.map((project) => (
-          <Card key={project.id} className="transition-shadow hover:shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <Badge variant="outline">{project.type}</Badge>
+          <Card 
+            key={project.id} 
+            className="transition-all hover:shadow-lg cursor-pointer hover:border-primary"
+            onClick={() => setSelectedProject(project)}
+          >
+            <CardHeader className="pb-2 sm:pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Badge variant="outline" className="text-xs">{project.type}</Badge>
                 {getStatusBadge(project.status)}
               </div>
-              <CardTitle className="text-lg leading-tight">{project.title}</CardTitle>
-              <CardDescription className="flex items-center gap-1">
+              <CardTitle className="text-sm sm:text-lg leading-tight">{project.title}</CardTitle>
+              <CardDescription className="flex items-center gap-1 text-xs">
                 <MapPin className="h-3 w-3" />
                 {project.location}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-muted-foreground">Progress</span>
                   <span className="font-medium">{project.progress}%</span>
                 </div>
                 <Progress value={project.progress} className="h-2" />
               </div>
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Wallet className="h-3 w-3" />
                   PHP {project.budget}
@@ -189,14 +234,6 @@ export default function ProjectsPage() {
                   {project.targetCompletion}
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => setSelectedProject(project)}
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </Button>
             </CardContent>
           </Card>
         ))}
@@ -218,115 +255,107 @@ export default function ProjectsPage() {
           </DialogHeader>
           {selectedProject && (
             <ScrollArea className="max-h-[70vh]">
-              <div className="rounded-lg border bg-white p-8 text-black print:border-0 print:p-0">
-                {/* Header */}
-                <div className="text-center space-y-1 mb-6">
-                  <p className="text-sm">Republic of the Philippines</p>
-                  <p className="text-sm">Province of Zambales</p>
-                  <p className="text-sm">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
-                </div>
-
-                <div className="border-t border-b border-black py-4 my-6">
-                  <h2 className="text-center font-bold">BARANGAY PROJECT REPORT</h2>
-                </div>
+              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print:border-0 print:p-0">
+                <DocumentHeader title="BARANGAY PROJECT REPORT" />
 
                 {/* Project Details */}
-                <div className="space-y-4">
+                <div className="space-y-4 text-xs sm:text-sm">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-gray-600 text-sm">Project Title:</p>
+                      <p className="text-gray-600">Project Title:</p>
                       <p className="font-bold">{selectedProject.title}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-sm">Project Type:</p>
+                      <p className="text-gray-600">Project Type:</p>
                       <p className="font-medium">{selectedProject.type}</p>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-gray-600 text-sm">Location:</p>
+                    <p className="text-gray-600">Location:</p>
                     <p className="font-medium">{selectedProject.location}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-gray-600 text-sm">Start Date:</p>
+                      <p className="text-gray-600">Start Date:</p>
                       <p className="font-medium">{selectedProject.startDate}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 text-sm">Target Completion:</p>
+                      <p className="text-gray-600">Target Completion:</p>
                       <p className="font-medium">{selectedProject.targetCompletion}</p>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">PROJECT DESCRIPTION</p>
+                    <p className="text-gray-600">PROJECT DESCRIPTION</p>
                     <p className="mt-1">{selectedProject.description}</p>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">BUDGET DETAILS</p>
+                    <p className="text-gray-600">BUDGET DETAILS</p>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
-                        <p className="text-sm">Total Budget:</p>
+                        <p>Total Budget:</p>
                         <p className="font-bold">PHP {selectedProject.budget}</p>
                       </div>
                       <div>
-                        <p className="text-sm">Source of Funds:</p>
+                        <p>Source of Funds:</p>
                         <p className="font-medium">{selectedProject.source}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">PROJECT STATUS</p>
+                    <p className="text-gray-600">PROJECT STATUS</p>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
-                        <p className="text-sm">Status:</p>
+                        <p>Status:</p>
                         <p className="font-medium">{selectedProject.status}</p>
                       </div>
                       <div>
-                        <p className="text-sm">Progress:</p>
+                        <p>Progress:</p>
                         <p className="font-bold">{selectedProject.progress}%</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">PROJECT HEAD</p>
+                    <p className="text-gray-600">PROJECT HEAD</p>
                     <p className="font-bold">{selectedProject.projectHead}</p>
-                    <p className="text-sm">{selectedProject.projectHeadPosition}</p>
+                    <p>{selectedProject.projectHeadPosition}</p>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">BENEFICIARIES</p>
+                    <p className="text-gray-600">BENEFICIARIES</p>
                     <p className="font-medium">{selectedProject.beneficiaries}</p>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">REMARKS</p>
+                    <p className="text-gray-600">REMARKS</p>
                     <p>{selectedProject.remarks}</p>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="mt-12 grid grid-cols-2 gap-8 text-center">
+                <div className="mt-8 sm:mt-12 grid grid-cols-2 gap-4 sm:gap-8 text-center text-xs sm:text-sm">
                   <div>
                     <p className="border-t border-black pt-1">Prepared by</p>
                   </div>
                   <div>
                     <p className="border-t border-black pt-1 font-semibold">ROLANDO C. BORJA</p>
-                    <p className="text-sm">Punong Barangay</p>
-                    <p className="text-xs text-gray-600 mt-1">Approved by</p>
+                    <p>Punong Barangay</p>
+                    <p className="text-gray-600 mt-1">Approved by</p>
                   </div>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedProject(null)}>Close</Button>
-            <Button onClick={() => window.print()}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setSelectedProject(null)} className="w-full sm:w-auto">
+              Close
+            </Button>
+            <Button onClick={handlePrint} className="w-full sm:w-auto">
               <Printer className="mr-2 h-4 w-4" />
               Print Report
             </Button>

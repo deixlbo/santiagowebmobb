@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Search, Eye, Printer, Megaphone, Calendar, MapPin, Clock } from "lucide-react"
+import { DocumentHeader } from "@/components/document-header"
+import { Search, Printer, Megaphone, Calendar, MapPin, Clock } from "lucide-react"
 
 const mockAnnouncements = [
   {
@@ -71,7 +72,7 @@ function getCategoryBadge(category: string) {
     Program: "bg-purple-100 text-purple-700",
   }
   return (
-    <Badge className={`${colors[category] || "bg-gray-100 text-gray-700"} hover:${colors[category]}`}>
+    <Badge className={`${colors[category] || "bg-gray-100 text-gray-700"} text-xs`}>
       {category}
     </Badge>
   )
@@ -80,17 +81,49 @@ function getCategoryBadge(category: string) {
 export default function AnnouncementsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<typeof mockAnnouncements[0] | null>(null)
+  const printRef = useRef<HTMLDivElement>(null)
 
   const filteredAnnouncements = mockAnnouncements.filter(ann => 
     ann.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ann.content.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const handlePrint = () => {
+    const printContent = printRef.current
+    if (printContent) {
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Announcement</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .header { text-align: center; margin-bottom: 20px; }
+                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+                .center-text { text-align: center; }
+                .center-text p { margin: 2px 0; font-size: 12px; }
+                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
+                .content { font-size: 14px; }
+              </style>
+            </head>
+            <body>
+              ${printContent.innerHTML}
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        printWindow.print()
+      }
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
-        <p className="text-muted-foreground">Stay updated with the latest barangay news and events</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Announcements</h1>
+        <p className="text-sm text-muted-foreground">Stay updated with the latest barangay news and events</p>
       </div>
 
       {/* Search */}
@@ -105,25 +138,29 @@ export default function AnnouncementsPage() {
       </div>
 
       {/* Announcements List */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {filteredAnnouncements.map((announcement) => (
-          <Card key={announcement.id} className="transition-shadow hover:shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+          <Card 
+            key={announcement.id} 
+            className="transition-all hover:shadow-lg cursor-pointer hover:border-primary"
+            onClick={() => setSelectedAnnouncement(announcement)}
+          >
+            <CardHeader className="pb-2 sm:pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 {getCategoryBadge(announcement.category)}
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   Posted: {announcement.date}
                 </span>
               </div>
-              <CardTitle className="text-lg">{announcement.title}</CardTitle>
-              <CardDescription className="line-clamp-2">
+              <CardTitle className="text-sm sm:text-lg">{announcement.title}</CardTitle>
+              <CardDescription className="line-clamp-2 text-xs sm:text-sm">
                 {announcement.content}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {announcement.eventDate && (
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     {announcement.eventDate}
@@ -140,13 +177,6 @@ export default function AnnouncementsPage() {
                   </span>
                 </div>
               )}
-              <Button 
-                variant="outline"
-                onClick={() => setSelectedAnnouncement(announcement)}
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </Button>
             </CardContent>
           </Card>
         ))}
@@ -168,38 +198,28 @@ export default function AnnouncementsPage() {
           </DialogHeader>
           {selectedAnnouncement && (
             <ScrollArea className="max-h-[70vh]">
-              <div className="rounded-lg border bg-white p-8 text-black print:border-0 print:p-0">
-                {/* Header */}
-                <div className="text-center space-y-1 mb-6">
-                  <p className="text-sm">Republic of the Philippines</p>
-                  <p className="text-sm">Province of Zambales</p>
-                  <p className="text-sm">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
-                </div>
+              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print:border-0 print:p-0">
+                <DocumentHeader title="BARANGAY ANNOUNCEMENT" />
 
-                <div className="border-t border-b border-black py-4 my-6">
-                  <h2 className="text-center font-bold">BARANGAY ANNOUNCEMENT</h2>
-                </div>
-
-                <div className="space-y-4">
+                <div className="space-y-4 text-xs sm:text-sm">
                   <div>
-                    <p className="text-gray-600 text-sm">Title:</p>
-                    <p className="font-bold text-lg">{selectedAnnouncement.title}</p>
+                    <p className="text-gray-600">Title:</p>
+                    <p className="font-bold text-base sm:text-lg">{selectedAnnouncement.title}</p>
                   </div>
 
                   <div>
-                    <p className="text-gray-600 text-sm">Date Posted:</p>
+                    <p className="text-gray-600">Date Posted:</p>
                     <p className="font-medium">{selectedAnnouncement.date}</p>
                   </div>
 
                   <div className="border-t pt-4">
-                    <p className="text-gray-600 text-sm">DETAILS</p>
+                    <p className="text-gray-600">DETAILS</p>
                     <p className="mt-2 text-justify leading-relaxed">{selectedAnnouncement.content}</p>
                   </div>
 
                   {selectedAnnouncement.eventDate && (
                     <div className="border-t pt-4">
-                      <p className="text-gray-600 text-sm">EVENT INFORMATION</p>
+                      <p className="text-gray-600">EVENT INFORMATION</p>
                       <div className="mt-2 space-y-2">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
@@ -221,17 +241,19 @@ export default function AnnouncementsPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="mt-12 text-center">
-                  <p className="text-sm text-gray-600">Issued by:</p>
+                <div className="mt-8 sm:mt-12 text-center text-xs sm:text-sm">
+                  <p className="text-gray-600">Issued by:</p>
                   <p className="font-semibold mt-2">Barangay Office</p>
-                  <p className="text-sm">Barangay Santiago, San Antonio, Zambales</p>
+                  <p>Barangay Santiago, San Antonio, Zambales</p>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedAnnouncement(null)}>Close</Button>
-            <Button onClick={() => window.print()}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setSelectedAnnouncement(null)} className="w-full sm:w-auto">
+              Close
+            </Button>
+            <Button onClick={handlePrint} className="w-full sm:w-auto">
               <Printer className="mr-2 h-4 w-4" />
               Print
             </Button>

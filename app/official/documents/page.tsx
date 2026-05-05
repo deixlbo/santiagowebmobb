@@ -145,16 +145,17 @@ const itemVariants = {
 }
 
 // Document Header Component with Logos
-function DocumentHeader() {
+function OfficialDocumentHeader() {
   return (
     <div className="flex items-center justify-between mb-4 p-4 border-b print:border-b print:mb-4">
-      <Image src="/images/santiago.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
       <div className="text-center flex-1 px-2">
         <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Republic of the Philippines</p>
-        <p className="text-xs md:text-sm font-semibold print:text-black">BARANGAY SANTIAGO</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">City of Santiago, Isabela</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Province of Zambales</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground print:text-black">Municipality of San Antonio</p>
+        <p className="text-xs md:text-sm font-semibold print:text-black">Barangay Santiago</p>
       </div>
-      <Image src="/images/saz.jpg" alt="City of Santiago" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
+      <Image src="/images/saz.jpg" alt="Office of the Municipal Mayor" width={60} height={60} className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover shrink-0" />
     </div>
   )
 }
@@ -419,7 +420,7 @@ export default function OfficialDocumentsPage() {
       {/* Request Details Modal - with Document Header */}
       <Dialog open={!!selectedRequest && !showApproveDialog} onOpenChange={() => setSelectedRequest(null)}>
         <DialogContent className="w-[95vw] max-w-2xl sm:w-full">
-          <DocumentHeader />
+          <OfficialDocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Request Details</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -484,7 +485,7 @@ export default function OfficialDocumentsPage() {
       {/* Approve Dialog */}
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
         <DialogContent className="mx-4 md:mx-auto">
-          <DocumentHeader />
+          <OfficialDocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Approve Request</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
@@ -524,7 +525,7 @@ export default function OfficialDocumentsPage() {
       {/* Archive Dialog */}
       <Dialog open={showArchive} onOpenChange={setShowArchive}>
         <DialogContent className="max-w-2xl mx-4 md:mx-auto">
-          <DocumentHeader />
+          <OfficialDocumentHeader />
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg">Document Archive</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">

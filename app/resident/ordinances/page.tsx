@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { DocumentHeader } from "@/components/document-header"
 import { Search, Eye, Printer, Scroll, Calendar } from "lucide-react"
 
 const mockOrdinances = [
@@ -72,17 +73,50 @@ const mockOrdinances = [
 export default function OrdinancesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedOrdinance, setSelectedOrdinance] = useState<typeof mockOrdinances[0] | null>(null)
+  const printRef = useRef<HTMLDivElement>(null)
 
   const filteredOrdinances = mockOrdinances.filter(ord => 
     ord.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ord.number.includes(searchTerm)
   )
 
+  const handlePrint = () => {
+    const printContent = printRef.current
+    if (printContent) {
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Ordinance Document</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .header { text-align: center; margin-bottom: 20px; }
+                .header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+                .header-content { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+                .center-text { text-align: center; }
+                .center-text p { margin: 2px 0; font-size: 12px; }
+                .title { border-top: 1px solid black; border-bottom: 1px solid black; padding: 12px; margin: 16px 0; text-align: center; font-weight: bold; }
+                .content { font-size: 14px; }
+                .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; text-align: center; }
+              </style>
+            </head>
+            <body>
+              ${printContent.innerHTML}
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        printWindow.print()
+      }
+    }
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Ordinances</h1>
-        <p className="text-muted-foreground">View published barangay ordinances and resolutions</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Ordinances</h1>
+        <p className="text-sm text-muted-foreground">View published barangay ordinances and resolutions</p>
       </div>
 
       {/* Search */}
@@ -97,20 +131,20 @@ export default function OrdinancesPage() {
       </div>
 
       {/* Ordinances List */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredOrdinances.map((ordinance) => (
           <Card key={ordinance.id} className="transition-shadow hover:shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <Badge variant="secondary">
+            <CardHeader className="pb-2 sm:pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Badge variant="secondary" className="text-xs">
                   No. {ordinance.number} Series of {ordinance.year}
                 </Badge>
-                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-xs">
                   {ordinance.status}
                 </Badge>
               </div>
-              <CardTitle className="text-lg leading-tight">{ordinance.title}</CardTitle>
-              <CardDescription className="flex items-center gap-1">
+              <CardTitle className="text-sm sm:text-lg leading-tight">{ordinance.title}</CardTitle>
+              <CardDescription className="flex items-center gap-1 text-xs">
                 <Calendar className="h-3 w-3" />
                 {ordinance.date}
               </CardDescription>
@@ -118,14 +152,14 @@ export default function OrdinancesPage() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <Scroll className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">By: {ordinance.author}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">By: {ordinance.author}</span>
               </div>
               <Button 
                 variant="outline" 
-                className="mt-4 w-full"
+                className="mt-4 w-full text-xs sm:text-sm"
                 onClick={() => setSelectedOrdinance(ordinance)}
               >
-                <Eye className="mr-2 h-4 w-4" />
+                <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 View Document
               </Button>
             </CardContent>
@@ -149,35 +183,23 @@ export default function OrdinancesPage() {
           </DialogHeader>
           {selectedOrdinance && (
             <ScrollArea className="max-h-[70vh]">
-              <div className="rounded-lg border bg-white p-8 text-black print:border-0 print:p-0">
-                {/* Header */}
-                <div className="text-center space-y-1 mb-6">
-                  <p className="text-sm">Republic of the Philippines</p>
-                  <p className="text-sm">Province of Zambales</p>
-                  <p className="text-sm">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
-                </div>
+              <div ref={printRef} className="rounded-lg border bg-white p-4 sm:p-8 text-black print:border-0 print:p-0">
+                <DocumentHeader title={`BARANGAY ORDINANCE NO. ${selectedOrdinance.number} SERIES OF ${selectedOrdinance.year}`} />
 
-                <div className="border-t border-b border-black py-4 my-6">
-                  <h2 className="text-center font-bold">
-                    BARANGAY ORDINANCE NO. {selectedOrdinance.number} SERIES OF {selectedOrdinance.year}
-                  </h2>
-                </div>
-
-                <h3 className="text-center font-bold mb-6">{selectedOrdinance.fullTitle}</h3>
+                <h3 className="text-center font-bold mb-6 text-xs sm:text-sm">{selectedOrdinance.fullTitle}</h3>
 
                 {/* Whereas Clauses */}
                 <div className="mb-6">
-                  <p className="font-bold mb-2">WHEREAS:</p>
+                  <p className="font-bold mb-2 text-xs sm:text-sm">WHEREAS:</p>
                   {selectedOrdinance.whereas.map((clause, i) => (
-                    <p key={i} className="mb-2 text-justify">{clause}</p>
+                    <p key={i} className="mb-2 text-justify text-xs sm:text-sm">{clause}</p>
                   ))}
                 </div>
 
                 {/* Now Therefore */}
                 <div className="mb-6">
-                  <p className="font-bold mb-2">NOW THEREFORE:</p>
-                  <p className="text-justify">
+                  <p className="font-bold mb-2 text-xs sm:text-sm">NOW THEREFORE:</p>
+                  <p className="text-justify text-xs sm:text-sm">
                     BE IT ORDAINED by the Sangguniang Barangay of Barangay Santiago, Municipality of San Antonio, 
                     Province of Zambales, in session duly assembled, that:
                   </p>
@@ -186,34 +208,36 @@ export default function OrdinancesPage() {
                 {/* Sections */}
                 {selectedOrdinance.sections.map((section, i) => (
                   <div key={i} className="mb-4">
-                    <p className="font-bold">SECTION {i + 1}. {section.title}</p>
-                    <p className="text-justify whitespace-pre-line">{section.content}</p>
+                    <p className="font-bold text-xs sm:text-sm">SECTION {i + 1}. {section.title}</p>
+                    <p className="text-justify whitespace-pre-line text-xs sm:text-sm">{section.content}</p>
                   </div>
                 ))}
 
                 {/* Footer */}
                 <div className="mt-8 pt-4 border-t">
-                  <p className="mb-8">ENACTED this {selectedOrdinance.date} at Barangay Santiago.</p>
+                  <p className="mb-8 text-xs sm:text-sm">ENACTED this {selectedOrdinance.date} at Barangay Santiago.</p>
                   
-                  <div className="grid grid-cols-2 gap-8 text-center mt-12">
+                  <div className="grid grid-cols-2 gap-4 sm:gap-8 text-center mt-8 sm:mt-12 text-xs sm:text-sm">
                     <div>
                       <p className="border-t border-black pt-1 font-semibold">APRIL JOY C. CANO</p>
-                      <p className="text-sm">Barangay Secretary</p>
-                      <p className="text-xs text-gray-600 mt-1">CERTIFIED CORRECT</p>
+                      <p>Barangay Secretary</p>
+                      <p className="text-gray-600 mt-1">CERTIFIED CORRECT</p>
                     </div>
                     <div>
                       <p className="border-t border-black pt-1 font-semibold">ROLANDO C. BORJA</p>
-                      <p className="text-sm">Punong Barangay</p>
-                      <p className="text-xs text-gray-600 mt-1">ATTESTED BY</p>
+                      <p>Punong Barangay</p>
+                      <p className="text-gray-600 mt-1">ATTESTED BY</p>
                     </div>
                   </div>
                 </div>
               </div>
             </ScrollArea>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedOrdinance(null)}>Close</Button>
-            <Button onClick={() => window.print()}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setSelectedOrdinance(null)} className="w-full sm:w-auto">
+              Close
+            </Button>
+            <Button onClick={handlePrint} className="w-full sm:w-auto">
               <Printer className="mr-2 h-4 w-4" />
               Print Document
             </Button>

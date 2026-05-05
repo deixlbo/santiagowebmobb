@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,10 +16,9 @@ import {
   Download,
   Bell,
   AlertTriangle,
-  History,
   Plus,
-  Eye,
   Megaphone,
+  ArrowRight,
 } from "lucide-react"
 
 interface DocumentRequest {
@@ -163,240 +163,266 @@ export default function ResidentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header with Notifications */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900">Welcome, Juan</h1>
-            <p className="text-slate-600 mt-1">Barangay Santiago Resident Dashboard</p>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="relative">
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>🔔 Notifications</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {notifications.length === 0 ? (
-                  <p className="text-center text-slate-600 py-4">No notifications</p>
-                ) : (
-                  notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        notif.read
-                          ? "bg-slate-50 border-slate-200"
-                          : "bg-blue-50 border-blue-200"
-                      }`}
-                      onClick={() => markNotificationAsRead(notif.id)}
-                    >
-                      <p className="font-medium text-sm text-slate-900">
-                        {notif.message}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">{notif.time}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header with Notifications */}
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Welcome, Juan</h1>
+          <p className="text-sm text-muted-foreground mt-1">Barangay Santiago Resident Dashboard</p>
         </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-slate-600">Request Status</p>
-              <p className="text-2xl font-bold text-slate-900 mt-2">2 Pending</p>
-              <p className="text-xs text-emerald-600 mt-1">1 Approved</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-slate-600">Blotter Reports</p>
-              <p className="text-2xl font-bold text-slate-900 mt-2">2 Total</p>
-              <p className="text-xs text-emerald-600 mt-1">1 Resolved</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-slate-600">Verification</p>
-              <p className="text-2xl font-bold text-emerald-600 mt-2">✓ Verified</p>
-              <p className="text-xs text-slate-600 mt-1">Account active</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Document Request */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Request Document
-              </CardTitle>
-              <CardDescription>Submit a new document request</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm">Document Type</Label>
-                <Select value={selectedDocType} onValueChange={setSelectedDocType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="barangay_clearance">Barangay Clearance</SelectItem>
-                    <SelectItem value="certificate_of_residency">Certificate of Residency</SelectItem>
-                    <SelectItem value="certificate_of_indigency">Certificate of Indigency</SelectItem>
-                    <SelectItem value="certificate_of_solo_parent">Certificate of Solo Parent</SelectItem>
-                    <SelectItem value="barangay_business_clearance">Business Clearance</SelectItem>
-                    <SelectItem value="medical_assistance_certificate">Medical Assistance</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm">Purpose</Label>
-                <Textarea
-                  placeholder="Why do you need this document?"
-                  value={requestPurpose}
-                  onChange={(e) => setRequestPurpose(e.target.value)}
-                  className="text-sm"
-                />
-              </div>
-              <Button onClick={handleDocumentRequest} className="w-full">
-                Submit Request
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Recent Requests */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Document Requests
-              </CardTitle>
-              <CardDescription>Your recent requests and their status</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockRequests.map((req) => (
-                <div
-                  key={req.id}
-                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-slate-900">{req.type}</p>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 mt-1">
-                      <span>{req.date}</span>
-                      <span>•</span>
-                      <span>Control: {req.controlNumber}</span>
-                    </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="relative">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[10px] sm:text-xs">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Notifications</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">No notifications</p>
+              ) : (
+                notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      notif.read
+                        ? "bg-muted/50 border-border"
+                        : "bg-primary/5 border-primary/20"
+                    }`}
+                    onClick={() => markNotificationAsRead(notif.id)}
+                  >
+                    <p className="font-medium text-sm">
+                      {notif.message}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{notif.time}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      className={
-                        req.status === "approved"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : req.status === "pending"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-red-100 text-red-800"
-                      }
-                    >
-                      {req.status === "approved" && (
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                      )}
-                      {req.status === "pending" && (
-                        <Clock className="w-3 h-3 mr-1" />
-                      )}
-                      {req.status}
-                    </Badge>
-                    {req.status === "approved" && (
-                      <Button size="sm" variant="outline">
-                        <Download className="w-3 h-3" />
-                      </Button>
-                    )}
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <Card>
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+            <p className="text-xs sm:text-sm text-muted-foreground">Request Status</p>
+            <p className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2">2 Pending</p>
+            <p className="text-xs text-emerald-600 mt-1">1 Approved</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+            <p className="text-xs sm:text-sm text-muted-foreground">Blotter Reports</p>
+            <p className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2">2 Total</p>
+            <p className="text-xs text-emerald-600 mt-1">1 Resolved</p>
+          </CardContent>
+        </Card>
+        <Card className="col-span-2 sm:col-span-1">
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+            <p className="text-xs sm:text-sm text-muted-foreground">Verification</p>
+            <p className="text-lg sm:text-2xl font-bold text-emerald-600 mt-1 sm:mt-2 flex items-center gap-1">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> Verified
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Account active</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Document Request */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              Request Document
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Submit a new document request</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 sm:space-y-4">
+            <div>
+              <Label className="text-xs sm:text-sm">Document Type</Label>
+              <Select value={selectedDocType} onValueChange={setSelectedDocType}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="barangay_clearance">Barangay Clearance</SelectItem>
+                  <SelectItem value="certificate_of_residency">Certificate of Residency</SelectItem>
+                  <SelectItem value="certificate_of_indigency">Certificate of Indigency</SelectItem>
+                  <SelectItem value="certificate_of_solo_parent">Certificate of Solo Parent</SelectItem>
+                  <SelectItem value="barangay_business_clearance">Business Clearance</SelectItem>
+                  <SelectItem value="medical_assistance_certificate">Medical Assistance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs sm:text-sm">Purpose</Label>
+              <Textarea
+                placeholder="Why do you need this document?"
+                value={requestPurpose}
+                onChange={(e) => setRequestPurpose(e.target.value)}
+                className="text-sm mt-1"
+                rows={3}
+              />
+            </div>
+            <Button onClick={handleDocumentRequest} className="w-full text-xs sm:text-sm">
+              Submit Request
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Recent Requests */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2 sm:pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+                  Document Requests
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Your recent requests and their status</CardDescription>
+              </div>
+              <Link href="/resident/documents">
+                <Button variant="ghost" size="sm" className="text-xs">
+                  View All <ArrowRight className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2 sm:space-y-3">
+            {mockRequests.map((req) => (
+              <div
+                key={req.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 sm:p-3 bg-muted/50 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium text-sm">{req.type}</p>
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-muted-foreground mt-1">
+                    <span>{req.date}</span>
+                    <span className="hidden sm:inline">|</span>
+                    <span>Control: {req.controlNumber}</span>
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    className={`text-xs ${
+                      req.status === "approved"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : req.status === "pending"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {req.status === "approved" && (
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                    )}
+                    {req.status === "pending" && (
+                      <Clock className="w-3 h-3 mr-1" />
+                    )}
+                    {req.status}
+                  </Badge>
+                  {req.status === "approved" && (
+                    <Button size="sm" variant="outline" className="h-7 px-2">
+                      <Download className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Blotter & Announcements */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Blotter Reports */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
+      {/* Blotter & Announcements */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Blotter Reports */}
+        <Card>
+          <CardHeader className="pb-2 sm:pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                 Blotter Reports
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockBlotters.map((blotter) => (
-                <div
-                  key={blotter.id}
-                  className="p-3 bg-slate-50 rounded-lg"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-slate-900">{blotter.type}</p>
-                      <p className="text-xs text-slate-600 mt-1">{blotter.date}</p>
-                    </div>
-                    <Badge
-                      className={
-                        blotter.status === "resolved"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : blotter.status === "ongoing"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-slate-100 text-slate-800"
-                      }
-                    >
-                      {blotter.status}
-                    </Badge>
+              <Link href="/resident/blotter">
+                <Button variant="ghost" size="sm" className="text-xs">
+                  View All <ArrowRight className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2 sm:space-y-3">
+            {mockBlotters.map((blotter) => (
+              <div
+                key={blotter.id}
+                className="p-2 sm:p-3 bg-muted/50 rounded-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{blotter.type}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{blotter.date}</p>
                   </div>
+                  <Badge
+                    className={`text-xs ${
+                      blotter.status === "resolved"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : blotter.status === "ongoing"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-slate-100 text-slate-800"
+                    }`}
+                  >
+                    {blotter.status}
+                  </Badge>
                 </div>
-              ))}
-              <Button variant="outline" className="w-full mt-2">
+              </div>
+            ))}
+            <Link href="/resident/blotter">
+              <Button variant="outline" className="w-full mt-2 text-xs sm:text-sm">
                 File New Report
               </Button>
-            </CardContent>
-          </Card>
+            </Link>
+          </CardContent>
+        </Card>
 
-          {/* Announcements */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Megaphone className="w-5 h-5" />
+        {/* Announcements */}
+        <Card>
+          <CardHeader className="pb-2 sm:pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Megaphone className="w-4 h-4 sm:w-5 sm:h-5" />
                 Latest Announcements
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {mockAnnouncements.map((announcement) => (
-                <div key={announcement.id} className="p-3 bg-slate-50 rounded-lg">
-                  <p className="font-medium text-slate-900 text-sm">
-                    {announcement.title}
-                  </p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
-                    {announcement.content}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-2">{announcement.date}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+              <Link href="/resident/announcements">
+                <Button variant="ghost" size="sm" className="text-xs">
+                  View All <ArrowRight className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2 sm:space-y-3">
+            {mockAnnouncements.map((announcement) => (
+              <div key={announcement.id} className="p-2 sm:p-3 bg-muted/50 rounded-lg">
+                <p className="font-medium text-sm">
+                  {announcement.title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {announcement.content}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">{announcement.date}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

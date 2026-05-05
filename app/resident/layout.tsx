@@ -32,12 +32,13 @@ import {
 import { useState } from "react"
 
 const navigation = [
-  { name: "Dashboard", href: "/resident", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/resident/dashboard", icon: LayoutDashboard },
   { name: "Documents", href: "/resident/documents", icon: FileText },
   { name: "Blotter", href: "/resident/blotter", icon: AlertTriangle },
   { name: "Ordinances", href: "/resident/ordinances", icon: Scroll },
   { name: "Projects", href: "/resident/projects", icon: FolderKanban },
   { name: "Announcements", href: "/resident/announcements", icon: Megaphone },
+  { name: "Profile", href: "/resident/profile", icon: User },
 ]
 
 export default function ResidentLayout({
@@ -90,7 +91,7 @@ export default function ResidentLayout({
       <nav className="flex flex-1 flex-col gap-1 p-4">
         {navigation.map((item, index) => {
           const isActive = pathname === item.href || 
-            (item.href !== "/resident" && pathname.startsWith(item.href))
+            (item.href !== "/resident/dashboard" && pathname.startsWith(item.href))
           return (
             <motion.div
               key={item.name}
@@ -211,7 +212,7 @@ export default function ResidentLayout({
               <Menu className="h-6 w-6" />
             </button>
             
-            <Link href="/resident" className="flex items-center gap-2">
+            <Link href="/resident/dashboard" className="flex items-center gap-2">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-primary overflow-hidden"
