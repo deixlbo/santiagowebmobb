@@ -414,16 +414,16 @@ export default function BlotterPage() {
 
       {/* Blotter Preview Modal */}
       <Dialog open={!!showPreview} onOpenChange={() => setShowPreview(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
+        <DialogContent className="max-w-2xl max-h-[90vh] bg-white">
           <DialogHeader>
-            <DialogTitle>Case Details - {showPreview?.id}</DialogTitle>
+            <DialogTitle className="text-foreground">Case Details - {showPreview?.id}</DialogTitle>
           </DialogHeader>
           {showPreview && (
-            <>
+            <div className="bg-white rounded-lg">
               {/* Show tabs only if resolved (has resolution) */}
               {showPreview.status === "resolved" && showPreview.resolution ? (
                 <Tabs defaultValue="blotter" className="w-full">
-                  <TabsList className="w-full grid grid-cols-2">
+                  <TabsList className="w-full grid grid-cols-2 bg-muted">
                     <TabsTrigger value="blotter" className="text-xs sm:text-sm">
                       <FileText className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                       Blotter Report
@@ -436,42 +436,42 @@ export default function BlotterPage() {
                   
                   <TabsContent value="blotter" className="mt-4">
                     <ScrollArea className="max-h-[55vh]">
-                      <div className="rounded-lg border bg-white p-4 sm:p-6 text-black space-y-4">
+                      <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 space-y-4">
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="text-xs text-muted-foreground">Reference No:</p>
-                            <p className="font-medium">{showPreview.id}</p>
+                            <p className="text-xs text-gray-500">Reference No:</p>
+                            <p className="font-medium text-gray-900">{showPreview.id}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Date Reported:</p>
-                            <p className="font-medium">{showPreview.date}</p>
+                            <p className="text-xs text-gray-500">Date Reported:</p>
+                            <p className="font-medium text-gray-900">{showPreview.date}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Incident Type:</p>
-                            <p className="font-medium">{showPreview.type}</p>
+                            <p className="text-xs text-gray-500">Incident Type:</p>
+                            <p className="font-medium text-gray-900">{showPreview.type}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Status:</p>
+                            <p className="text-xs text-gray-500">Status:</p>
                             {getStatusBadge(showPreview.status)}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Location:</p>
-                          <p className="font-medium text-sm">{showPreview.location}</p>
+                          <p className="text-xs text-gray-500">Location:</p>
+                          <p className="font-medium text-sm text-gray-900">{showPreview.location}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="text-xs text-muted-foreground">Complainant:</p>
-                            <p className="font-medium">{showPreview.complainant}</p>
+                            <p className="text-xs text-gray-500">Complainant:</p>
+                            <p className="font-medium text-gray-900">{showPreview.complainant}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Respondent:</p>
-                            <p className="font-medium">{showPreview.respondent}</p>
+                            <p className="text-xs text-gray-500">Respondent:</p>
+                            <p className="font-medium text-gray-900">{showPreview.respondent}</p>
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground mb-1">Description:</p>
-                          <p className="text-sm">{showPreview.description}</p>
+                          <p className="text-xs text-gray-500 mb-1">Description:</p>
+                          <p className="text-sm text-gray-900">{showPreview.description}</p>
                         </div>
                       </div>
                     </ScrollArea>
@@ -528,42 +528,42 @@ export default function BlotterPage() {
                 /* Show only blotter report if not resolved */
                 <>
                   <ScrollArea className="max-h-[60vh]">
-                    <div className="rounded-lg border bg-white p-4 sm:p-6 text-black space-y-4">
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-xs text-muted-foreground">Reference No:</p>
-                          <p className="font-medium">{showPreview.id}</p>
+                          <p className="text-xs text-gray-500">Reference No:</p>
+                          <p className="font-medium text-gray-900">{showPreview.id}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Date Reported:</p>
-                          <p className="font-medium">{showPreview.date}</p>
+                          <p className="text-xs text-gray-500">Date Reported:</p>
+                          <p className="font-medium text-gray-900">{showPreview.date}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Incident Type:</p>
-                          <p className="font-medium">{showPreview.type}</p>
+                          <p className="text-xs text-gray-500">Incident Type:</p>
+                          <p className="font-medium text-gray-900">{showPreview.type}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Status:</p>
+                          <p className="text-xs text-gray-500">Status:</p>
                           {getStatusBadge(showPreview.status)}
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Location:</p>
-                        <p className="font-medium text-sm">{showPreview.location}</p>
+                        <p className="text-xs text-gray-500">Location:</p>
+                        <p className="font-medium text-sm text-gray-900">{showPreview.location}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-xs text-muted-foreground">Complainant:</p>
-                          <p className="font-medium">{showPreview.complainant}</p>
+                          <p className="text-xs text-gray-500">Complainant:</p>
+                          <p className="font-medium text-gray-900">{showPreview.complainant}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Respondent:</p>
-                          <p className="font-medium">{showPreview.respondent}</p>
+                          <p className="text-xs text-gray-500">Respondent:</p>
+                          <p className="font-medium text-gray-900">{showPreview.respondent}</p>
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Description:</p>
-                        <p className="text-sm">{showPreview.description}</p>
+                        <p className="text-xs text-gray-500 mb-1">Description:</p>
+                        <p className="text-sm text-gray-900">{showPreview.description}</p>
                       </div>
                     </div>
                   </ScrollArea>
@@ -578,7 +578,7 @@ export default function BlotterPage() {
                   </DialogFooter>
                 </>
               )}
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

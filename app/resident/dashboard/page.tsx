@@ -1,22 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import {
-  FileText,
-  CheckCircle2,
-  Clock,
-  Download,
-  Bell,
-  Plus,
   Megaphone,
   ArrowRight,
   FolderKanban,
@@ -24,66 +14,10 @@ import {
   MapPin,
   Phone,
   Mail,
+  Clock,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
-
-interface DocumentRequest {
-  id: string
-  type: string
-  status: 'pending' | 'approved' | 'rejected'
-  date: string
-  controlNumber: string
-}
-
-interface Notification {
-  id: string
-  message: string
-  time: string
-  read: boolean
-  type: 'document' | 'announcement' | 'blotter'
-}
-
-const mockRequests: DocumentRequest[] = [
-  {
-    id: "req-1",
-    type: "Barangay Clearance",
-    status: "approved",
-    date: "Apr 25, 2026",
-    controlNumber: "2026-00123",
-  },
-  {
-    id: "req-2",
-    type: "Certificate of Residency",
-    status: "pending",
-    date: "Apr 28, 2026",
-    controlNumber: "2026-00124",
-  },
-]
-
-const mockNotifications: Notification[] = [
-  {
-    id: "n-1",
-    message: "Your Barangay Clearance has been approved!",
-    time: "5 mins ago",
-    read: false,
-    type: "document",
-  },
-  {
-    id: "n-2",
-    message: "New announcement: Community Health Drive",
-    time: "2 hours ago",
-    read: false,
-    type: "announcement",
-  },
-  {
-    id: "n-3",
-    message: "Your blotter case is now resolved",
-    time: "1 day ago",
-    read: true,
-    type: "blotter",
-  },
-]
 
 const mockAnnouncements = [
   {
@@ -170,12 +104,6 @@ const barangayInfo = {
 }
 
 export default function ResidentDashboard() {
-  const [selectedDocType, setSelectedDocType] = useState("")
-  const [requestPurpose, setRequestPurpose] = useState("")
-  const [notifications, setNotifications] = useState(mockNotifications)
-  const [unreadCount, setUnreadCount] = useState(
-    mockNotifications.filter((n) => !n.read).length
-  )
   const [currentSlide, setCurrentSlide] = useState(0)
   const slideInterval = useRef<NodeJS.Timeout | null>(null)
 
@@ -202,45 +130,6 @@ export default function ResidentDashboard() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
     if (slideInterval.current) clearInterval(slideInterval.current)
-  }
-
-  const handleDocumentRequest = async () => {
-    if (!selectedDocType || !requestPurpose) {
-      alert("Please fill all fields")
-      return
-    }
-
-    try {
-      const response = await fetch("/api/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          residentId: "resident-1",
-          residentName: "Juan Dela Cruz",
-          address: "Barangay Santiago",
-          documentType: selectedDocType.toLowerCase().replace(/ /g, "_"),
-          purpose: requestPurpose,
-          barangayCaptan: "Rolando C. Borja",
-        }),
-      })
-
-      if (response.ok) {
-        alert("Document request submitted successfully!")
-        setSelectedDocType("")
-        setRequestPurpose("")
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Error submitting request")
-    }
-  }
-
-  const markNotificationAsRead = (id: string) => {
-    const updated = notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n
-    )
-    setNotifications(updated)
-    setUnreadCount(updated.filter((n) => !n.read).length)
   }
 
   const renderSlideContent = () => {
@@ -353,51 +242,12 @@ export default function ResidentDashboard() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Header with Notifications */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Welcome, Juan</h1>
           <p className="text-sm text-muted-foreground mt-1">Barangay Santiago Resident Dashboard</p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="relative">
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[10px] sm:text-xs">
-                  {unreadCount}
-                </span>
-              )}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Notifications</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {notifications.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">No notifications</p>
-              ) : (
-                notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                      notif.read
-                        ? "bg-muted/50 border-border"
-                        : "bg-primary/5 border-primary/20"
-                    }`}
-                    onClick={() => markNotificationAsRead(notif.id)}
-                  >
-                    <p className="font-medium text-sm">
-                      {notif.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">{notif.time}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Sliding Card - Announcements, Projects, Ordinances */}

@@ -14,7 +14,6 @@ import {
   Megaphone,
   User,
   Menu,
-  Bell,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -230,11 +229,7 @@ export default function ResidentLayout({
             
             <span className="text-sm font-semibold text-foreground">Barangay Santiago</span>
 
-            <Link href="/resident/dashboard">
-              <Button variant="ghost" size="sm" className="relative h-9 w-9 p-0">
-                <Bell className="h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="w-9" />
           </div>
         </motion.header>
 

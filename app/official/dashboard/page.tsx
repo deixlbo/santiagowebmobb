@@ -53,16 +53,16 @@ export default function AdminDashboard() {
   ])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
-          <p className="text-slate-600">Barangay Santiago Management System</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-slate-600">Barangay Santiago Management System</p>
         </div>
 
         {/* Key Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {stats.map((stat, idx) => {
             const Icon = stat.icon
             return (
@@ -73,15 +73,15 @@ export default function AdminDashboard() {
                 transition={{ delay: idx * 0.1 }}
               >
                 <Card className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-slate-600">{stat.name}</p>
-                        <p className="text-3xl font-bold text-slate-900 mt-2">{stat.value}</p>
-                        <p className="text-xs text-emerald-600 mt-2 font-semibold">{stat.change}</p>
+                  <CardContent className="p-4 sm:pt-6 sm:px-6">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm text-slate-600 truncate">{stat.name}</p>
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mt-1 sm:mt-2">{stat.value}</p>
+                        <p className="text-xs text-emerald-600 mt-1 sm:mt-2 font-semibold">{stat.change}</p>
                       </div>
-                      <div className={`p-3 rounded-lg ${stat.color}`}>
-                        <Icon className="w-6 h-6" />
+                      <div className={`p-2 sm:p-3 rounded-lg ${stat.color} shrink-0`}>
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
                     </div>
                   </CardContent>
@@ -92,15 +92,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Charts and Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Trends Chart */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>📈 Request Trends</CardTitle>
-              <CardDescription>Requests, approvals, and rejections over time</CardDescription>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">Request Trends</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Requests, approvals, and rejections over time</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="px-2 sm:px-6">
+              <ResponsiveContainer width="100%" height={250} className="sm:!h-[300px]">
                 <LineChart data={trendsData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
@@ -117,14 +117,14 @@ export default function AdminDashboard() {
 
           {/* Alerts */}
           <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle>🚨 Alerts</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">Alerts</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 sm:space-y-3">
               {alertsData.map((alert) => (
                 <div
                   key={alert.id}
-                  className={`p-3 rounded-lg border-l-4 ${
+                  className={`p-2 sm:p-3 rounded-lg border-l-4 ${
                     alert.priority === "high"
                       ? "bg-red-50 border-red-500"
                       : "bg-yellow-50 border-yellow-500"
@@ -138,24 +138,24 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activities */}
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle>📊 Recent Activities</CardTitle>
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg">Recent Activities</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {recentActivities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-4 pb-4 border-b last:border-b-0"
+                    className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b last:border-b-0"
                   >
-                    <div className="p-2 rounded-full bg-blue-100">
-                      <Activity className="w-4 h-4 text-blue-600" />
+                    <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 shrink-0">
+                      <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-slate-900">
-                        {activity.user} <span className="text-slate-600 font-normal">{activity.action}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-900 text-sm sm:text-base">
+                        <span className="truncate">{activity.user}</span> <span className="text-slate-600 font-normal">{activity.action}</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
                     </div>
