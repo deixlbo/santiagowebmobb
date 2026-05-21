@@ -214,29 +214,28 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12 md:py-32">
+      <section className="relative overflow-hidden bg-background py-20 md:py-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="space-y-4 md:space-y-6">
-            <Badge variant="secondary" className="mb-2 md:mb-4">
-              Digital Barangay Services
-            </Badge>
-            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-              Welcome to Barangay Santiago
-            </h1>
-            <p className="text-pretty text-base text-muted-foreground sm:text-lg md:text-xl">
-              Access barangay services online. Request documents, file reports, and stay updated with community announcements and projects.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/resident/login">
-                <Button size="lg" className="w-full sm:w-auto">
+          <div className="space-y-8 md:space-y-12 text-center">
+            <div className="space-y-4 md:space-y-6">
+              <h1 className="text-balance text-5xl font-bold tracking-tight text-foreground sm:text-6xl md:text-7xl leading-tight">
+                Barangay Services <span className="text-primary">Made Easy</span>
+              </h1>
+              <p className="text-pretty text-lg text-muted-foreground sm:text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
+                Access government services online in seconds. Request documents, file reports, and stay connected with your community.
+              </p>
+            </div>
+            
+            {/* Login Options */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 md:pt-8">
+              <Link href="/resident/login" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full px-10 h-14 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                   Resident Login
-                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/official/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              <Link href="/official/login" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full px-10 h-14 text-base font-semibold rounded-lg border-2 hover:bg-muted transition-colors">
                   Official Login
-                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -245,59 +244,59 @@ export default function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-12 md:py-24">
+      <section id="services" className="py-20 md:py-32 border-t">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 text-center md:mb-12">
-            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Our Services</h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">Request documents and access barangay services online</p>
+          <div className="mb-16 space-y-3 text-center md:mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Popular Services</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Request important documents and access barangay services online</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service, index) => (
-              <Card key={index} className="transition-shadow hover:shadow-lg">
-                <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <service.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{service.title}</CardTitle>
-                  <CardDescription>{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href="/resident/login">
-                    <Button variant="link" className="h-auto p-0">
-                      Request Now <ChevronRight className="ml-1 h-4 w-4" />
+              <Link key={index} href="/resident/login">
+                <Card className="h-full transition-all hover:shadow-xl hover:-translate-y-2 cursor-pointer border-0 bg-card/50 backdrop-blur hover:bg-card">
+                  <CardHeader>
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/15">
+                      <service.icon className="h-7 w-7 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardDescription className="text-base">{service.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="ghost" className="p-0 h-auto font-semibold text-primary hover:text-primary/80">
+                      Request Now →
                     </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
       {/* Announcements Section */}
-      <section id="announcements" className="bg-muted/50 py-12 md:py-24">
+      <section id="announcements" className="py-20 md:py-32 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-12">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Announcements</h2>
-              <p className="mt-2 text-sm text-muted-foreground sm:text-base">Stay updated with the latest barangay news</p>
+          <div className="mb-16 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-20">
+            <div className="space-y-2">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground">Latest Updates</h2>
+              <p className="text-lg text-muted-foreground">Stay informed with community news and events</p>
             </div>
             <Link href="/resident/login">
-              <Button variant="outline" className="w-full sm:w-auto">View All</Button>
+              <Button variant="outline" className="w-full sm:w-auto rounded-lg px-6 h-12 font-semibold border-2">View All</Button>
             </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {announcements.map((announcement) => (
-              <Card key={announcement.id}>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Megaphone className="h-4 w-4 text-primary" />
-                    <span className="text-sm text-muted-foreground">{announcement.date}</span>
+              <Card key={announcement.id} className="overflow-hidden border-0 bg-card/60 backdrop-blur hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Megaphone className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">{announcement.date}</span>
                   </div>
-                  <CardTitle className="text-lg">{announcement.title}</CardTitle>
+                  <CardTitle className="text-xl">{announcement.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{announcement.content}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{announcement.content}</p>
                 </CardContent>
               </Card>
             ))}
@@ -306,46 +305,48 @@ export default function LandingPage() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-12 md:py-24">
+      <section id="projects" className="py-20 md:py-32 border-t">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-12">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Community Projects</h2>
-              <p className="mt-2 text-sm text-muted-foreground sm:text-base">Track ongoing and completed barangay projects</p>
+          <div className="mb-16 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mb-20">
+            <div className="space-y-2">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground">Community Projects</h2>
+              <p className="text-lg text-muted-foreground">Track progress on barangay development initiatives</p>
             </div>
             <Link href="/resident/login">
-              <Button variant="outline" className="w-full sm:w-auto">View All</Button>
+              <Button variant="outline" className="w-full sm:w-auto rounded-lg px-6 h-12 font-semibold border-2">View All</Button>
             </Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <Card key={project.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
+              <Card key={project.id} className="overflow-hidden border-0 bg-card/60 backdrop-blur hover:shadow-lg transition-all hover:-translate-y-1">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-4">
                     <Badge variant={
                       project.status === "Completed" ? "default" :
                       project.status === "Ongoing" ? "secondary" : "outline"
-                    }>
+                    } className="text-xs font-semibold py-1 px-3">
                       {project.status}
                     </Badge>
-                    <span className="text-sm font-medium">{project.progress}%</span>
+                    <span className="text-sm font-semibold text-primary">{project.progress}%</span>
                   </div>
-                  <CardTitle className="text-lg">{project.title}</CardTitle>
-                  <CardDescription>{project.type}</CardDescription>
+                  <CardTitle className="text-xl">{project.title}</CardTitle>
+                  <CardDescription className="text-sm">{project.type}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div className="space-y-4">
+                    <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                       <div 
-                        className="h-full bg-primary transition-all" 
+                        className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all rounded-full" 
                         style={{ width: `${project.progress}%` }}
                       />
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {project.location}
+                    <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 flex-shrink-0" /> {project.location}
                       </span>
-                      <span>PHP {project.budget}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 flex-shrink-0">₱</span> {project.budget}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -356,29 +357,29 @@ export default function LandingPage() {
       </section>
 
       {/* Officials Section */}
-      <section id="officials" className="bg-muted/50 py-12 md:py-24">
+      <section id="officials" className="py-20 md:py-32 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 text-center md:mb-12">
-            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Barangay Officials</h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">Meet your elected officials serving the community</p>
+          <div className="mb-16 space-y-2 text-center md:mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Leadership Team</h2>
+            <p className="text-lg text-muted-foreground">Meet the officials serving Barangay Santiago</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {officials.map((official) => (
               <Card 
                 key={official.id} 
-                className="cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1"
+                className="cursor-pointer transition-all border-0 bg-card/60 backdrop-blur hover:shadow-lg hover:-translate-y-2 overflow-hidden group"
                 onClick={() => setSelectedOfficial(official)}
               >
-                <CardContent className="p-6 text-center">
-                  <div className="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full bg-muted">
-                    <div className="flex h-full items-center justify-center">
-                      <Users className="h-12 w-12 text-muted-foreground/50" />
-                    </div>
+                <CardContent className="p-6 text-center space-y-4">
+                  <div className="mx-auto h-24 w-24 overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/10 transition-all">
+                    <Users className="h-12 w-12 text-primary/60" />
                   </div>
-                  <h3 className="font-semibold text-foreground">{official.name}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{official.position}</p>
-                  <Button variant="link" className="mt-2 h-auto p-0 text-sm">
-                    View Profile <ChevronRight className="ml-1 h-3 w-3" />
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-foreground text-lg">{official.name}</h3>
+                    <p className="text-sm text-muted-foreground leading-snug">{official.position}</p>
+                  </div>
+                  <Button variant="ghost" className="w-full text-primary font-semibold hover:bg-primary/10">
+                    View Profile →
                   </Button>
                 </CardContent>
               </Card>
