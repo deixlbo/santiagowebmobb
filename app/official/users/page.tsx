@@ -175,12 +175,6 @@ export default function UsersPage() {
     setUsers(users.filter(u => u.id !== userId))
   }
 
-  const filteredUsers = mockUsers.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   return (
     <motion.div
       variants={containerVariants}

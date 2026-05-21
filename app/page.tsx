@@ -22,7 +22,6 @@ import {
   Clock,
   Menu,
   X,
-  PlayCircle,
   ArrowRight,
   BookOpen,
   Briefcase
@@ -184,22 +183,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-6 md:flex">
+          {/* Desktop Navigation - Right Aligned */}
+          <nav className="hidden items-center gap-6 md:flex ml-auto">
             <a href="#services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Services</a>
             <a href="#announcements" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Announcements</a>
             <a href="#projects" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Projects</a>
             <a href="#officials" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Officials</a>
           </nav>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <Link href="/resident/login">
-              <Button variant="outline">Resident Login</Button>
-            </Link>
-            <Link href="/official/login">
-              <Button>Official Portal</Button>
-            </Link>
-          </div>
 
           {/* Mobile Menu Button */}
           <button 
@@ -218,13 +208,6 @@ export default function LandingPage() {
               <a href="#announcements" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Announcements</a>
               <a href="#projects" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Projects</a>
               <a href="#officials" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Officials</a>
-              <hr className="my-2" />
-              <Link href="/resident/login">
-                <Button variant="outline" className="w-full">Resident Login</Button>
-              </Link>
-              <Link href="/official/login">
-                <Button className="w-full">Official Portal</Button>
-              </Link>
             </nav>
           </div>
         )}
@@ -233,40 +216,23 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12 md:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid items-center gap-8 md:gap-12 lg:grid-cols-2">
-            <div className="space-y-4 md:space-y-6">
-              <Badge variant="secondary" className="mb-2 md:mb-4">
-                Digital Barangay Services
-              </Badge>
-              <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-                Welcome to Barangay Santiago
-              </h1>
-              <p className="text-pretty text-base text-muted-foreground sm:text-lg md:text-xl">
-                Access barangay services online. Request documents, file reports, and stay updated with community announcements and projects.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link href="/resident/register">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Register as Resident
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  <PlayCircle className="mr-2 h-4 w-4" />
-                  Watch Video
+          <div className="space-y-4 md:space-y-6">
+            <Badge variant="secondary" className="mb-2 md:mb-4">
+              Digital Barangay Services
+            </Badge>
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+              Welcome to Barangay Santiago
+            </h1>
+            <p className="text-pretty text-base text-muted-foreground sm:text-lg md:text-xl">
+              Access barangay services online. Request documents, file reports, and stay updated with community announcements and projects.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/resident/register">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Register as Resident
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-video overflow-hidden rounded-xl border bg-card shadow-2xl">
-                <div className="flex h-full items-center justify-center bg-muted">
-                  <div className="px-4 text-center">
-                    <PlayCircle className="mx-auto h-12 w-12 text-muted-foreground/50 sm:h-16 sm:w-16" />
-                    <p className="mt-3 text-xs text-muted-foreground sm:mt-4 sm:text-sm">Barangay Santiago Promotional Video</p>
-                    <p className="text-xs text-muted-foreground">santiago.mp4</p>
-                  </div>
-                </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
