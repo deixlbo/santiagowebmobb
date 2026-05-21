@@ -70,7 +70,7 @@ export default function OfficialLayout({
     <>
       {/* Header with Logo */}
       <div className="flex items-center gap-3 px-4 py-5">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-yellow-400/50">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/30">
           <Image
             src="/santiago-logo.png"
             alt="Barangay Santiago"
@@ -85,8 +85,8 @@ export default function OfficialLayout({
         </div>
       </div>
 
-      {/* Yellow divider line */}
-      <div className="mx-4 h-0.5 bg-gradient-to-r from-yellow-400 via-yellow-400 to-transparent" />
+      {/* Divider line */}
+      <div className="mx-4 h-0.5 bg-gradient-to-r from-white/20 via-white/20 to-transparent" />
 
       {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 p-4">
@@ -102,15 +102,11 @@ export default function OfficialLayout({
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                 isActive
-                  ? "bg-white/90 text-green-800 shadow-lg"
+                  ? "bg-white/90 text-emerald-800 shadow-lg"
                   : "text-white/90 hover:bg-white/10"
               )}
             >
-              {/* Yellow accent bar for active item */}
-              {isActive && (
-                <div className="absolute -left-4 top-1 bottom-1 w-1 rounded-r-full bg-yellow-400" />
-              )}
-              {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-green-700" : "text-white/80")} />}
+              {item.icon && <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-emerald-700" : "text-white/80")} />}
               <span className="truncate">{item.name}</span>
             </Link>
           )
@@ -124,7 +120,7 @@ export default function OfficialLayout({
             <button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/10">
               <Avatar className="h-10 w-10 ring-2 ring-white/20">
                 <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-                <AvatarFallback className="bg-green-600 text-white">AU</AvatarFallback>
+                <AvatarFallback className="bg-muted text-foreground">AU</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">Admin User</p>

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
 import { 
   Search, 
   Eye,
@@ -17,7 +18,8 @@ import {
   Clock,
   Users,
   Download,
-  FileText
+  FileText,
+  Filter
 } from "lucide-react"
 
 const mockResidents = [
@@ -27,6 +29,7 @@ const mockResidents = [
     email: "juan@example.com",
     purok: "Purok 3",
     gender: "Male",
+    age: 25,
     status: "verified",
     documentType: "Valid ID",
     registeredDate: "April 15, 2026"
@@ -37,6 +40,7 @@ const mockResidents = [
     email: "maria@example.com",
     purok: "Purok 1",
     gender: "Female",
+    age: 19,
     status: "pending",
     documentType: "Birth Certificate",
     registeredDate: "April 25, 2026"
@@ -47,6 +51,7 @@ const mockResidents = [
     email: "pedro@example.com",
     purok: "Purok 2",
     gender: "Male",
+    age: 35,
     status: "pending",
     documentType: "Voter's ID",
     registeredDate: "April 27, 2026"
@@ -57,6 +62,7 @@ const mockResidents = [
     email: "ana@example.com",
     purok: "Purok 4",
     gender: "Female",
+    age: 22,
     status: "verified",
     documentType: "Valid ID",
     registeredDate: "March 10, 2026"
@@ -67,6 +73,7 @@ const mockResidents = [
     email: "carlos@example.com",
     purok: "Purok 5",
     gender: "Male",
+    age: 28,
     status: "rejected",
     documentType: "Birth Certificate",
     remarks: "Invalid document uploaded",
@@ -118,15 +125,68 @@ const itemVariants = {
 export default function ResidentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedResident, setSelectedResident] = useState<typeof mockResidents[0] | null>(null)
+  const [selectedPuroks, setSelectedPuroks] = useState<string[]>([])
+  const [selectedAgeRanges, setSelectedAgeRanges] = useState<string[]>([])
 
-  const filteredResidents = mockResidents.filter(res => 
-    res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    res.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    res.purok.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Get unique puroks
+  const puroks = Array.from(new Set(mockResidents.map(r => r.purok))).sort()
+
+  // Age ranges for filtering
+  const ageRanges = [
+    { label: "18-21", min: 18, max: 21 },
+    { label: "22-25", min: 22, max: 25 },
+    { label: "26-30", min: 26, max: 30 },
+    { label: "31+", min: 31, max: 999 }
+  ]
+
+  // Filter residents based on all criteria
+  const filteredResidents = mockResidents.filter(res => {
+    // Search filter
+    const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      res.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // Purok filter
+    const matchesPurok = selectedPuroks.length === 0 || selectedPuroks.includes(res.purok)
+
+    // Age range filter
+    let matchesAge = selectedAgeRanges.length === 0
+    if (selectedAgeRanges.length > 0) {
+      matchesAge = selectedAgeRanges.some(range => {
+        const ageRange = ageRanges.find(ar => ar.label === range)
+        return ageRange && res.age >= ageRange.min && res.age <= ageRange.max
+      })
+    }
+
+    return matchesSearch && matchesPurok && matchesAge
+  })
+
+  // Calculate stats based on filtered residents
+  const maleCount = filteredResidents.filter(r => r.gender === "Male").length
+  const femaleCount = filteredResidents.filter(r => r.gender === "Female").length
 
   const pendingCount = mockResidents.filter(r => r.status === "pending").length
   const verifiedCount = mockResidents.filter(r => r.status === "verified").length
+
+  // Toggle purok selection
+  const togglePurok = (purok: string) => {
+    setSelectedPuroks(prev => 
+      prev.includes(purok) ? prev.filter(p => p !== purok) : [...prev, purok]
+    )
+  }
+
+  // Toggle age range selection
+  const toggleAgeRange = (range: string) => {
+    setSelectedAgeRanges(prev => 
+      prev.includes(range) ? prev.filter(r => r !== range) : [...prev, range]
+    )
+  }
+
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedPuroks([])
+    setSelectedAgeRanges([])
+    setSearchTerm("")
+  }
 
   return (
     <motion.div
@@ -147,7 +207,7 @@ export default function ResidentsPage() {
       </motion.div>
 
       {/* Stats */}
-      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2 md:gap-4">
+      <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card>
           <CardContent className="p-3 md:p-4">
             <div className="flex items-center gap-2 md:gap-4">
@@ -155,8 +215,8 @@ export default function ResidentsPage() {
                 <Users className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               </div>
               <div>
-                <p className="text-lg md:text-2xl font-bold">{mockResidents.length}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Total Residents</p>
+                <p className="text-lg md:text-2xl font-bold">{filteredResidents.length}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Filtered Results</p>
               </div>
             </div>
           </CardContent>
@@ -164,12 +224,25 @@ export default function ResidentsPage() {
         <Card>
           <CardContent className="p-3 md:p-4">
             <div className="flex items-center gap-2 md:gap-4">
-              <div className="rounded-lg bg-amber-100 p-1.5 md:p-2">
-                <Clock className="h-4 w-4 md:h-5 md:w-5 text-amber-700" />
+              <div className="rounded-lg bg-blue-100 p-1.5 md:p-2">
+                <Users className="h-4 w-4 md:h-5 md:w-5 text-blue-700" />
               </div>
               <div>
-                <p className="text-lg md:text-2xl font-bold">{pendingCount}</p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">Pending Verification</p>
+                <p className="text-lg md:text-2xl font-bold">{maleCount}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Male</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="rounded-lg bg-pink-100 p-1.5 md:p-2">
+                <Users className="h-4 w-4 md:h-5 md:w-5 text-pink-700" />
+              </div>
+              <div>
+                <p className="text-lg md:text-2xl font-bold">{femaleCount}</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground">Female</p>
               </div>
             </div>
           </CardContent>
@@ -188,6 +261,78 @@ export default function ResidentsPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Filters */}
+      <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-2">
+        {/* Purok Filter */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filter by Purok
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
+              {puroks.map((purok) => (
+                <label key={purok} className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox 
+                    checked={selectedPuroks.includes(purok)}
+                    onCheckedChange={() => togglePurok(purok)}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm">{purok}</span>
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Age Range Filter */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filter by Age
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
+              {ageRanges.map((range) => (
+                <label key={range.label} className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox 
+                    checked={selectedAgeRanges.includes(range.label)}
+                    onCheckedChange={() => toggleAgeRange(range.label)}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm">{range.label}</span>
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Active Filters & Reset */}
+      {(selectedPuroks.length > 0 || selectedAgeRanges.length > 0) && (
+        <motion.div variants={itemVariants} className="flex items-center gap-2 flex-wrap p-3 bg-muted/50 rounded-lg">
+          <span className="text-sm text-muted-foreground">Active filters:</span>
+          {selectedPuroks.map(purok => (
+            <Badge key={purok} variant="secondary">{purok}</Badge>
+          ))}
+          {selectedAgeRanges.map(range => (
+            <Badge key={range} variant="secondary">{range} yrs</Badge>
+          ))}
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="ml-auto text-xs"
+            onClick={resetFilters}
+          >
+            Clear Filters
+          </Button>
+        </motion.div>
+      )}
 
       {/* Search */}
       <motion.div variants={itemVariants} className="relative">
