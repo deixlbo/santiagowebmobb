@@ -16,21 +16,11 @@ import {
   Megaphone,
   Package,
   BarChart3,
-  User,
   LogOut,
   Menu,
-  ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { useState } from "react"
 
 
@@ -115,36 +105,17 @@ export default function OfficialLayout({
 
       {/* User Profile at Bottom */}
       <div className="mt-auto border-t border-white/10 p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/10">
-              <Avatar className="h-10 w-10 ring-2 ring-white/20">
-                <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-                <AvatarFallback className="bg-muted text-foreground">AU</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">Admin User</p>
-                <p className="text-xs text-white/60 truncate">Super Administrator</p>
-              </div>
-              <ChevronDown className="h-4 w-4 text-white/60" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/official/profile">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/10">
+          <Avatar className="h-10 w-10 ring-2 ring-white/20">
+            <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
+            <AvatarFallback className="bg-muted text-foreground">AU</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">Admin User</p>
+            <p className="text-xs text-white/60 truncate">Super Administrator</p>
+          </div>
+          <LogOut className="h-4 w-4 text-white/60 cursor-pointer hover:text-white" onClick={handleLogout} title="Logout" />
+        </button>
       </div>
     </>
   )
@@ -195,53 +166,6 @@ export default function OfficialLayout({
 
       {/* Main Content */}
       <div className="lg:pl-64">
-        {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <button 
-            className="rounded-lg p-2 hover:bg-muted lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-
-          <div className="hidden lg:block">
-            <h1 className="text-lg font-semibold">Official Portal</h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 focus:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-muted/50">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-                    <AvatarFallback className="bg-muted text-foreground">RB</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden text-left md:block">
-                    <p className="text-sm font-medium">Rolando C. Borja</p>
-                    <p className="text-xs text-muted-foreground">Barangay Captain</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/official/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-
         {/* Page Content */}
         <main className="p-4 md:p-6">
           {children}

@@ -219,17 +219,13 @@ export default function ResidentLayout({
           transition={{ duration: 0.3 }}
           className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden"
         >
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-start px-4">
             <button 
               className="rounded-lg p-2 hover:bg-muted"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-6 w-6" />
             </button>
-            
-            <span className="text-sm font-semibold text-foreground">Barangay Santiago</span>
-
-            <div className="w-9" />
           </div>
         </motion.header>
 
