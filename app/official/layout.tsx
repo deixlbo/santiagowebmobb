@@ -104,17 +104,24 @@ export default function OfficialLayout({
       </nav>
 
       {/* User Profile at Bottom */}
-      <div className="mt-auto border-t border-white/10 p-4">
-        <button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/10">
-          <Avatar className="h-10 w-10 ring-2 ring-white/20">
+      <div className="mt-auto border-t border-white/10 p-4 space-y-3">
+        <div className="flex items-center gap-3 px-2">
+          <Avatar className="h-12 w-12 ring-2 ring-white/30">
             <AvatarImage src="/placeholder-avatar.jpg" alt="Admin" />
-            <AvatarFallback className="bg-muted text-foreground">AU</AvatarFallback>
+            <AvatarFallback className="bg-emerald-700 text-white font-semibold">RB</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">Admin User</p>
-            <p className="text-xs text-white/60 truncate">Super Administrator</p>
+            <p className="text-sm font-semibold text-white truncate">Rolando C. Borja</p>
+            <p className="text-xs text-white/70 truncate">Barangay Captain</p>
           </div>
-          <LogOut className="h-4 w-4 text-white/60 cursor-pointer hover:text-white" onClick={handleLogout} title="Logout" />
+        </div>
+        <button 
+          className="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-2 bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium"
+          onClick={handleLogout}
+          title="Logout"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
         </button>
       </div>
     </>

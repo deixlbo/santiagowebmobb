@@ -245,53 +245,125 @@ export default function DocumentsPage() {
 
             {selectedDoc && (
               <>
-                <div className="rounded-lg border bg-muted/50 p-3">
-                  <p className="text-sm font-medium mb-2">Requirements:</p>
+                {/* Document Info Card */}
+                <div className="rounded-lg border bg-gradient-to-r from-primary/5 to-emerald-50 p-4">
+                  <h3 className="font-semibold text-foreground mb-2">{selectedDoc.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{selectedDoc.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-primary">Processing Fee: PHP {selectedDoc.fee}</span>
+                    <Badge variant="secondary">Est. 3-5 days</Badge>
+                  </div>
+                </div>
+
+                {/* Upload Progress */}
+                {requirements.length > 0 && (
+                  <div className="rounded-lg border bg-muted/30 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold">Upload Progress</p>
+                      <span className="text-xs font-medium text-primary">
+                        {requirements.filter(r => r.status === "uploaded").length} of {requirements.length}
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-full transition-all duration-300"
+                        style={{ width: `${(requirements.filter(r => r.status === "uploaded").length / requirements.length) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {requirements.filter(r => r.status === "empty").length > 0 && 
+                        `${requirements.filter(r => r.status === "empty").length} document${requirements.filter(r => r.status === "empty").length !== 1 ? 's' : ''} remaining`
+                      }
+                      {requirements.filter(r => r.status === "empty").length === 0 && "All documents uploaded!"}
+                    </p>
+                  </div>
+                )}
+
+                <div className="rounded-lg border bg-gradient-to-br from-blue-50 to-cyan-50 p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold">!</div>
+                    <p className="font-semibold text-sm">Required Documents ({requirements.filter(r => r.status !== "empty").length}/{requirements.length} uploaded)</p>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-3 text-xs text-blue-700 border border-blue-200">
+                    <p className="font-medium mb-1">Important:</p>
+                    <p>Upload ALL required documents below. Your request cannot be submitted without all documents being completed.</p>
+                  </div>
+                  
                   <div className="space-y-2">
                     {requirements.map((req) => (
                       <div key={req.name} className="space-y-2">
                         <button
                           type="button"
                           onClick={() => setExpandedRequirement(expandedRequirement === req.name ? null : req.name)}
-                          className="w-full flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted transition-colors text-left"
+                          className={`w-full flex items-center justify-between p-3 rounded-md transition-colors text-left border-2 ${
+                            req.status === "empty" ? "bg-red-50 border-red-200 hover:bg-red-100" :
+                            req.status === "uploaded" ? "bg-emerald-50 border-emerald-200 hover:bg-emerald-100" :
+                            "bg-amber-50 border-amber-200 hover:bg-amber-100"
+                          }`}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
                             {getStatusCircle(req.status)}
-                            <span className="text-sm">{req.name}</span>
+                            <div className="min-w-0">
+                              <span className="text-sm font-semibold block truncate">{req.name}</span>
+                              <span className={`text-xs ${
+                                req.status === "empty" ? "text-red-600" :
+                                req.status === "uploaded" ? "text-emerald-600" :
+                                "text-amber-600"
+                              }`}>
+                                {req.status === "empty" ? "Not uploaded" : req.status === "uploaded" ? "Uploaded" : "Under review"}
+                              </span>
+                            </div>
                           </div>
                           {expandedRequirement === req.name ? (
-                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           )}
                         </button>
                         
                         {expandedRequirement === req.name && (
-                          <div className="ml-5 p-3 bg-background rounded-md border">
+                          <div className="ml-2 p-4 bg-white rounded-lg border space-y-3">
                             {req.status === "uploaded" && req.file ? (
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm text-emerald-600 truncate flex-1">{req.file.name}</span>
-                                <Button variant="ghost" size="sm" onClick={() => removeRequirementFile(req.name)}>
+                              <div className="flex items-center justify-between gap-2 p-3 bg-emerald-50 rounded border border-emerald-200">
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-emerald-700 truncate">{req.file.name}</p>
+                                    <p className="text-xs text-emerald-600">{(req.file.size / 1024).toFixed(2)} KB</p>
+                                  </div>
+                                </div>
+                                <Button variant="ghost" size="sm" className="hover:text-destructive flex-shrink-0" onClick={() => removeRequirementFile(req.name)}>
                                   <X className="h-4 w-4" />
                                 </Button>
                               </div>
                             ) : (
-                              <div className="space-y-2">
-                                <p className="text-xs text-muted-foreground">Upload your {req.name}</p>
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-sm font-medium text-foreground mb-1">{req.name}</p>
+                                  <p className="text-xs text-muted-foreground">Accepted formats: PDF, JPG, PNG | Maximum file size: 5MB</p>
+                                </div>
                                 <div 
-                                  className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 transition-colors hover:border-primary/50 cursor-pointer"
+                                  className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-all hover:border-blue-400 cursor-pointer hover:bg-blue-50 active:scale-95"
                                   onClick={() => {
                                     const input = document.createElement('input')
                                     input.type = 'file'
+                                    input.accept = '.pdf,.jpg,.png,.jpeg'
                                     input.onchange = (e) => {
                                       const file = (e.target as HTMLInputElement).files?.[0]
-                                      if (file) handleRequirementUpload(req.name, file)
+                                      if (file) {
+                                        if (file.size > 5 * 1024 * 1024) {
+                                          alert("File size exceeds 5MB limit")
+                                          return
+                                        }
+                                        handleRequirementUpload(req.name, file)
+                                      }
                                     }
                                     input.click()
                                   }}
                                 >
-                                  <Upload className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-xs text-muted-foreground">Click to upload</span>
+                                  <Upload className="h-6 w-6 text-muted-foreground" />
+                                  <span className="text-sm text-muted-foreground text-center">Click to upload or drag & drop</span>
                                 </div>
                               </div>
                             )}
@@ -300,20 +372,26 @@ export default function DocumentsPage() {
                       </div>
                     ))}
                   </div>
-                  <p className="mt-3 text-sm">
-                    <span className="font-medium">Fee:</span> PHP {selectedDoc.fee}
-                  </p>
-                  <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-red-500" /> Empty
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" /> Uploaded
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-amber-500" /> Reviewing
-                    </span>
+                  
+                  <div className="bg-white rounded-lg p-3 text-xs space-y-2 border">
+                    <p className="font-medium text-foreground">Document Status Legend:</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="flex items-center gap-1">
+                        <span className="h-3 w-3 rounded-full bg-red-500" />
+                        <span className="text-muted-foreground">Empty</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="h-3 w-3 rounded-full bg-emerald-500" />
+                        <span className="text-muted-foreground">Uploaded</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="h-3 w-3 rounded-full bg-amber-500" />
+                        <span className="text-muted-foreground">Reviewing</span>
+                      </div>
+                    </div>
                   </div>
+                  
+                  <p className="text-sm font-semibold">Processing Fee: PHP {selectedDoc.fee}</p>
                 </div>
 
                 <div className="space-y-2">

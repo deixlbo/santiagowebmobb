@@ -188,7 +188,10 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold">User & Role Management</h1>
           <p className="text-muted-foreground mt-1">Manage staff accounts and permissions</p>
         </div>
-        <Button className="w-full md:w-auto gap-2">
+        <Button 
+          className="w-full md:w-auto gap-2"
+          onClick={() => setShowAddDialog(true)}
+        >
           <Plus className="h-4 w-4" />
           Add New User
         </Button>
@@ -324,6 +327,75 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Add User Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-md mx-4 md:mx-auto">
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>Create a new staff account with assigned role and department</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-name">Full Name *</Label>
+              <Input
+                id="user-name"
+                placeholder="Enter full name"
+                value={newUserData.name}
+                onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-email">Email Address *</Label>
+              <Input
+                id="user-email"
+                type="email"
+                placeholder="user@barangaysantiago.gov.ph"
+                value={newUserData.email}
+                onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-department">Department *</Label>
+              <Input
+                id="user-department"
+                placeholder="e.g., Documents, Administration"
+                value={newUserData.department}
+                onChange={(e) => setNewUserData({ ...newUserData, department: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-role">Role *</Label>
+              <Select value={newUserRole} onValueChange={(v: any) => setNewUserRole(v)}>
+                <SelectTrigger id="user-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Admin">Admin - Full system access</SelectItem>
+                  <SelectItem value="Official">Official - Leadership approval</SelectItem>
+                  <SelectItem value="Staff">Staff - Process requests</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowAddDialog(false)
+              setNewUserData({ name: "", email: "", department: "" })
+              setNewUserRole("Staff")
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              if (newUserData.name && newUserData.email && newUserData.department) {
+                handleAddUser()
+              }
+            }}>
+              Create User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }

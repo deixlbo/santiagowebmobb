@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { printElementById } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -173,6 +174,68 @@ export default function OfficialDocumentsPage() {
   const approvedCount = mockRequests.filter(r => r.status === "approved").length
   const releasedCount = mockRequests.filter(r => r.status === "released").length
 
+  const handleExportToExcel = () => {
+    if (!exportDateFrom || !exportDateTo) {
+      alert("Please select both from and to dates")
+      return
+    }
+
+    const wb = XLSX.utils.book_new()
+    const documentTypes = ["Barangay Clearance", "Certificate of Residency", "Business Clearance", "Certificate of Indigency"]
+
+    // Filter requests by date range
+    const filteredByDate = mockRequests.filter(req => {
+      const reqDate = new Date(req.date.split(',')[0].trim() + ', 2026')
+      const fromDate = new Date(exportDateFrom)
+      const toDate = new Date(exportDateTo)
+      return reqDate >= fromDate && reqDate <= toDate
+    })
+
+    // Group by document type and create sheets
+    documentTypes.forEach(docType => {
+      const typeRequests = filteredByDate.filter(req => req.type === docType)
+      
+      if (typeRequests.length > 0) {
+        const sheetData = typeRequests.map(req => ({
+          "Request ID": req.id,
+          "Type": req.type,
+          "Requester": req.requester,
+          "Email": req.email,
+          "Purok": req.purok,
+          "Purpose": req.purpose,
+          "Status": req.status,
+          "Date": req.date,
+          "Fee": "₱" + req.fee,
+          "Documents": req.documentsUploaded ? "Yes" : "No",
+        }))
+
+        const ws = XLSX.utils.json_to_sheet(sheetData)
+        
+        // Set column widths
+        ws['!cols'] = [
+          { wch: 12 }, // Request ID
+          { wch: 20 }, // Type
+          { wch: 15 }, // Requester
+          { wch: 20 }, // Email
+          { wch: 10 }, // Purok
+          { wch: 15 }, // Purpose
+          { wch: 12 }, // Status
+          { wch: 15 }, // Date
+          { wch: 10 }, // Fee
+          { wch: 12 }, // Documents
+        ]
+
+        const sheetName = docType.substring(0, 31) // Excel sheet name limit
+        XLSX.utils.book_append_sheet(wb, ws, sheetName)
+      }
+    })
+
+    // Generate Excel file
+    const fileName = `DocumentRequests_${new Date(exportDateFrom).toLocaleDateString()}_to_${new Date(exportDateTo).toLocaleDateString()}.xlsx`
+    XLSX.writeFile(wb, fileName)
+    setShowExportDialog(false)
+  }
+
   return (
     <motion.div
       variants={containerVariants}
@@ -272,12 +335,50 @@ export default function OfficialDocumentsPage() {
             <CardDescription className="text-xs md:text-sm">Process pending requests and manage approvals</CardDescription>
           </CardHeader>
           <CardContent className="p-3 md:p-6 pt-0">
-            <Tabs defaultValue="pending">
-              <TabsList className="h-8 md:h-9 w-full justify-start overflow-x-auto">
-                <TabsTrigger value="pending" className="text-xs md:text-sm px-2 md:px-3">Pending ({pendingCount})</TabsTrigger>
-                <TabsTrigger value="approved" className="text-xs md:text-sm px-2 md:px-3">For Pickup</TabsTrigger>
-                <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">All Requests</TabsTrigger>
-              </TabsList>
+            <div className="space-y-4">
+              {/* Filter Indicator */}
+              <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <div className="flex items-center gap-2">
+                  <Search className="h-4 w-4 text-blue-600" />
+                  <div>
+                    <p className="font-semibold text-sm text-blue-900">Active Filters</p>
+                    <p className="text-xs text-blue-700">{searchTerm ? `Search: "${searchTerm}"` : "No active filters"}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="bg-white text-blue-600">
+                    {mockRequests.filter(r => 
+                      r.requester.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      r.id.toLowerCase().includes(searchTerm.toLowerCase())
+                    ).length} results
+                  </Badge>
+                  {searchTerm && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setSearchTerm("")}
+                      className="h-6 px-2 text-xs text-blue-600 hover:bg-blue-100"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <Tabs defaultValue="pending">
+                <TabsList className="h-10 w-full justify-start overflow-x-auto bg-muted/50 p-1">
+                  <TabsTrigger value="pending" className="relative text-sm px-4 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                    Pending ({pendingCount})
+                    {pendingCount > 0 && <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-amber-500"></span>}
+                  </TabsTrigger>
+                  <TabsTrigger value="approved" className="relative text-sm px-4 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                    For Pickup ({approvedCount})
+                  </TabsTrigger>
+                  <TabsTrigger value="all" className="relative text-sm px-4 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                    All Requests ({mockRequests.length})
+                  </TabsTrigger>
+                </TabsList>
               <TabsContent value="pending" className="mt-3 md:mt-4">
                 <div className="rounded-md border overflow-x-auto md:overflow-x-visible">
                   <Table>
@@ -407,7 +508,8 @@ export default function OfficialDocumentsPage() {
                   </Table>
                 </div>
               </TabsContent>
-            </Tabs>
+              </Tabs>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -555,10 +657,7 @@ export default function OfficialDocumentsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setShowExportDialog(false)}>Cancel</Button>
-            <Button size="sm" onClick={() => {
-              // Export logic here
-              setShowExportDialog(false)
-            }}>
+            <Button size="sm" onClick={handleExportToExcel}>
               <Download className="h-3 w-3 mr-1" />
               Export Excel
             </Button>
@@ -573,71 +672,90 @@ export default function OfficialDocumentsPage() {
             <DialogTitle className="text-base md:text-lg text-foreground">Document Preview & Print</DialogTitle>
           </DialogHeader>
           {printRequest && (
-            <div id="print-document" className="bg-white p-4 md:p-8 text-gray-900 print:p-4">
-              {/* Header - Visible in both preview and print */}
-              <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-gray-300">
-                <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0" />
-                <div className="text-center flex-1 px-4">
-                  <p className="text-[10px] md:text-xs text-gray-700">Republic of the Philippines</p>
-                  <p className="text-[10px] md:text-xs text-gray-700">Province of Zambales</p>
-                  <p className="text-[10px] md:text-xs text-gray-700">Municipality of San Antonio</p>
-                  <p className="text-sm md:text-base font-bold text-gray-900">Barangay Santiago</p>
-                </div>
-                <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0" />
-              </div>
-
-              <div className="text-center mb-6">
-                <h2 className="text-base md:text-lg font-bold uppercase tracking-wide text-gray-900">{printRequest.type}</h2>
-                <p className="text-xs text-gray-600 mt-1">Request ID: {printRequest.id}</p>
-              </div>
-
-              {/* Document Body */}
-              <div className="space-y-4 text-xs md:text-sm leading-relaxed text-gray-900">
-                <p className="font-semibold">TO WHOM IT MAY CONCERN:</p>
-
-                {printRequest.type === "Barangay Clearance" && (
-                  <>
-                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
-                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Certificate of Residency" && (
-                  <>
-                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
-                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Certificate of Indigency" && (
-                  <>
-                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
-                    <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
-                  </>
-                )}
-
-                {printRequest.type === "Business Clearance" && (
-                  <>
-                    <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, owner/operator of <span className="font-bold">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
-                    <p className="text-justify">This certification is issued upon request for business operations.</p>
-                  </>
-                )}
-
-                <p>Issued this <span className="font-semibold">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span> at Barangay Santiago, San Antonio, Zambales.</p>
-
-                <div className="mt-10 pt-6">
-                  <div className="inline-block">
-                    <div className="w-48 mb-2 border-t-2 border-gray-400" />
-                    <p className="font-bold text-center text-gray-900">ROLANDO C. BORJA</p>
-                    <p className="text-center text-gray-800">Barangay Captain</p>
+            <div id="print-document" className="bg-white text-gray-900">
+              <style>{`
+                @media print {
+                  @page {
+                    size: A4;
+                    margin: 0.5in;
+                  }
+                  body { margin: 0; padding: 0; }
+                  #print-document { margin: 0; padding: 0; }
+                  .no-print { display: none !important; }
+                }
+              `}</style>
+              
+              <div className="p-4 md:p-8">
+                {/* Header - Visible in both preview and print */}
+                <div className="flex items-center justify-between mb-6 pb-4 border-b-4 border-gray-400">
+                  <div className="flex-shrink-0 w-20 h-20">
+                    <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={80} height={80} className="w-full h-full rounded-full object-cover" priority />
+                  </div>
+                  <div className="text-center flex-1 px-4">
+                    <p className="text-xs text-gray-700">Republic of the Philippines</p>
+                    <p className="text-xs text-gray-700">Province of Zambales</p>
+                    <p className="text-xs text-gray-700">Municipality of San Antonio</p>
+                    <p className="text-lg font-bold text-gray-900">Barangay Santiago</p>
+                  </div>
+                  <div className="flex-shrink-0 w-20 h-20">
+                    <Image src="/images/saz.jpg" alt="Municipality" width={80} height={80} className="w-full h-full rounded-full object-cover" priority />
                   </div>
                 </div>
-              </div>
 
-              {/* Footer - Visible in both preview and print */}
-              <div className="mt-8 pt-6 border-t-2 border-gray-300 text-center space-y-1">
-                <p className="text-[10px] md:text-xs text-gray-600">This is an official document from Barangay Santiago</p>
-                <p className="text-[10px] md:text-xs text-gray-600">For inquiries, visit the Barangay Hall or call the office</p>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold uppercase tracking-wide text-gray-900 mb-2">{printRequest.type}</h2>
+                  <p className="text-sm text-gray-600">Request ID: {printRequest.id}</p>
+                </div>
+
+                {/* Document Body */}
+                <div className="space-y-4 text-sm leading-relaxed text-gray-900">
+                  <p className="font-semibold">TO WHOM IT MAY CONCERN:</p>
+
+                  {printRequest.type === "Barangay Clearance" && (
+                    <>
+                      <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, a resident of Barangay Santiago, San Antonio, Zambales, is of good moral character and has no derogatory record on file in this office.</p>
+                      <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
+                    </>
+                  )}
+
+                  {printRequest.type === "Certificate of Residency" && (
+                    <>
+                      <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a bonafide resident of Barangay Santiago, San Antonio, Zambales.</p>
+                      <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
+                    </>
+                  )}
+
+                  {printRequest.type === "Certificate of Indigency" && (
+                    <>
+                      <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span> is a resident of Barangay Santiago, San Antonio, Zambales, and belongs to an indigent family in this barangay.</p>
+                      <p className="text-justify">This certification is issued upon request for <span className="font-bold">{printRequest.purpose}</span>.</p>
+                    </>
+                  )}
+
+                  {printRequest.type === "Business Clearance" && (
+                    <>
+                      <p className="text-justify">This is to certify that <span className="font-bold">{printRequest.requester}</span>, owner/operator of <span className="font-bold">{printRequest.purpose}</span>, located at Barangay Santiago, San Antonio, Zambales, has been granted clearance to operate their business in this barangay.</p>
+                      <p className="text-justify">This certification is issued upon request for business operations.</p>
+                    </>
+                  )}
+
+                  <p className="mt-8">Issued this <span className="font-semibold">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span> at Barangay Santiago, San Antonio, Zambales.</p>
+
+                  <div className="mt-12 pt-8 border-t-2 border-gray-300">
+                    <div className="inline-block w-64">
+                      <div className="h-16 mb-2" />
+                      <p className="font-bold text-center text-gray-900 text-lg">ROLANDO C. BORJA</p>
+                      <p className="text-center text-gray-800 font-semibold">Barangay Captain</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer - Visible in both preview and print */}
+                <div className="mt-8 pt-6 border-t-2 border-gray-300 text-center space-y-1">
+                  <p className="text-xs text-gray-600">This is an official document from Barangay Santiago</p>
+                  <p className="text-xs text-gray-600">For inquiries, visit the Barangay Hall or call the office</p>
+                  <p className="text-xs font-semibold text-gray-700 mt-2">Barangay Santiago Official Seal</p>
+                </div>
               </div>
             </div>
           )}
