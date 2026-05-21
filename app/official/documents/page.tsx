@@ -570,29 +570,30 @@ export default function OfficialDocumentsPage() {
       <Dialog open={showPrintDocument} onOpenChange={setShowPrintDocument}>
         <DialogContent className="w-[95vw] max-w-4xl sm:w-full max-h-[95vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg text-foreground">Document Preview</DialogTitle>
+            <DialogTitle className="text-base md:text-lg text-foreground">Document Preview & Print</DialogTitle>
           </DialogHeader>
           {printRequest && (
             <div id="print-document" className="bg-white p-4 md:p-8 text-gray-900 print:p-4">
-              {/* Header - Only visible when printing */}
-              <div className="hidden print:flex items-center justify-between mb-4 pb-4 border-b">
-                <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
-                <div className="text-center flex-1 px-2">
-                  <p className="text-xs">Republic of the Philippines</p>
-                  <p className="text-xs">Province of Zambales</p>
-                  <p className="text-xs">Municipality of San Antonio</p>
-                  <p className="text-sm font-semibold">Barangay Santiago</p>
+              {/* Header - Visible in both preview and print */}
+              <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-gray-300">
+                <Image src="/images/santiagologo.jpg" alt="Barangay Santiago" width={60} height={60} className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0" />
+                <div className="text-center flex-1 px-4">
+                  <p className="text-[10px] md:text-xs text-gray-700">Republic of the Philippines</p>
+                  <p className="text-[10px] md:text-xs text-gray-700">Province of Zambales</p>
+                  <p className="text-[10px] md:text-xs text-gray-700">Municipality of San Antonio</p>
+                  <p className="text-sm md:text-base font-bold text-gray-900">Barangay Santiago</p>
                 </div>
-                <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-16 h-16 rounded-full object-cover" />
+                <Image src="/images/saz.jpg" alt="Municipality" width={60} height={60} className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0" />
               </div>
 
               <div className="text-center mb-6">
-                <h2 className="text-sm md:text-base font-bold mt-3 uppercase">{printRequest.type}</h2>
+                <h2 className="text-base md:text-lg font-bold uppercase tracking-wide text-gray-900">{printRequest.type}</h2>
+                <p className="text-xs text-gray-600 mt-1">Request ID: {printRequest.id}</p>
               </div>
 
               {/* Document Body */}
-              <div className="space-y-4 text-xs md:text-sm leading-relaxed">
-                <p>TO WHOM IT MAY CONCERN:</p>
+              <div className="space-y-4 text-xs md:text-sm leading-relaxed text-gray-900">
+                <p className="font-semibold">TO WHOM IT MAY CONCERN:</p>
 
                 {printRequest.type === "Barangay Clearance" && (
                   <>
@@ -622,15 +623,21 @@ export default function OfficialDocumentsPage() {
                   </>
                 )}
 
-                <p>Issued this {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} at Barangay Santiago, San Antonio, Zambales.</p>
+                <p>Issued this <span className="font-semibold">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span> at Barangay Santiago, San Antonio, Zambales.</p>
 
-                <div className="mt-8 pt-4">
+                <div className="mt-10 pt-6">
                   <div className="inline-block">
-                    <div className="w-48 mb-1 h-12" />
-                    <p className="font-bold text-center">ROLANDO C. BORJA</p>
-                    <p className="text-center">Barangay Captain</p>
+                    <div className="w-48 mb-2 border-t-2 border-gray-400" />
+                    <p className="font-bold text-center text-gray-900">ROLANDO C. BORJA</p>
+                    <p className="text-center text-gray-800">Barangay Captain</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Footer - Visible in both preview and print */}
+              <div className="mt-8 pt-6 border-t-2 border-gray-300 text-center space-y-1">
+                <p className="text-[10px] md:text-xs text-gray-600">This is an official document from Barangay Santiago</p>
+                <p className="text-[10px] md:text-xs text-gray-600">For inquiries, visit the Barangay Hall or call the office</p>
               </div>
             </div>
           )}

@@ -54,6 +54,7 @@ interface Asset {
   serialNumber: string
   lastMaintenance: string
   assignedTo: string
+  image?: string
 }
 
 const mockAssets: Asset[] = [
@@ -150,8 +151,11 @@ export default function AssetsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string>("")
+  const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
 
   const [newAsset, setNewAsset] = useState({
     name: "",
@@ -163,6 +167,7 @@ export default function AssetsPage() {
     status: "operational" as AssetStatus,
     serialNumber: "",
     assignedTo: "",
+    image: "",
   })
 
   const filteredAssets = assets.filter((asset) => {
@@ -190,6 +195,7 @@ export default function AssetsPage() {
       serialNumber: newAsset.serialNumber,
       lastMaintenance: newAsset.acquisitionDate,
       assignedTo: newAsset.assignedTo,
+      image: imagePreview,
     }
     setAssets([asset, ...assets])
     setNewAsset({
@@ -202,12 +208,45 @@ export default function AssetsPage() {
       status: "operational",
       serialNumber: "",
       assignedTo: "",
+      image: "",
     })
+    setImagePreview("")
     setIsAddDialogOpen(false)
+  }
+
+  const handleEditAsset = () => {
+    if (!editingAsset) return
+    const updatedAssets = assets.map(a => 
+      a.id === editingAsset.id 
+        ? { ...editingAsset, image: imagePreview }
+        : a
+    )
+    setAssets(updatedAssets)
+    setEditingAsset(null)
+    setImagePreview("")
+    setIsEditDialogOpen(false)
   }
 
   const handleDeleteAsset = (id: string) => {
     setAssets(assets.filter((a) => a.id !== id))
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const result = reader.result as string
+        setImagePreview(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const openEditDialog = (asset: Asset) => {
+    setEditingAsset({ ...asset })
+    setImagePreview(asset.image || "")
+    setIsEditDialogOpen(true)
   }
 
   const totalValue = assets.reduce((sum, a) => sum + a.currentValue, 0)
@@ -344,6 +383,21 @@ export default function AssetsPage() {
                   />
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="image">Asset Image</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="flex-1"
+                  />
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Preview" className="h-10 w-10 rounded object-cover" />
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -444,6 +498,7 @@ export default function AssetsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Asset ID</TableHead>
+                <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Location</TableHead>
@@ -459,6 +514,15 @@ export default function AssetsPage() {
                 return (
                   <TableRow key={asset.id}>
                     <TableCell className="font-medium">{asset.id}</TableCell>
+                    <TableCell>
+                      {asset.image ? (
+                        <img src={asset.image} alt={asset.name} className="h-10 w-10 rounded object-cover" />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{asset.name}</p>
@@ -491,7 +555,7 @@ export default function AssetsPage() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(asset)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
@@ -589,6 +653,120 @@ export default function AssetsPage() {
                   <p className="text-sm text-muted-foreground">Assigned To</p>
                   <p className="font-medium">{selectedAsset.assignedTo}</p>
                 </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Asset Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Asset</DialogTitle>
+            <DialogDescription>Update asset details and information</DialogDescription>
+          </DialogHeader>
+          {editingAsset && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Asset Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editingAsset.name}
+                  onChange={(e) => setEditingAsset({ ...editingAsset, name: e.target.value })}
+                  placeholder="Asset name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editingAsset.description}
+                  onChange={(e) => setEditingAsset({ ...editingAsset, description: e.target.value })}
+                  placeholder="Describe the asset"
+                  rows={2}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-serialNumber">Serial Number</Label>
+                  <Input
+                    id="edit-serialNumber"
+                    value={editingAsset.serialNumber}
+                    onChange={(e) => setEditingAsset({ ...editingAsset, serialNumber: e.target.value })}
+                    placeholder="Enter serial number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-category">Category</Label>
+                  <Select
+                    value={editingAsset.category}
+                    onValueChange={(v) => setEditingAsset({ ...editingAsset, category: v as AssetCategory })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(categoryLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-location">Location</Label>
+                  <Input
+                    id="edit-location"
+                    value={editingAsset.location}
+                    onChange={(e) => setEditingAsset({ ...editingAsset, location: e.target.value })}
+                    placeholder="Where is the asset located?"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select
+                    value={editingAsset.status}
+                    onValueChange={(v) => setEditingAsset({ ...editingAsset, status: v as AssetStatus })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(statusConfig).map(([value, config]) => (
+                        <SelectItem key={value} value={value}>
+                          {config.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image">Asset Image</Label>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    id="edit-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="flex-1"
+                  />
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Preview" className="h-10 w-10 rounded object-cover" />
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditAsset}>
+                  Save Changes
+                </Button>
               </div>
             </div>
           )}
