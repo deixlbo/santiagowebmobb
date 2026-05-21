@@ -227,9 +227,15 @@ export default function LandingPage() {
               Access barangay services online. Request documents, file reports, and stay updated with community announcements and projects.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/resident/register">
+              <Link href="/resident/login">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Register as Resident
+                  Resident Login
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/official/login">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Official Login
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
