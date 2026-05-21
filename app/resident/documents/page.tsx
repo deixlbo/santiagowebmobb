@@ -328,6 +328,12 @@ export default function DocumentsPage() {
               </>
             )}
           </div>
+          {selectedType && requirements.some(r => r.status === "empty") && (
+            <div className="p-3 bg-amber-50 rounded-lg flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 text-amber-700" />
+              <span className="text-sm text-amber-700">Please upload all required documents before submitting your request</span>
+            </div>
+          )}
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
@@ -349,6 +355,7 @@ export default function DocumentsPage() {
                 setExpandedRequirement(null)
               }} 
               disabled={!selectedType || requirements.some(r => r.status === "empty")}
+              title={requirements.some(r => r.status === "empty") ? "Please upload all required documents before submitting" : ""}
               className="w-full sm:w-auto"
             >
               Submit Request

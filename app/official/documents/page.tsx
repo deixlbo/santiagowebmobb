@@ -23,7 +23,6 @@ import {
   Download,
   Printer,
   Settings,
-  Archive,
   Plus,
   Trash2,
   Edit2
@@ -82,12 +81,6 @@ const mockRequests = [
   },
 ]
 
-const archivedDocuments = [
-  { id: "ARC-001", type: "Barangay Clearance", requester: "Juan Dela Cruz", releaseDate: "April 15, 2026" },
-  { id: "ARC-002", type: "Business Clearance", requester: "Maria Santos", releaseDate: "April 10, 2026" },
-  { id: "ARC-003", type: "Certificate of Residency", requester: "Pedro Reyes", releaseDate: "April 5, 2026" },
-]
-
 const defaultDocumentTypes = [
   { id: "1", name: "Barangay Clearance", requirements: "Valid ID, Proof of Residency", fee: "50" },
   { id: "2", name: "Certificate of Residency", requirements: "Proof of Address, Valid ID", fee: "30" },
@@ -124,7 +117,7 @@ function getStatusBadge(status: string) {
     case "released":
       return (
         <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] md:text-xs">
-          <Archive className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
+          <CheckCircle2 className="mr-0.5 md:mr-1 h-2.5 w-2.5 md:h-3 md:w-3" />
           <span className="hidden sm:inline">Released</span>
           <span className="sm:hidden">Done</span>
         </Badge>
@@ -164,7 +157,7 @@ export default function OfficialDocumentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null)
   const [showApproveDialog, setShowApproveDialog] = useState(false)
-  const [showArchive, setShowArchive] = useState(false)
+  const [showExportDialog, setShowExportDialog] = useState(false)
   const [showManageTypes, setShowManageTypes] = useState(false)
   const [documentTypes, setDocumentTypes] = useState(defaultDocumentTypes)
   const [editingType, setEditingType] = useState<typeof defaultDocumentTypes[0] | null>(null)
@@ -173,6 +166,8 @@ export default function OfficialDocumentsPage() {
   const [newTypeFee, setNewTypeFee] = useState("")
   const [showPrintDocument, setShowPrintDocument] = useState(false)
   const [printRequest, setPrintRequest] = useState<typeof mockRequests[0] | null>(null)
+  const [exportDateFrom, setExportDateFrom] = useState("")
+  const [exportDateTo, setExportDateTo] = useState("")
 
   const pendingCount = mockRequests.filter(r => r.status === "pending").length
   const approvedCount = mockRequests.filter(r => r.status === "approved").length
@@ -191,9 +186,9 @@ export default function OfficialDocumentsPage() {
           <p className="text-xs md:text-sm text-muted-foreground">Process and manage document requests</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowArchive(true)}>
-            <Archive className="h-3 w-3 md:mr-2" />
-            <span className="hidden md:inline">Archive</span>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowExportDialog(true)}>
+            <Download className="h-3 w-3 md:mr-2" />
+            <span className="hidden md:inline">Export Excel</span>
           </Button>
           <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setShowManageTypes(true)}>
             <Settings className="h-3 w-3 md:mr-2" />
@@ -234,7 +229,7 @@ export default function OfficialDocumentsPage() {
           <CardContent className="p-2 md:p-4">
             <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
               <div className="rounded-lg bg-blue-100 p-1.5 md:p-2">
-                <Archive className="h-4 w-4 md:h-5 md:w-5 text-blue-700" />
+                <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-blue-700" />
               </div>
               <div className="text-center md:text-left">
                 <p className="text-lg md:text-2xl font-bold">{releasedCount}</p>
@@ -520,48 +515,53 @@ export default function OfficialDocumentsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Archive Dialog */}
-      <Dialog open={showArchive} onOpenChange={setShowArchive}>
-        <DialogContent className="max-w-2xl mx-4 md:mx-auto bg-white">
+      {/* Export to Excel Dialog */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="max-w-md mx-4 md:mx-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-base md:text-lg">Document Archive</DialogTitle>
+            <DialogTitle className="text-base md:text-lg">Export Document Requests</DialogTitle>
             <DialogDescription className="text-xs md:text-sm">
-              View all released documents
+              Download all document requests as Excel file with separate sheets for each document type
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 md:space-y-4">
-            <div className="flex gap-2">
-              <Input placeholder="Search archive..." className="flex-1 h-8 md:h-10 text-sm" />
-              <Button variant="outline" size="sm" className="h-8 md:h-10 text-xs">
-                <Download className="h-3 w-3 md:mr-2" />
-                <span className="hidden md:inline">Export CSV</span>
-              </Button>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-xs md:text-sm">From Date</Label>
+              <Input 
+                type="date" 
+                value={exportDateFrom}
+                onChange={(e) => setExportDateFrom(e.target.value)}
+                className="h-8 md:h-10 text-sm"
+              />
             </div>
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs md:text-sm">ID</TableHead>
-                    <TableHead className="text-xs md:text-sm hidden sm:table-cell">Type</TableHead>
-                    <TableHead className="text-xs md:text-sm">Requester</TableHead>
-                    <TableHead className="text-xs md:text-sm hidden md:table-cell">Release Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {archivedDocuments.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">{doc.id}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden sm:table-cell">{doc.type}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4">{doc.requester}</TableCell>
-                      <TableCell className="text-xs md:text-sm py-2 md:py-4 hidden md:table-cell">{doc.releaseDate}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div>
+              <Label className="text-xs md:text-sm">To Date</Label>
+              <Input 
+                type="date" 
+                value={exportDateTo}
+                onChange={(e) => setExportDateTo(e.target.value)}
+                className="h-8 md:h-10 text-sm"
+              />
+            </div>
+            <div className="rounded-lg bg-muted p-3">
+              <p className="text-xs md:text-sm font-semibold mb-2">Excel sheets included:</p>
+              <ul className="text-xs space-y-1 text-muted-foreground">
+                <li>• Barangay Clearance</li>
+                <li>• Certificate of Residency</li>
+                <li>• Business Clearance</li>
+                <li>• Certificate of Indigency</li>
+              </ul>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setShowArchive(false)}>Close</Button>
+            <Button variant="outline" size="sm" onClick={() => setShowExportDialog(false)}>Cancel</Button>
+            <Button size="sm" onClick={() => {
+              // Export logic here
+              setShowExportDialog(false)
+            }}>
+              <Download className="h-3 w-3 mr-1" />
+              Export Excel
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
